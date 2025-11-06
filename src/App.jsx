@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import HomePage from "./pages/HomePage.jsx";
 import AppLayout from "./layouts/AppLayout.jsx";
@@ -9,6 +9,7 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import OnboardingPage from "./pages/OnboardingPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import HeadwearPage from "./pages/HeadwearPage.jsx";
+import AuthPage from "./pages/AuthPage.jsx";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/headwear" element={<HeadwearPage />} />
+          <Route path="/auth" element={<AuthPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

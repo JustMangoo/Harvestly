@@ -11,4 +11,5 @@
 
 h2 {
   font-size: var(--font-size-xl);
+  color: var(--color-dark-80);
 }
