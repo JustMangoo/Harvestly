@@ -41,16 +41,16 @@
   --border-width-lg: 4px;
 }
 
+a {
+  color: inherit;
+}
+
 .app-shell {
   max-width: 430px;
   margin: 0 auto;
   height: 100vh;
   position: relative;
   background-color: var(--color-light);
-}
-
-a {
-  color: inherit;
 }
 
 .app-shell nav {

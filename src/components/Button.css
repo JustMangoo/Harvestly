@@ -1,0 +1,94 @@
+.main-button {
+  --button-bg: var(--color-primary);
+  --button-fg: var(--color-light);
+  --button-border-color: transparent;
+  --button-gap: var(--spacing-sm);
+  --button-padding-y: var(--spacing-sm);
+  --button-padding-x: var(--spacing-lg);
+  --button-radius: var(--border-radius-base);
+  --button-shadow: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--button-gap);
+  padding: var(--button-padding-y) var(--button-padding-x);
+  border-radius: var(--button-radius);
+  border: var(--border-width-sm) solid var(--button-border-color);
+  background-color: var(--button-bg);
+  color: var(--button-fg);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 120ms ease, transform 120ms ease;
+  text-decoration: none;
+  user-select: none;
+}
+
+.main-button:disabled {
+  filter: grayscale(0.4);
+  cursor: not-allowed;
+}
+
+.main-button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.main-button.icon-only {
+  --button-gap: 0;
+  padding: calc(var(--button-padding-y) * 1.1);
+}
+
+.main-button[data-size="sm"] {
+  --button-padding-y: var(--spacing-xs);
+  --button-padding-x: var(--spacing-sm);
+  --button-gap: var(--spacing-xs);
+  --button-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+}
+
+.main-button[data-size="md"] {
+  --button-padding-y: var(--spacing-sm);
+  --button-padding-x: var(--spacing-base);
+  font-size: var(--font-size-base);
+}
+
+.main-button[data-size="lg"] {
+  --button-padding-y: var(--spacing-base);
+  --button-padding-x: var(--spacing-xl);
+  --button-radius: var(--border-radius-max);
+  font-size: var(--font-size-lg);
+}
+
+.main-button[data-variant="solid"] {
+  --button-bg: var(--color-primary);
+  --button-fg: var(--color-light);
+}
+
+.main-button[data-variant="secondary"] {
+  --button-bg: var(--color-secondary);
+  --button-fg: var(--color-dark);
+}
+
+.main-button[data-variant="accent"] {
+  --button-bg: var(--color-accent);
+  --button-fg: var(--color-light);
+}
+
+.main-button[data-variant="outline"] {
+  --button-bg: transparent;
+  --button-fg: var(--color-dark);
+  --button-border-color: currentColor;
+}
+
+.main-button[data-variant="ghost"] {
+  --button-bg: transparent;
+  --button-fg: inherit;
+  --button-border-color: transparent;
+}
+
+.main-button .icon-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
