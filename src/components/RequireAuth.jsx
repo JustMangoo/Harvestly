@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+
+const AuthSessionContext = createContext(null);
+
+export function useAuthSession() {
+  return useContext(AuthSessionContext);
+}
 
 export default function RequireAuth({ children }) {
   const [session, setSession] = useState(null);
@@ -30,10 +36,12 @@ export default function RequireAuth({ children }) {
     };
   }, []);
 
+  const contextValue = useMemo(() => ({ session }), [session]);
+
   if (checking) {
     return (
       <div className="auth-loading">
-        <p>Checking your session…</p>
+        <p>Checking your session...</p>
       </div>
     );
   }
@@ -42,9 +50,9 @@ export default function RequireAuth({ children }) {
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
 
-  if (children) {
-    return children;
-  }
-
-  return <Outlet />;
+  return (
+    <AuthSessionContext.Provider value={contextValue}>
+      {children ?? <Outlet />}
+    </AuthSessionContext.Provider>
+  );
 }

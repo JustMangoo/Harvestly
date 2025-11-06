@@ -11,6 +11,7 @@ import NotFoundPage from "./pages/NotFoundPage.jsx";
 import HeadwearPage from "./pages/HeadwearPage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
+import PlantsPage from "./pages/PlantsPage.jsx";
 
 function App() {
   return (
@@ -30,6 +31,14 @@ function App() {
             element={
               <RequireAuth>
                 <StorePage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/plants"
+            element={
+              <RequireAuth>
+                <PlantsPage />
               </RequireAuth>
             }
           />

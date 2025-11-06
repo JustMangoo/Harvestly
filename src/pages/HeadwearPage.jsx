@@ -7,7 +7,9 @@ export default function HeadwearPage() {
   return (
     <div className="headwear-page">
       <div className="headwear-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>←</button>
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          ←
+        </button>
         <div className="seed-count">
           <span>🌱</span> 199
         </div>

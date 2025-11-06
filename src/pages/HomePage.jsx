@@ -1,108 +1,39 @@
 import { Link } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
 import Button from "../components/Button.jsx";
-import { supabase } from "../lib/supabaseClient";
-import { listPlants } from "../services/plants";
+import { useAuthSession } from "../components/RequireAuth.jsx";
+
+function getFriendlyName(session) {
+  const metadataName = session?.user?.user_metadata?.name;
+  if (metadataName) return metadataName;
+  const email = session?.user?.email;
+  if (email) return email.split("@")[0];
+  return "grower";
+}
 
 export default function HomePage() {
-  const [session, setSession] = useState(null);
-  const [signOutLoading, setSignOutLoading] = useState(false);
-  const [signOutError, setSignOutError] = useState(null);
-  const [plants, setPlants] = useState([]);
-  const [plantsLoading, setPlantsLoading] = useState(false);
-  const [plantsError, setPlantsError] = useState(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (!isMounted) return;
-      setSession(data.session ?? null);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession ?? null);
-    });
-
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  useEffect(() => {
-    let abort = false;
-    const userId = session?.user?.id;
-
-    if (!session || !userId) {
-      setPlants([]);
-      setPlantsError(null);
-      return;
-    }
-
-    setPlantsLoading(true);
-    setPlantsError(null);
-
-    listPlants(userId)
-      .then((items) => {
-        if (!abort) setPlants(items);
-      })
-      .catch((error) => {
-        if (!abort) setPlantsError(error.message);
-      })
-      .finally(() => {
-        if (!abort) setPlantsLoading(false);
-      });
-
-    return () => {
-      abort = true;
-    };
-  }, [session]);
-
-  const hasPlants = useMemo(() => plants.length > 0, [plants]);
+  const { session } = useAuthSession();
+  const friendlyName = getFriendlyName(session);
 
   return (
     <div className="home-page">
-      <h2>Welcome to Harvestly</h2>
-      <p>Your go-to app for managing your harvests efficiently.</p>
+      <h2>Welcome back, {friendlyName}!</h2>
+      <p>
+        Track your plants, stay ahead of care tasks, and keep your harvest on
+        schedule.
+      </p>
 
-      {session && (
-        <section className="plants-section">
-          <div className="plants-header">
-            <h3>Your plants</h3>
-          </div>
-          {plantsLoading && <p>Loading plants...</p>}
-          {plantsError && <p className="error-message">{plantsError}</p>}
-          {!plantsLoading && !plantsError && !hasPlants && (
-            <p>You haven&apos;t added any plants yet.</p>
-          )}
-          {!plantsLoading && !plantsError && hasPlants && (
-            <ul className="plant-list">
-              {plants.map((plant) => (
-                <li key={plant.id} className="plant-card">
-                  <h4>{plant.nickname}</h4>
-                  {plant.official_name && (
-                    <p className="plant-official">{plant.official_name}</p>
-                  )}
-                  {plant.sun_level && (
-                    <p className="plant-detail">
-                      <strong>Sun:</strong> {plant.sun_level}
-                    </p>
-                  )}
-                  {plant.difficulty && (
-                    <p className="plant-detail">
-                      <strong>Difficulty:</strong> {plant.difficulty}
-                    </p>
-                  )}
-                  {plant.notes && <p className="plant-notes">{plant.notes}</p>}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
+      <div className="home-actions">
+        <Link to="/plants">
+          <Button
+            icon="local_florist"
+            text="View your plants"
+            variant="solid"
+          />
+        </Link>
+        <Link to="/calendar">
+          <Button variant="secondary" icon="event" text="Open calendar" />
+        </Link>
+      </div>
     </div>
   );
 }
