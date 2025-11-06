@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
-import HomePage from "./pages/HomePage.jsx";
 import AppLayout from "./layouts/AppLayout.jsx";
+import HomePage from "./pages/HomePage.jsx";
 import StorePage from "./pages/StorePage.jsx";
 import CalendarPage from "./pages/CalendarPage.jsx";
 import ForumPage from "./pages/ForumPage.jsx";
@@ -10,17 +10,53 @@ import OnboardingPage from "./pages/OnboardingPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import HeadwearPage from "./pages/HeadwearPage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
+import RequireAuth from "./components/RequireAuth.jsx";
 
 function App() {
   return (
     <div className="app-shell">
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/store" element={<StorePage />} />
-          <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/forum" element={<ForumPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route
+            path="/"
+            element={
+              <RequireAuth>
+                <HomePage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/store"
+            element={
+              <RequireAuth>
+                <StorePage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <RequireAuth>
+                <CalendarPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/forum"
+            element={
+              <RequireAuth>
+                <ForumPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <RequireAuth>
+                <ProfilePage />
+              </RequireAuth>
+            }
+          />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/headwear" element={<HeadwearPage />} />
           <Route path="/auth" element={<AuthPage />} />

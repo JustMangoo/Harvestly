@@ -61,19 +61,6 @@ export default function HomePage() {
     };
   }, [session]);
 
-  const handleLogout = async () => {
-    setSignOutLoading(true);
-    setSignOutError(null);
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-    } catch (error) {
-      setSignOutError(error.message);
-    } finally {
-      setSignOutLoading(false);
-    }
-  };
-
   const hasPlants = useMemo(() => plants.length > 0, [plants]);
 
   return (
@@ -81,26 +68,9 @@ export default function HomePage() {
       <h2>Welcome to Harvestly</h2>
       <p>Your go-to app for managing your harvests efficiently.</p>
 
-      {!session && (
-        <section className="auth-cta">
-          <p>Sign in to start tracking your plants.</p>
-          <Link to="/auth">
-            <Button icon="login" text="Go to Auth" />
-          </Link>
-        </section>
-      )}
-
       {session && (
         <section className="plants-section">
           <div className="plants-header">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleLogout}
-              disabled={signOutLoading}
-              icon="logout"
-              text={signOutLoading ? "Signing out..." : "Sign Out"}
-            />
             <h3>Your plants</h3>
           </div>
           {plantsLoading && <p>Loading plants...</p>}
@@ -130,9 +100,6 @@ export default function HomePage() {
                 </li>
               ))}
             </ul>
-          )}
-          {signOutError && (
-            <p className="error-message">Sign out failed: {signOutError}</p>
           )}
         </section>
       )}
