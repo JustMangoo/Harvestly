@@ -8,6 +8,7 @@ import ForumPage from "./pages/ForumPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import OnboardingPage from "./pages/OnboardingPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
+import HeadwearPage from "./pages/HeadwearPage.jsx";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/forum" element={<ForumPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/headwear" element={<HeadwearPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

@@ -1,0 +1,83 @@
+.headwear-page {
+  padding: var(--spacing-base);
+  font-family: var(--font-family-body);
+  background: var(--color-light);
+  color: var(--color-dark);
+}
+
+/* ✅ Top Bar */
+.hw-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-base);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.seed-count {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-weight: 600;
+}
+
+/* ✅ Title Banner */
+.hw-title {
+  margin-top: var(--spacing-lg);
+  background: var(--color-secondary);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-base);
+  text-align: center;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+/* ✅ Grid of Items */
+.hw-grid {
+  margin-top: var(--spacing-lg);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-base);
+}
+
+.hw-item {
+  background: var(--color-light);
+  border: var(--border-width-sm) solid var(--color-secondary-50);
+  border-radius: var(--border-radius-base);
+  padding: var(--spacing-sm);
+  text-align: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hw-item:active {
+  opacity: 0.9;
+}
+
+.image-placeholder {
+  width: 48px;
+  height: 48px;
+  background: var(--color-secondary-50);
+  border-radius: var(--border-radius-sm);
+  margin: 0 auto var(--spacing-sm);
+}
+
+.item-name {
+  font-size: var(--font-size-sm);
+  color: var(--color-dark-80);
+}
+
+.price {
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-accent);
+}
