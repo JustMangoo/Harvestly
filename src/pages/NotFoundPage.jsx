@@ -1,5 +1,5 @@
 import WiltedFlower from "../assets/WiltedPlant.svg";
-import IconElement from "../components/IconElement.jsx";
+import { Link } from "react-router-dom";
 import "./NotFoundPage.css";
 import Button from "../components/Button.jsx";
 
@@ -9,16 +9,9 @@ export default function NotFoundPage() {
       <h1>404</h1>
       <h2>Page not found :&#40;</h2>
       <img src={WiltedFlower} alt="Wilted plant" />
-      <IconElement icon="home" size={24} filled={false} />
-      <Button variant="secondary" size="lg" icon="eco" text="Plant" />
-      <Button
-        variant="outline"
-        size="sm"
-        icon="favorite"
-        iconFilled={false}
-        text="0"
-      />
-      <Button size="md" icon="share" hideText aria-label="Share" />
+      <Link to="/">
+        <Button size="lg" text="Return to Main Page" aria-label="Share" />
+      </Link>
     </div>
   );
 }

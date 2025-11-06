@@ -5,7 +5,7 @@
   --button-gap: var(--spacing-sm);
   --button-padding-y: var(--spacing-sm);
   --button-padding-x: var(--spacing-lg);
-  --button-radius: var(--border-radius-base);
+  --button-radius: var(--border-radius-max);
   --button-shadow: none;
 
   display: inline-flex;
@@ -56,7 +56,6 @@
 .main-button[data-size="lg"] {
   --button-padding-y: var(--spacing-base);
   --button-padding-x: var(--spacing-xl);
-  --button-radius: var(--border-radius-max);
   font-size: var(--font-size-lg);
 }
 

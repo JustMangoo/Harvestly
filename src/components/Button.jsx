@@ -10,7 +10,6 @@ const SIZE_ICON_MAP = {
 const DEFAULT_ICON_SIZE = 20;
 
 export default function Button({
-  as = "button",
   variant = "solid",
   size = "md",
   icon,
@@ -23,21 +22,19 @@ export default function Button({
   className = "",
   ...rest
 }) {
-  const Component = as;
   const resolvedText = typeof text === "string" ? text : children;
   const showIcon = Boolean(icon);
   const hasText = !hideText && Boolean(resolvedText);
   const iconOnly = showIcon && !hasText;
 
-  const computedIconSize =
-    iconSize ?? SIZE_ICON_MAP[size] ?? DEFAULT_ICON_SIZE;
+  const computedIconSize = iconSize ?? SIZE_ICON_MAP[size] ?? DEFAULT_ICON_SIZE;
 
   const elementClassNames = ["main-button"];
   if (iconOnly) elementClassNames.push("icon-only");
   if (className) elementClassNames.push(className);
 
   return (
-    <Component
+    <button
       className={elementClassNames.join(" ")}
       data-variant={variant}
       data-size={size}
@@ -45,15 +42,23 @@ export default function Button({
     >
       {showIcon && iconPosition === "leading" && (
         <span className="icon-slot" aria-hidden="true">
-          <IconElement icon={icon} size={computedIconSize} filled={iconFilled} />
+          <IconElement
+            icon={icon}
+            size={computedIconSize}
+            filled={iconFilled}
+          />
         </span>
       )}
       {hasText && <span className="text-slot">{resolvedText}</span>}
       {showIcon && iconPosition === "trailing" && (
         <span className="icon-slot" aria-hidden="true">
-          <IconElement icon={icon} size={computedIconSize} filled={iconFilled} />
+          <IconElement
+            icon={icon}
+            size={computedIconSize}
+            filled={iconFilled}
+          />
         </span>
       )}
-    </Component>
+    </button>
   );
 }
