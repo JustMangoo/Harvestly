@@ -1,31 +1,34 @@
 import "./HeadwearPage.css";
-import { useNavigate } from "react-router-dom";
+import hat1 from "../assets/Hat.svg";
 
-export default function HeadwearPage() {
-  const navigate = useNavigate();
+export default function HeadwearPage({ setSelectedItem, goldSeedImg }) {
+  const headwearItems = [
+    { name: "Explorer Hat", price: 99, img: hat1 },
+    { name: "Summer Cap", price: 120, img: hat1 },
+    { name: "Winter Beanie", price: 150, img: hat1 },
+    { name: "Wizard Hat", price: 200, img: hat1 },
+    { name: "Party Crown", price: 250, img: hat1 },
+    { name: "Bucket Hat", price: 180, img: hat1 },
+  ];
 
   return (
-    <div className="headwear-page">
-      <div className="headwear-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          ←
-        </button>
-        <div className="seed-count">
-          <span>🌱</span> 199
-        </div>
-      </div>
-
+    <div className="headwear-branch">
       <h2 className="section-title">Headwear</h2>
-
       <div className="items-grid">
-        {/* Temporary demo */}
-        {[...Array(9)].map((_, i) => (
-          <div key={i} className="item-card">
-            <div className="img-placeholder"></div>
-            <p className="item-title">Text Here</p>
-            <p className="item-price">
-              🌱 <span>99</span>
-            </p>
+        {headwearItems.map((item, i) => (
+          <div
+            key={i}
+            className="item-card"
+            onClick={() => setSelectedItem(item)}
+          >
+            <div className="img-placeholder">
+              <img src={item.img} alt={item.name} />
+            </div>
+            <p className="item-title">{item.name}</p>
+            <div className="item-price">
+              <img src={goldSeedImg} alt="Seed" className="seed-icon inline-seed" />
+              <span>{item.price}</span>
+            </div>
           </div>
         ))}
       </div>
