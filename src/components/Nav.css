@@ -13,10 +13,14 @@ nav {
     justify-content: space-between;
     flex-direction: row;
     padding: var(--spacing-base) var(--spacing-lg);
+    color: var(--color-gray);
   }
+}
 
-  svg {
-    height: 44px;
-    width: 44px;
-  }
+.nav-icon.active {
+  color: var(--color-primary);
+}
+
+nav a.active {
+  color: var(--color-primary);
 }

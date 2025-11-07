@@ -14,7 +14,7 @@
   gap: var(--button-gap);
   padding: var(--button-padding-y) var(--button-padding-x);
   border-radius: var(--button-radius);
-  border: var(--border-width-sm) solid var(--button-border-color);
+  border: var(--border-width-md) solid var(--button-border-color);
   background-color: var(--button-bg);
   color: var(--button-fg);
   font: inherit;
@@ -65,7 +65,7 @@
 }
 
 .main-button[data-variant="secondary"] {
-  --button-bg: var(--color-secondary);
+  --button-bg: var(--color-light);
   --button-fg: var(--color-dark);
 }
 
@@ -77,7 +77,7 @@
 .main-button[data-variant="outline"] {
   --button-bg: transparent;
   --button-fg: var(--color-dark);
-  --button-border-color: currentColor;
+  --button-border-color: var(--color-secondary);
 }
 
 .main-button[data-variant="ghost"] {

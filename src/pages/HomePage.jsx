@@ -1,38 +1,35 @@
 import { Link } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import { useAuthSession } from "../components/RequireAuth.jsx";
-
-function getFriendlyName(session) {
-  const metadataName = session?.user?.user_metadata?.name;
-  if (metadataName) return metadataName;
-  const email = session?.user?.email;
-  if (email) return email.split("@")[0];
-  return "grower";
-}
+import ToggleGroup from "../components/ToggleGroup.jsx";
 
 export default function HomePage() {
   const { session } = useAuthSession();
-  const friendlyName = getFriendlyName(session);
 
   return (
     <div className="home-page">
-      <h2>Welcome back, {friendlyName}!</h2>
+      <h2>Welcome back!</h2>
       <p>
         Track your plants, stay ahead of care tasks, and keep your harvest on
         schedule.
       </p>
-
+      <Link to="/calendar">
+        <Button variant="secondary" icon="event" text="Open calendar" />
+      </Link>
       <div className="home-actions">
         <Link to="/plants">
-          <Button
-            icon="local_florist"
-            text="View your plants"
-            variant="solid"
-          />
+          <Button icon="Psychiatry" text="My plants" variant="outline" />
         </Link>
-        <Link to="/calendar">
-          <Button variant="secondary" icon="event" text="Open calendar" />
+        <Link to="/plants">
+          <Button icon="Psychiatry" text="My plants" variant="secondary" />
         </Link>
+        <ToggleGroup
+          options={[
+            { label: "Fences", value: "fences" },
+            { label: "Small items", value: "small" },
+            { label: "Big items", value: "big" },
+          ]}
+        />
       </div>
     </div>
   );
