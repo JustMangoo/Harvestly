@@ -444,15 +444,15 @@ export default function ProfilePage() {
               </p>
               <div className="post-actions">
                 <button className="post-action-button">
-                  <IconElement icon="like" size={14} />
+                  <IconElement icon="favorite" size={14} filled={false} />
                   <span>0</span>
                 </button>
                 <button className="post-action-button">
-                  <IconElement icon="comment" size={14} />
+                  <IconElement icon="comment" size={14} filled={false} />
                   <span>0</span>
                 </button>
                 <button className="post-action-button">
-                  <IconElement icon="share" size={14} />
+                  <IconElement icon="share" size={14} filled={false} />
                   <span>Share</span>
                 </button>
               </div>
