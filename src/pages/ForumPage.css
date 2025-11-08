@@ -128,10 +128,50 @@
 .post-text { color:var(--color-dark-60); font-size:var(--font-size-base); margin:0; white-space:pre-wrap; line-height:1.45; }
 
 /* Actions */
-.post-actions { display:flex; gap:var(--spacing-sm); margin-top:8px; }
+.post-actions { display: flex; gap: var(--spacing-sm); margin-top: 8px; }
 .post-action { display:inline-flex; align-items:center; gap:8px; background:transparent; border:none; color:var(--color-dark-60); cursor:pointer; padding:8px 10px; border-radius:10px; font-size:var(--font-size-sm); transition: background 120ms ease, color 120ms ease, transform 120ms ease; }
 .post-action:hover { background:var(--color-secondary-50); color:var(--color-dark); transform: translateY(-2px); }
 .post-action .icon-element { opacity:0.92; }
+
+/* style adjustment so Button outline variant matches previous post-action look */
+.post-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: 8px;
+}
+
+.post-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  /* rely on Button's outline variant for border/background, but ensure neutral colors */
+  color: var(--color-dark-60);
+  background: transparent;
+  transition: background 120ms ease, transform 120ms ease, color 120ms ease;
+}
+
+/* hover state consistent with previous look */
+.post-action-btn:hover {
+  background: var(--color-secondary-50);
+  color: var(--color-dark);
+  transform: translateY(-2px);
+}
+
+/* if Button renders an inner icon element */
+.post-action-btn .icon-element {
+  opacity: 0.95;
+  flex-shrink: 0;
+}
+
+/* keep count text slightly subdued */
+.post-action-btn span {
+  color: inherit;
+  font-size: 0.92em;
+}
 
 /* Floating add button (matches green FAB in design) */
 .floating-add {
