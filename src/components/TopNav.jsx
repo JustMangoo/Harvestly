@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import IconElement from "./IconElement";
 import Button from "./Button";
 import "./TopNav.css";
+import { supabase } from "../lib/supabaseClient";
 
 export default function TopNav({
   showBackButton = true,
@@ -43,6 +44,18 @@ export default function TopNav({
   const handleSave = () => {
     if (onSaveEdit) {
       onSaveEdit();
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setIsSettingsOpen(false);
+      navigate("/auth");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      alert("Failed to log out. Please try again.");
     }
   };
 
@@ -118,7 +131,7 @@ export default function TopNav({
                   <IconElement icon="settings" size={18} filled={true} />
                 </button>
                 <div className="settings-divider" />
-                <button className="settings-menu-item">
+                <button className="settings-menu-item" onClick={handleLogout}>
                   <span>Log Out</span>
                   <IconElement icon="logout" size={18} filled={true} />
                 </button>
