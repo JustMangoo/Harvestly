@@ -2,26 +2,30 @@ import { Link } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import { useAuthSession } from "../components/RequireAuth.jsx";
 import ToggleGroup from "../components/ToggleGroup.jsx";
+import MainGarden from "../assets/Main-garden.png";
+import "./HomePage.css";
 
 export default function HomePage() {
   const { session } = useAuthSession();
 
   return (
     <div className="home-page">
-      <h2>Welcome back!</h2>
-      <p>
-        Track your plants, stay ahead of care tasks, and keep your harvest on
-        schedule.
-      </p>
       <Link to="/calendar">
         <Button variant="secondary" icon="event" text="Open calendar" />
       </Link>
+
+      <img
+        className="main-garden"
+        src={MainGarden}
+        alt="the main digital garden"
+      />
+
       <div className="home-actions">
         <Link to="/plants">
-          <Button icon="Psychiatry" text="My plants" variant="outline" />
+          <Button icon="Psychiatry" text="My plants" variant="secondary" />
         </Link>
         <Link to="/plants">
-          <Button icon="Psychiatry" text="My plants" variant="secondary" />
+          <Button icon="format_paint" variant="secondary" />
         </Link>
       </div>
       <ToggleGroup
