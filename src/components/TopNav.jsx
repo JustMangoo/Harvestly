@@ -105,22 +105,22 @@ export default function TopNav({
                   onClick={handleEditProfile}
                 >
                   <span>Edit profile</span>
-                  <IconElement icon="edit" size={18} filled={false} />
+                  <IconElement icon="edit" size={18} filled={true} />
                 </button>
                 <div className="settings-divider" />
                 <button className="settings-menu-item">
                   <span>Edit character</span>
-                  <IconElement icon="face" size={18} filled={false} />
+                  <IconElement icon="face" size={18} filled={true} />
                 </button>
                 <div className="settings-divider" />
                 <button className="settings-menu-item">
                   <span>Preferences</span>
-                  <IconElement icon="settings" size={18} filled={false} />
+                  <IconElement icon="settings" size={18} filled={true} />
                 </button>
                 <div className="settings-divider" />
                 <button className="settings-menu-item">
                   <span>Log Out</span>
-                  <IconElement icon="logout" size={18} filled={false} />
+                  <IconElement icon="logout" size={18} filled={true} />
                 </button>
               </div>
             </div>

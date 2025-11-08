@@ -61,6 +61,7 @@ export default function ProfilePage() {
   const [dragStartY, setDragStartY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [hasDragged, setHasDragged] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
 
   // Gallery images - all local images with descriptive names
   const galleryImages = [
@@ -226,6 +227,11 @@ export default function ProfilePage() {
     };
   }, [isDragging, dragStartY, isGalleryExpanded]);
 
+  const handleSelectImage = (imageUrl) => {
+    setProfilePicture(imageUrl);
+    handleCloseGallery();
+  };
+
   const handleCamera = () => {
     console.log("Open camera");
     setIsAvatarMenuOpen(false);
@@ -255,7 +261,15 @@ export default function ProfilePage() {
             disabled={!isEditMode}
           >
             {isEditMode && <div className="avatar-overlay" />}
-            <IconElement icon="image" size={44} filled={false} />
+            {profilePicture ? (
+              <img
+                src={profilePicture}
+                alt="Profile"
+                className="avatar-image"
+              />
+            ) : (
+              <IconElement icon="image" size={44} filled={false} />
+            )}
             {isEditMode && (
               <div className="avatar-edit-button">
                 <IconElement icon="edit" size={18} filled={true} />
@@ -450,10 +464,7 @@ export default function ProfilePage() {
                     <button
                       key={i}
                       className="gallery-image-button"
-                      onClick={() => {
-                        console.log(`Selected image ${i + 1}:`, imageUrl);
-                        handleCloseGallery();
-                      }}
+                      onClick={() => handleSelectImage(imageUrl)}
                     >
                       <img
                         src={imageUrl}
