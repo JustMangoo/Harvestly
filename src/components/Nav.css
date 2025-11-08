@@ -3,9 +3,12 @@ nav {
   margin: 0 auto;
   position: fixed;
   bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   width: 100%;
   background-color: var(--color-light);
+  z-index: 100;
 
   ul {
     display: flex;

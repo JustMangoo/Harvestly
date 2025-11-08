@@ -34,20 +34,18 @@ function buildIndicators(plant) {
     ];
   }
 
-  return activeIndicators.slice(0, INDICATOR_COLORS.length).map((field, idx) => ({
-    key: field.key,
-    label: `${field.label}: ${field.value}`,
-    color: INDICATOR_COLORS[idx],
-  }));
+  return activeIndicators
+    .slice(0, INDICATOR_COLORS.length)
+    .map((field, idx) => ({
+      key: field.key,
+      label: `${field.label}: ${field.value}`,
+      color: INDICATOR_COLORS[idx],
+    }));
 }
 
 function resolvePlantImageSrc(plant) {
   return (
-    plant?.image_url ||
-    plant?.photo_url ||
-    plant?.photo ||
-    plant?.image ||
-    null
+    plant?.image_url || plant?.photo_url || plant?.photo || plant?.image || null
   );
 }
 
