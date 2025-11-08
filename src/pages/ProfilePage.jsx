@@ -37,42 +37,26 @@ export default function ProfilePage() {
       <div className="profile-container">
         <div className="profile-info">
           <div className="profile-avatar">
-            {isAuthenticated ? (
-              <>
-                <div className="profile-avatar-placeholder" />
-                <button className="profile-avatar-edit">
-                  <IconElement icon="edit" size={18} />
-                </button>
-              </>
-            ) : (
-              <IconElement icon="account" size={44} />
-            )}
+            <IconElement icon="image" size={44} filled={false} />
           </div>
 
-          <div className="profile-stats">
-            <div className="profile-header">
-              <h2 className="profile-username">
-                {isAuthenticated ? "User039928" : "Username"}
-              </h2>
-              {isAuthenticated && (
-                <button className="profile-edit-button">
-                  <IconElement icon="edit" size={18} />
-                </button>
-              )}
-            </div>
-            <p className="profile-location">Aarhus, Denmark</p>
-            {isAuthenticated && (
-              <div className="profile-numbers">
-                <div className="profile-stat">
-                  <span className="profile-stat-number">1</span>
-                  <span className="profile-stat-label">Posts</span>
-                </div>
-                <div className="profile-stat">
-                  <span className="profile-stat-number">15</span>
-                  <span className="profile-stat-label">Followers</span>
-                </div>
+          <div className="profile-user-stats">
+            <div className="profile-user-details">
+              <div className="profile-header">
+                <h2 className="profile-username">User039928</h2>
               </div>
-            )}
+              <p className="profile-location">Aarhus, Denmark</p>
+            </div>
+            <div className="profile-stats-container">
+              <div className="profile-stat">
+                <span className="profile-stat-number">1</span>
+                <span className="profile-stat-label">Posts</span>
+              </div>
+              <div className="profile-stat">
+                <span className="profile-stat-number">15</span>
+                <span className="profile-stat-label">Followers</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -142,21 +126,6 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-
-        {isAuthenticated && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleLogout}
-            disabled={signOutLoading}
-            icon="logout"
-            text={signOutLoading ? "Signing out..." : "Sign Out"}
-          />
-        )}
-
-        {signOutError && (
-          <p className="error-message">Sign out failed: {signOutError}</p>
-        )}
       </div>
     </div>
   );
