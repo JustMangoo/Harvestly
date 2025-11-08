@@ -2,13 +2,13 @@
   position: relative;
   background-color: var(--color-light);
   min-height: 100vh;
-  padding-top: 98px;
+  padding-top: 70px;
   overflow: hidden;
 }
 
 .profile-background {
   position: absolute;
-  top: -65px;
+  top: -106px;
   left: 50%;
   transform: translateX(-50%);
   width: 591px;
@@ -216,6 +216,7 @@
   border-radius: 12px;
   padding: 0;
   background-color: var(--color-light);
+  justify-content: space-evenly;
 }
 
 .action-button {
@@ -223,8 +224,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) 32px;
+  padding: var(--spacing-sm);
   border: none;
   background: none;
   cursor: pointer;
@@ -323,4 +325,261 @@
   background-color: var(--color-light);
   font-size: 14px;
   color: var(--color-dark);
+}
+
+/* Avatar menu styles - reusing settings overlay pattern */
+.profile-page .settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.profile-page .settings-menu {
+  background-color: var(--color-light);
+  border-radius: var(--border-radius-base) var(--border-radius-base) 0 0;
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 0;
+  transform: translateY(100%);
+  animation: slideUp 0.3s ease-out forwards;
+  overflow: hidden;
+}
+
+.profile-page .settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-base);
+  background-color: var(--color-light);
+}
+
+.profile-page .settings-dots-button {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: default;
+  color: var(--color-dark);
+}
+
+.profile-page .settings-header h3 {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-base);
+  font-weight: normal;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+.profile-page .close-button {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-dark);
+}
+
+.profile-page .settings-content {
+  padding: 0 var(--spacing-base) var(--spacing-base);
+}
+
+.profile-page .settings-menu-items {
+  background-color: var(--color-secondary-50);
+  border-radius: var(--border-radius-base);
+  overflow: hidden;
+}
+
+.profile-page .settings-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-base);
+  font-weight: normal;
+  color: var(--color-dark);
+  text-align: left;
+}
+
+.profile-page .settings-menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.profile-page .settings-divider {
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.25);
+  margin: 0 var(--spacing-base);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Gallery safe zone - prevents accidental closes */
+.gallery-safe-zone {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 40px 20px 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Gallery menu styles */
+.gallery-menu {
+  background-color: var(--color-light);
+  border-radius: var(--border-radius-base) var(--border-radius-base) 0 0;
+  width: 100%;
+  padding: 0;
+  transform: translateY(100%);
+  animation: slideUp 0.3s ease-out forwards;
+  overflow: hidden;
+  transition: height 0.3s ease-out;
+  user-select: none;
+}
+
+.gallery-menu.collapsed {
+  height: 253px;
+}
+
+.gallery-menu.expanded {
+  height: 800px;
+}
+
+.gallery-drag-area {
+  width: 100%;
+  padding: 8px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  touch-action: none;
+}
+
+.gallery-drag-area:active {
+  cursor: grabbing;
+}
+
+.gallery-drag-indicator {
+  width: 36px;
+  height: 5px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 100px;
+}
+
+.gallery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-base);
+  background-color: var(--color-light);
+  height: 51px;
+}
+
+.gallery-header:active {
+  cursor: default;
+}
+
+.gallery-category {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-base);
+  font-weight: normal;
+  color: var(--color-dark);
+  padding: 0;
+  pointer-events: none;
+}
+
+.gallery-content {
+  padding: 0;
+  overflow-y: auto;
+  height: calc(100% - 51px - 21px);
+}
+
+.gallery-content:active {
+  cursor: default;
+}
+
+.gallery-menu.collapsed .gallery-content {
+  height: 173px;
+  overflow: hidden;
+}
+
+.gallery-menu.expanded .gallery-content {
+  height: calc(800px - 51px);
+  overflow-y: auto;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 16px;
+}
+
+.gallery-image-button {
+  aspect-ratio: 1;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  overflow: hidden;
+  background: none;
+  position: relative;
+}
+
+.gallery-image-button:hover {
+  opacity: 0.8;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+}
+
+.gallery-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
 }
