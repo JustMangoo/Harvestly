@@ -23,14 +23,14 @@ export default function HomePage() {
         <Link to="/plants">
           <Button icon="Psychiatry" text="My plants" variant="secondary" />
         </Link>
-        <ToggleGroup
-          options={[
-            { label: "Fences", value: "fences" },
-            { label: "Small items", value: "small" },
-            { label: "Big items", value: "big" },
-          ]}
-        />
       </div>
+      <ToggleGroup
+        options={[
+          { label: "Fences", value: "fences" },
+          { label: "Small items", value: "small" },
+          { label: "Big items", value: "big" },
+        ]}
+      />
     </div>
   );
 }
