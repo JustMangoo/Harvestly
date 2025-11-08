@@ -4,7 +4,14 @@ import IconElement from "./IconElement";
 import Button from "./Button";
 import "./TopNav.css";
 
-export default function TopNav({ showBackButton = true, title = "" }) {
+export default function TopNav({
+  showBackButton = true,
+  title = "",
+  onEditProfile,
+  isEditMode = false,
+  onCancelEdit,
+  onSaveEdit,
+}) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -20,20 +27,62 @@ export default function TopNav({ showBackButton = true, title = "" }) {
     setIsSettingsOpen(false);
   };
 
+  const handleEditProfile = () => {
+    setIsSettingsOpen(false);
+    if (onEditProfile) {
+      onEditProfile();
+    }
+  };
+
+  const handleCancel = () => {
+    if (onCancelEdit) {
+      onCancelEdit();
+    }
+  };
+
+  const handleSave = () => {
+    if (onSaveEdit) {
+      onSaveEdit();
+    }
+  };
+
   return (
     <>
       <div className="top-nav">
         <div className="top-nav-background" />
         <div className="top-nav-content">
-          {showBackButton && (
-            <button className="nav-button back-button" onClick={handleBack}>
-              <IconElement icon="arrow_forward_ios" size={24} filled={false} />
-            </button>
+          {isEditMode ? (
+            <>
+              <button
+                className="edit-nav-button cancel-button"
+                onClick={handleCancel}
+              >
+                Cancel
+              </button>
+              <Button
+                text="Save"
+                variant="solid"
+                size="md"
+                onClick={handleSave}
+              />
+            </>
+          ) : (
+            <>
+              {showBackButton && (
+                <button className="nav-button back-button" onClick={handleBack}>
+                  <IconElement
+                    icon="arrow_forward_ios"
+                    size={24}
+                    filled={false}
+                  />
+                </button>
+              )}
+              <h2 className="nav-title">{title}</h2>
+              <button className="nav-button" onClick={handleToggleSettings}>
+                <IconElement icon="more_vert" size={24} filled={false} />
+              </button>
+            </>
           )}
-          <h2 className="nav-title">{title}</h2>
-          <button className="nav-button" onClick={handleToggleSettings}>
-            <IconElement icon="more_vert" size={24} filled={false} />
-          </button>
         </div>
       </div>
 
@@ -51,7 +100,10 @@ export default function TopNav({ showBackButton = true, title = "" }) {
             </div>
             <div className="settings-content">
               <div className="settings-menu-items">
-                <button className="settings-menu-item">
+                <button
+                  className="settings-menu-item"
+                  onClick={handleEditProfile}
+                >
                   <span>Edit profile</span>
                   <IconElement icon="edit" size={18} filled={false} />
                 </button>

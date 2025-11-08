@@ -52,6 +52,22 @@
   color: var(--color-dark);
 }
 
+.edit-nav-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-dark);
+  padding: 0;
+  line-height: normal;
+}
+
+.cancel-button {
+  text-align: left;
+}
+
 .settings-overlay {
   position: fixed;
   top: 0;

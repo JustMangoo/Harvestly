@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import IconElement from "../components/IconElement.jsx";
 import "./ProfilePage.css";
@@ -7,9 +7,12 @@ import { supabase } from "../lib/supabaseClient.js";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const { isEditMode, setIsEditMode } = useOutletContext();
   const [signOutLoading, setSignOutLoading] = useState(false);
   const [signOutError, setSignOutError] = useState(null);
   const [userData, setUserData] = useState(supabase.auth.getUser());
+  const [username, setUsername] = useState("User039928");
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
 
   const handleLogout = async () => {
     setSignOutLoading(true);
@@ -31,19 +34,67 @@ export default function ProfilePage() {
     navigate("/auth");
   };
 
+  const handleAvatarEdit = () => {
+    // Handle avatar edit
+    console.log("Edit avatar clicked");
+  };
+
+  const handleUsernameEdit = () => {
+    setIsEditingUsername(true);
+  };
+
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+  };
+
+  const handleUsernameBlur = () => {
+    setIsEditingUsername(false);
+  };
+
   return (
     <div className="profile-page">
       <div className="profile-background" />
       <div className="profile-container">
         <div className="profile-info">
-          <div className="profile-avatar">
+          <button
+            className={`profile-avatar ${isEditMode ? "edit-mode" : ""}`}
+            onClick={isEditMode ? handleAvatarEdit : undefined}
+            disabled={!isEditMode}
+          >
+            {isEditMode && <div className="avatar-overlay" />}
             <IconElement icon="image" size={44} filled={false} />
-          </div>
+            {isEditMode && (
+              <div className="avatar-edit-button">
+                <IconElement icon="edit" size={18} filled={true} />
+              </div>
+            )}
+          </button>
 
           <div className="profile-user-stats">
             <div className="profile-user-details">
               <div className="profile-header">
-                <h2 className="profile-username">User039928</h2>
+                {isEditingUsername ? (
+                  <input
+                    type="text"
+                    className="profile-username-input"
+                    value={username}
+                    onChange={handleUsernameChange}
+                    onBlur={handleUsernameBlur}
+                    autoFocus
+                  />
+                ) : isEditMode ? (
+                  <button
+                    className="profile-username-edit-area"
+                    onClick={handleUsernameEdit}
+                  >
+                    <h2 className="profile-username">{username}</h2>
+                    <div className="profile-edit-button">
+                      <IconElement icon="edit" size={18} filled={true} />
+                    </div>
+                  </button>
+                ) : (
+                  <h2 className="profile-username">{username}</h2>
+                )}
               </div>
               <p className="profile-location">Aarhus, Denmark</p>
             </div>
