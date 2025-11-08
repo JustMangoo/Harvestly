@@ -233,15 +233,40 @@ export default function ForumPage() {
                   </div>
                   <p className="post-text">{post.text}</p>
                   <div className="post-actions">
-                    <button className="post-action">
-                      <IconElement icon="thumb_up" size={16} filled={false} /> <span>{post.likes}</span>
-                    </button>
-                    <button className="post-action">
-                      <IconElement icon="chat_bubble" size={16} filled={false} /> <span>{post.comments}</span>
-                    </button>
-                    <button className="post-action">
-                      <IconElement icon="share" size={16} filled={false} />
-                    </button>
+                    <Button
+                      className="post-action-btn"
+                      icon="thumb_up"
+                      text={post.likes ? String(post.likes) : ""}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        // like handler (increment locally for demo)
+                        setPosts((s) => s.map(p => p.id === post.id ? { ...p, likes: p.likes + 1 } : p));
+                      }}
+                    />
+                    <Button
+                      className="post-action-btn"
+                      icon="chat_bubble"
+                      text={String(post.comments)}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        // open comments / focus composer (placeholder)
+                        const el = document.querySelector(".composer-input");
+                        if (el) el.focus();
+                      }}
+                    />
+                    <Button
+                      className="post-action-btn"
+                      icon="share"
+                      text={""}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        // share action (placeholder)
+                        navigator.share?.({ title: post.author, text: post.text }).catch(()=>{});
+                      }}
+                    />
                   </div>
                 </div>
               </article>
