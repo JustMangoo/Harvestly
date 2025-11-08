@@ -9,7 +9,8 @@
 .profile-background {
   position: absolute;
   top: -65px;
-  left: -100px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 591px;
   height: 257px;
   background-color: var(--color-secondary-50);

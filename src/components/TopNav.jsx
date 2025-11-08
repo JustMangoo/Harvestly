@@ -41,40 +41,36 @@ export default function TopNav({ showBackButton = true, title = "" }) {
         <div className="settings-overlay" onClick={handleCloseSettings}>
           <div className="settings-menu" onClick={(e) => e.stopPropagation()}>
             <div className="settings-header">
+              <button className="settings-dots-button">
+                <IconElement icon="more_vert" size={4} filled={true} />
+              </button>
               <h3>Settings</h3>
               <button className="close-button" onClick={handleCloseSettings}>
                 <IconElement icon="close" size={24} filled={false} />
               </button>
             </div>
             <div className="settings-content">
-              <Button
-                variant="ghost"
-                size="md"
-                icon="edit"
-                text="Edit Profile"
-                className="settings-button"
-              />
-              <Button
-                variant="ghost"
-                size="md"
-                icon="settings"
-                text="Account Settings"
-                className="settings-button"
-              />
-              <Button
-                variant="ghost"
-                size="md"
-                icon="help"
-                text="Help Center"
-                className="settings-button"
-              />
-              <Button
-                variant="ghost"
-                size="md"
-                icon="report"
-                text="Report a Problem"
-                className="settings-button"
-              />
+              <div className="settings-menu-items">
+                <button className="settings-menu-item">
+                  <span>Edit profile</span>
+                  <IconElement icon="edit" size={18} filled={false} />
+                </button>
+                <div className="settings-divider" />
+                <button className="settings-menu-item">
+                  <span>Edit character</span>
+                  <IconElement icon="face" size={18} filled={false} />
+                </button>
+                <div className="settings-divider" />
+                <button className="settings-menu-item">
+                  <span>Preferences</span>
+                  <IconElement icon="settings" size={18} filled={false} />
+                </button>
+                <div className="settings-divider" />
+                <button className="settings-menu-item">
+                  <span>Log Out</span>
+                  <IconElement icon="logout" size={18} filled={false} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
