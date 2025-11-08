@@ -1,12 +1,13 @@
 import Nav from "../components/Nav";
 import TopNav from "../components/TopNav";
-import { Outlet, useLocation, useOutletContext } from "react-router-dom";
-import { useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { useState, useRef } from "react";
 
 export default function AppLayout() {
   const location = useLocation();
   const showTopNav = location.pathname === "/profile";
   const [isEditMode, setIsEditMode] = useState(false);
+  const saveProfileRef = useRef(null);
 
   const handleEditProfile = () => {
     setIsEditMode(true);
@@ -16,8 +17,11 @@ export default function AppLayout() {
     setIsEditMode(false);
   };
 
-  const handleSaveEdit = () => {
-    // TODO: Save the profile changes
+  const handleSaveEdit = async () => {
+    // Call the save function from ProfilePage
+    if (saveProfileRef.current) {
+      await saveProfileRef.current();
+    }
     setIsEditMode(false);
   };
 
@@ -32,7 +36,7 @@ export default function AppLayout() {
         />
       )}
       <main>
-        <Outlet context={{ isEditMode, setIsEditMode }} />
+        <Outlet context={{ isEditMode, setIsEditMode, saveProfileRef }} />
       </main>
       <Nav />
     </>

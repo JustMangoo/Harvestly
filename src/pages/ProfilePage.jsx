@@ -49,11 +49,12 @@ import zz from "../assets/gallery/Rectangle 175.webp";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { isEditMode, setIsEditMode } = useOutletContext();
+  const { isEditMode, setIsEditMode, saveProfileRef } = useOutletContext();
   const [signOutLoading, setSignOutLoading] = useState(false);
   const [signOutError, setSignOutError] = useState(null);
-  const [userData, setUserData] = useState(supabase.auth.getUser());
-  const [username, setUsername] = useState("User039928");
+  const [user, setUser] = useState(null);
+  const [username, setUsername] = useState("");
+  const [originalUsername, setOriginalUsername] = useState("");
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -62,6 +63,8 @@ export default function ProfilePage() {
   const [isDragging, setIsDragging] = useState(false);
   const [hasDragged, setHasDragged] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
+  const [originalProfilePicture, setOriginalProfilePicture] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Gallery images - all local images with descriptive names
   const galleryImages = [
@@ -107,6 +110,90 @@ export default function ProfilePage() {
     zz,
   ];
 
+  // Load user profile data on mount
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  // Register save function with parent
+  useEffect(() => {
+    if (saveProfileRef) {
+      saveProfileRef.current = saveProfileChanges;
+    }
+  }, [username, profilePicture]);
+
+  // Handle edit mode changes (cancel restores original values)
+  useEffect(() => {
+    if (!isEditMode) {
+      // Restore original values when edit mode is cancelled
+      setUsername(originalUsername);
+      setProfilePicture(originalProfilePicture);
+      setIsEditingUsername(false);
+    }
+  }, [isEditMode]);
+
+  const loadUserProfile = async () => {
+    try {
+      setLoading(true);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        setUser(user);
+
+        // Load user profile from user_metadata or profiles table
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("username, avatar_url")
+          .eq("id", user.id)
+          .single();
+
+        if (profile && !error) {
+          setUsername(profile.username || user.email?.split("@")[0] || "User");
+          setOriginalUsername(
+            profile.username || user.email?.split("@")[0] || "User"
+          );
+          setProfilePicture(profile.avatar_url || null);
+          setOriginalProfilePicture(profile.avatar_url || null);
+        } else {
+          // Fallback to email-based username if no profile exists
+          const defaultUsername = user.email?.split("@")[0] || "User";
+          setUsername(defaultUsername);
+          setOriginalUsername(defaultUsername);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading profile:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveProfileChanges = async () => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase.from("profiles").upsert({
+        id: user.id,
+        username: username,
+        avatar_url: profilePicture,
+        updated_at: new Date().toISOString(),
+      });
+
+      if (error) throw error;
+
+      // Update the original values after successful save
+      setOriginalUsername(username);
+      setOriginalProfilePicture(profilePicture);
+
+      console.log("Profile saved successfully");
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      alert("Failed to save profile changes. Please try again.");
+    }
+  };
+
   const handleLogout = async () => {
     setSignOutLoading(true);
     setSignOutError(null);
@@ -121,7 +208,7 @@ export default function ProfilePage() {
     }
   };
 
-  const isAuthenticated = !!userData;
+  const isAuthenticated = !!user;
 
   const handleCreateAccount = () => {
     navigate("/auth");
