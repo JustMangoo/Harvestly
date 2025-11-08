@@ -4,6 +4,7 @@ import Button from "../components/Button.jsx";
 import IconElement from "../components/IconElement.jsx";
 import "./ProfilePage.css";
 import { supabase } from "../lib/supabaseClient.js";
+import { getUserProfile, updateUserProfile } from "../services/users.js";
 
 // Import gallery images
 import plantPot from "../assets/gallery/rectangle-136.webp";
@@ -55,6 +56,9 @@ export default function ProfilePage() {
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
   const [originalUsername, setOriginalUsername] = useState("");
+  const [location, setLocation] = useState("");
+  const [originalLocation, setOriginalLocation] = useState("");
+  const [followerCount, setFollowerCount] = useState(0);
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -120,13 +124,14 @@ export default function ProfilePage() {
     if (saveProfileRef) {
       saveProfileRef.current = saveProfileChanges;
     }
-  }, [username, profilePicture]);
+  }, [username, profilePicture, location]);
 
   // Handle edit mode changes (cancel restores original values)
   useEffect(() => {
     if (!isEditMode) {
       // Restore original values when edit mode is cancelled
       setUsername(originalUsername);
+      setLocation(originalLocation);
       setProfilePicture(originalProfilePicture);
       setIsEditingUsername(false);
     }
@@ -141,27 +146,24 @@ export default function ProfilePage() {
 
       if (user) {
         setUser(user);
+        const profile = await getUserProfile(user.id);
 
-        // Load user profile from user_metadata or profiles table
-        const { data: profile, error } = await supabase
-          .from("profiles")
-          .select("username, avatar_url")
-          .eq("id", user.id)
-          .single();
+        const fallbackUsername = user.email?.split("@")[0] || "User";
+        const resolvedUsername = profile?.username?.trim() || fallbackUsername;
+        const resolvedLocation = profile?.location?.trim() || "";
+        const resolvedAvatar = profile?.avatar_url || null;
+        const resolvedFollowers =
+          typeof profile?.follower_count === "number"
+            ? profile.follower_count
+            : 0;
 
-        if (profile && !error) {
-          setUsername(profile.username || user.email?.split("@")[0] || "User");
-          setOriginalUsername(
-            profile.username || user.email?.split("@")[0] || "User"
-          );
-          setProfilePicture(profile.avatar_url || null);
-          setOriginalProfilePicture(profile.avatar_url || null);
-        } else {
-          // Fallback to email-based username if no profile exists
-          const defaultUsername = user.email?.split("@")[0] || "User";
-          setUsername(defaultUsername);
-          setOriginalUsername(defaultUsername);
-        }
+        setUsername(resolvedUsername);
+        setOriginalUsername(resolvedUsername);
+        setLocation(resolvedLocation);
+        setOriginalLocation(resolvedLocation);
+        setFollowerCount(resolvedFollowers);
+        setProfilePicture(resolvedAvatar);
+        setOriginalProfilePicture(resolvedAvatar);
       }
     } catch (error) {
       console.error("Error loading profile:", error);
@@ -174,18 +176,33 @@ export default function ProfilePage() {
     if (!user) return;
 
     try {
-      const { error } = await supabase.from("profiles").upsert({
-        id: user.id,
-        username: username,
+      const fallbackUsername = user.email?.split("@")[0] || "User";
+      const sanitizedUsername = username?.trim() || null;
+      const sanitizedLocation = location?.trim() || null;
+
+      const updatedProfile = await updateUserProfile(user.id, {
+        username: sanitizedUsername,
+        location: sanitizedLocation,
         avatar_url: profilePicture,
-        updated_at: new Date().toISOString(),
       });
 
-      if (error) throw error;
+      const nextUsername =
+        updatedProfile?.username?.trim() || fallbackUsername;
+      const nextLocation = updatedProfile?.location?.trim() || "";
+      const nextAvatar = updatedProfile?.avatar_url || null;
+      const nextFollowers =
+        typeof updatedProfile?.follower_count === "number"
+          ? updatedProfile.follower_count
+          : 0;
 
       // Update the original values after successful save
-      setOriginalUsername(username);
-      setOriginalProfilePicture(profilePicture);
+      setUsername(nextUsername);
+      setOriginalUsername(nextUsername);
+      setLocation(nextLocation);
+      setOriginalLocation(nextLocation);
+      setProfilePicture(nextAvatar);
+      setOriginalProfilePicture(nextAvatar);
+      setFollowerCount(nextFollowers);
 
       console.log("Profile saved successfully");
     } catch (error) {
@@ -337,6 +354,10 @@ export default function ProfilePage() {
     setIsEditingUsername(false);
   };
 
+  const handleLocationChange = (e) => {
+    setLocation(e.target.value);
+  };
+
   return (
     <div className="profile-page">
       <div className="profile-background" />
@@ -390,7 +411,19 @@ export default function ProfilePage() {
                   <h2 className="profile-username">{username}</h2>
                 )}
               </div>
-              <p className="profile-location">Aarhus, Denmark</p>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  className="profile-location-input"
+                  value={location}
+                  onChange={handleLocationChange}
+                  placeholder="e.g., Aarhus, Denmark"
+                />
+              ) : (
+                <p className="profile-location">
+                  {location?.trim() || "Add your location"}
+                </p>
+              )}
             </div>
             <div className="profile-stats-container">
               <div className="profile-stat">
@@ -398,7 +431,9 @@ export default function ProfilePage() {
                 <span className="profile-stat-label">Posts</span>
               </div>
               <div className="profile-stat">
-                <span className="profile-stat-number">15</span>
+                <span className="profile-stat-number">
+                  {followerCount ?? 0}
+                </span>
                 <span className="profile-stat-label">Followers</span>
               </div>
             </div>

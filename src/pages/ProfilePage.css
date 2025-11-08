@@ -187,6 +187,28 @@
   white-space: nowrap;
 }
 
+.profile-location-input {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #000;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius-base);
+  padding: 6px 10px;
+  width: 100%;
+  max-width: 220px;
+  background-color: var(--color-light);
+  outline: none;
+}
+
+.profile-location-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(104, 156, 69, 0.2);
+}
+
+.profile-location-input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
 .profile-stats-container {
   display: flex;
   gap: 20px;
