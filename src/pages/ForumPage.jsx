@@ -169,90 +169,74 @@ export default function ForumPage() {
           </div>
         </section>
 
-        <section className="composer">
-          <div className="composer-avatar" aria-hidden>
-            <IconElement icon="account_circle" size={36} filled={false} />
-          </div>
-          <div className="composer-body">
-            <textarea
-              className="composer-input"
-              placeholder="Share something with the community..."
-              value={composer}
-              onChange={(e) => setComposer(e.target.value)}
-              rows={3}
-            />
-            <div className="composer-actions">
-              <Button
-                text="Post"
-                variant="solid"
-                size="md"
-                onClick={handleSubmit}
-                disabled={!composer.trim()}
-              />
-            </div>
-          </div>
-        </section>
-
+        {/* POSTS SECTION */}
         <section className="posts-list" aria-live="polite">
           {filtered.length === 0 ? (
             <div className="empty-state">
               <p>No posts found.</p>
             </div>
           ) : (
-            filtered.map((post) => (
+            filtered.map((post, i) => (
               <article
-                className="post-card"
+                className="forum-post"
                 key={post.id}
                 onClick={() => navigate(`/forum/post/${post.id}`)}
                 role="button"
                 tabIndex={0}
               >
-                <div className="post-avatar" aria-hidden>
-                  {post.author.charAt(0).toUpperCase()}
-                </div>
-                <div className="post-body">
-                  <div className="post-head">
-                    <strong className="post-author">{post.author}</strong>
-                    <span className="post-time">{post.time}</span>
+                <div className="post-left">
+                  <div className="post-avatar" aria-hidden>
+                    {post.author.charAt(0).toUpperCase()}
                   </div>
-                  <p className="post-text">{post.text}</p>
-                  <div className="post-actions">
-                    <Button
-                      className="post-action-btn"
-                      icon="thumb_up"
-                      text={post.likes ? String(post.likes) : ""}
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setPosts((s) => s.map(p => p.id === post.id ? { ...p, likes: p.likes + 1 } : p));
-                      }}
-                    />
-                    <Button
-                      className="post-action-btn"
-                      icon="chat_bubble"
-                      text={String(post.comments)}
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const el = document.querySelector(".composer-input");
-                        if (el) el.focus();
-                      }}
-                    />
-                    <Button
-                      className="post-action-btn"
-                      icon="share"
-                      text={""}
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigator.share?.({ title: post.author, text: post.text }).catch(()=>{});
-                      }}
-                    />
+                  <div className="post-body">
+                    <div className="post-head">
+                      <strong className="post-author">{post.author}</strong>
+                      <span className="post-time">{post.time}</span>
+                    </div>
+                    <p className="post-text">{post.text}</p>
+                    <div className="post-actions">
+                      <button
+                        className="icon-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPosts((s) =>
+                            s.map((p) =>
+                              p.id === post.id ? { ...p, likes: p.likes + 1 } : p
+                            )
+                          );
+                        }}
+                      >
+                        <IconElement icon="thumb_up" size={18} filled={false} />
+                        {post.likes > 0 && <span>{post.likes}</span>}
+                      </button>
+
+                      <button
+                        className="icon-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const el = document.querySelector(".composer-input");
+                          if (el) el.focus();
+                        }}
+                      >
+                        <IconElement icon="chat_bubble" size={18} filled={false} />
+                        {post.comments > 0 && <span>{post.comments}</span>}
+                      </button>
+
+                      <button
+                        className="icon-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigator
+                            .share?.({ title: post.author, text: post.text })
+                            .catch(() => {});
+                        }}
+                      >
+                        <IconElement icon="share" size={18} filled={false} />
+                      </button>
+                    </div>
                   </div>
                 </div>
+                {i < filtered.length - 1 && <div className="post-divider" />}
               </article>
             ))
           )}
