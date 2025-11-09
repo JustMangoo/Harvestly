@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState } from "react"; 
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import IconElement from "../components/IconElement.jsx";
@@ -9,7 +9,6 @@ export default function ForumPage() {
   const params = useParams();
   const topicParam = params?.topicId ?? null;
 
-  // sample posts — replace with real data later
   const [posts, setPosts] = useState([
     {
       id: 101,
@@ -49,7 +48,6 @@ export default function ForumPage() {
     },
   ]);
 
-  // friends + topics sample data (match image)
   const friends = [
     { id: 1, name: "Maya" },
     { id: 2, name: "Noah" },
@@ -68,10 +66,8 @@ export default function ForumPage() {
   const [query, setQuery] = useState("");
   const [composer, setComposer] = useState("");
 
-  // derive active topic from url param (if any)
   const activeTopic = topicParam ? topics.find((t) => String(t.id) === String(topicParam)) : null;
 
-  // filter posts by search + active topic
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return posts.filter((p) => {
@@ -100,9 +96,7 @@ export default function ForumPage() {
   };
 
   const openTopic = (t) => {
-    // navigate to /forum/topic/:id; adjust path if your router uses different base
     navigate(`/forum/topic/${t.id}`);
-    // keep on mobile UX: scroll to topics area (optional)
     const el = document.querySelector(".topics-grid");
     if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
   };
@@ -132,7 +126,6 @@ export default function ForumPage() {
       </header>
 
       <main className="forum-content">
-        {/* Your Friends */}
         <section className="friends-card" aria-label="Your friends">
           <div className="friends-header">
             <strong>Your Friends</strong>
@@ -150,7 +143,6 @@ export default function ForumPage() {
           </div>
         </section>
 
-        {/* Explore Topics */}
         <section className="explore-topics" aria-label="Explore topics">
           <div className="topics-header">
             <strong>Explore Topics</strong>
@@ -177,19 +169,6 @@ export default function ForumPage() {
           </div>
         </section>
 
-        {/* Popular Posts header card (matches image) */}
-        <section className="popular-card">
-          <div className="popular-header">
-            <strong>Popular Posts</strong>
-            <a className="friends-seeall" href="#!">See All →</a>
-          </div>
-          <div className="popular-sample">
-            <div className="popular-headline">Headline</div>
-            <div className="popular-placeholder">Add post text here.</div>
-          </div>
-        </section>
-
-        {/* Composer */}
         <section className="composer">
           <div className="composer-avatar" aria-hidden>
             <IconElement icon="account_circle" size={36} filled={false} />
@@ -214,7 +193,6 @@ export default function ForumPage() {
           </div>
         </section>
 
-        {/* Posts list */}
         <section className="posts-list" aria-live="polite">
           {filtered.length === 0 ? (
             <div className="empty-state">
@@ -222,7 +200,13 @@ export default function ForumPage() {
             </div>
           ) : (
             filtered.map((post) => (
-              <article className="post-card" key={post.id}>
+              <article
+                className="post-card"
+                key={post.id}
+                onClick={() => navigate(`/forum/post/${post.id}`)}
+                role="button"
+                tabIndex={0}
+              >
                 <div className="post-avatar" aria-hidden>
                   {post.author.charAt(0).toUpperCase()}
                 </div>
@@ -239,8 +223,8 @@ export default function ForumPage() {
                       text={post.likes ? String(post.likes) : ""}
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        // like handler (increment locally for demo)
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setPosts((s) => s.map(p => p.id === post.id ? { ...p, likes: p.likes + 1 } : p));
                       }}
                     />
@@ -250,8 +234,8 @@ export default function ForumPage() {
                       text={String(post.comments)}
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        // open comments / focus composer (placeholder)
+                      onClick={(e) => {
+                        e.stopPropagation();
                         const el = document.querySelector(".composer-input");
                         if (el) el.focus();
                       }}
@@ -262,8 +246,8 @@ export default function ForumPage() {
                       text={""}
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        // share action (placeholder)
+                      onClick={(e) => {
+                        e.stopPropagation();
                         navigator.share?.({ title: post.author, text: post.text }).catch(()=>{});
                       }}
                     />
@@ -275,7 +259,6 @@ export default function ForumPage() {
         </section>
       </main>
 
-      {/* floating add button like in the design - mobile only overlay */}
       <button className="floating-add" aria-label="Create post" onClick={() => navigate("/forum/branch")}>
         <IconElement icon="add" size={26} filled={true} />
       </button>

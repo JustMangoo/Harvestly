@@ -14,7 +14,7 @@ import RequireAuth from "./components/RequireAuth.jsx";
 import PlantsPage from "./pages/PlantsPage.jsx";
 import PlantDetailPage from "./pages/PlantDetailPage.jsx";
 import PlantCreatePage from "./pages/PlantCreatePage.jsx";
-import BranchPost from "./pages/BranchPost.jsx";
+import PostMockup from "./pages/PostMockup.jsx";
 
 function App() {
   return (
@@ -69,6 +69,8 @@ function App() {
               </RequireAuth>
             }
           />
+
+          {/* ✅ Forum routes */}
           <Route
             path="/forum"
             element={
@@ -78,6 +80,23 @@ function App() {
             }
           />
           <Route
+            path="/forum/topic/:topicId"
+            element={
+              <RequireAuth>
+                <ForumPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/forum/post/:postId"
+            element={
+              <RequireAuth>
+                <PostMockup />
+              </RequireAuth>
+            }
+          />
+
+          <Route
             path="/profile"
             element={
               <RequireAuth>
@@ -85,11 +104,11 @@ function App() {
               </RequireAuth>
             }
           />
-          <Route path="/forum/branch" element={<BranchPost />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/headwear" element={<HeadwearPage />} />
           <Route path="/auth" element={<AuthPage />} />
         </Route>
+
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>

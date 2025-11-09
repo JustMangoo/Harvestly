@@ -1,0 +1,224 @@
+@import url("https://fonts.googleapis.com/css2?family=Calistoga&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+:root {
+  /* Color Palette */
+  --color-primary: #689c45;
+  --color-secondary: #d7e1b7;
+  --color-secondary-50: #ebf0d6;
+  --color-accent: #634120;
+  --color-accent-80: #82674b;
+  --color-accent-60: #a18d75;
+  --color-light: #fffff5;
+  --color-dark: #201912;
+  --color-dark-80: #4c4740;
+  --color-dark-60: #79756d;
+  --color-gray: #666665;
+  --color-water-reminder: #1b96f0;
+  --color-rotate-reminder: #ee8e1f;
+  --color-fertilize-reminder: #1aad3a;
+  --color-mist-reminder: #fe0077;
+
+  /* Text */
+  --font-family-heading: "Calistoga", sans-serif;
+  --font-family-body: "Inter", sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-base: 16px;
+  --spacing-lg: 20px;
+  --spacing-xl: 32px;
+
+  /* Border Radius */
+  --border-radius-sm: 6px;
+  --border-radius-base: 12px;
+  --border-radius-max: 100px;
+}
+
+.postmockup-page {
+  background-color: var(--color-light);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-family-body);
+  color: var(--color-dark);
+}
+
+.postmockup-header {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-base);
+  border-bottom: 1px solid var(--color-secondary-50);
+  gap: var(--spacing-sm);
+}
+
+.postmockup-header h1 {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-xl);
+  margin: 0 auto;
+  text-align: center;
+  flex-grow: 1;
+  color: var(--color-dark);
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-dark-80);
+  padding: var(--spacing-xs);
+}
+
+.postmockup-card {
+  background-color: var(--color-light);
+  padding: var(--spacing-base);
+  border-bottom: 1px solid var(--color-secondary-50);
+}
+
+.postmockup-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.postmockup-user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-dark-80);
+  font-size: var(--font-size-sm);
+}
+
+.postmockup-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--color-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.postmockup-date {
+  color: var(--color-dark-60);
+  font-size: var(--font-size-xs);
+}
+
+.postmockup-image {
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-base);
+  margin-bottom: var(--spacing-base);
+}
+
+.postmockup-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.postmockup-body h2 {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  margin: 0;
+}
+
+.postmockup-body p {
+  font-size: var(--font-size-base);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.postmockup-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-base);
+  margin-top: var(--spacing-sm);
+}
+
+.postmockup-actions button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-secondary-50);
+  background-color: var(--color-light);
+  color: var(--color-dark-80);
+  border-radius: var(--border-radius-max);
+  font-size: var(--font-size-sm);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.postmockup-actions button:hover {
+  background-color: var(--color-secondary-50);
+}
+
+.postmockup-comments {
+  padding: var(--spacing-base);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.postmockup-comments h2 {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.comment-card {
+  display: flex;
+  gap: var(--spacing-sm);
+  background-color: var(--color-secondary-50);
+  border-radius: var(--border-radius-base);
+  padding: var(--spacing-sm);
+}
+
+.comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--color-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.comment-body {
+  flex: 1;
+}
+
+.comment-body strong {
+  display: block;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--color-dark);
+}
+
+.comment-body p {
+  margin: 2px 0 0;
+  font-size: var(--font-size-base);
+  color: var(--color-dark-80);
+}
+
+/* Mobile responsive tweaks */
+@media (max-width: 480px) {
+  .postmockup-card {
+    padding: var(--spacing-base);
+  }
+
+  .postmockup-body h2 {
+    font-size: var(--font-size-base);
+  }
+
+  .postmockup-actions button {
+    padding: 4px 8px;
+  }
+}
