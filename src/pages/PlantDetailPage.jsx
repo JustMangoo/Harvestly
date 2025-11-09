@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import IconElement from "../components/IconElement.jsx";
+import ToggleGroup from "../components/ToggleGroup.jsx";
 import { useAuthSession } from "../components/RequireAuth.jsx";
 import { getPlantById } from "../services/plants";
 import {
@@ -11,6 +12,7 @@ import {
   listRemindersByPlant,
   updateReminder,
 } from "../services/reminders";
+import { listJournalByPlant, createSignedUrls } from "../services/journal";
 import "./PlantDetailPage.css";
 
 const REMINDER_TYPES = [
@@ -47,11 +49,7 @@ function createEmptyReminderState() {
 
 function resolvePlantImageSrc(plant) {
   return (
-    plant?.image_url ||
-    plant?.photo_url ||
-    plant?.photo ||
-    plant?.image ||
-    null
+    plant?.image_url || plant?.photo_url || plant?.photo || plant?.image || null
   );
 }
 
@@ -67,7 +65,8 @@ function summarizeSchedule(schedule) {
         ? `Every ${schedule.selectedDays
             .map(
               (day) =>
-                DAYS_OF_WEEK.find((d) => d.key === day)?.label ?? day.slice(0, 3)
+                DAYS_OF_WEEK.find((d) => d.key === day)?.label ??
+                day.slice(0, 3)
             )
             .join(", ")}`
         : "Select at least one day";
@@ -110,6 +109,8 @@ export default function PlantDetailPage() {
   const [reminderError, setReminderError] = useState("");
   const [pendingToggleType, setPendingToggleType] = useState(null);
   const [savingReminder, setSavingReminder] = useState(false);
+  const [activeTab, setActiveTab] = useState("information");
+  const [journal, setJournal] = useState([]);
 
   useEffect(() => {
     let abort = false;
@@ -141,6 +142,33 @@ export default function PlantDetailPage() {
         });
 
         setReminders(mappedReminders);
+        // fetch journal entries for this plant
+        listJournalByPlant({ userId, plantId })
+          .then(async (rows) => {
+            if (abort) return;
+            // if photos are stored as storage paths, create signed urls (short lived) for display
+            const withUrls = await Promise.all(
+              (rows || []).map(async (r) => {
+                if (Array.isArray(r.photos) && r.photos.length > 0) {
+                  try {
+                    const signed = await createSignedUrls({
+                      paths: r.photos,
+                      expires: 60,
+                    });
+                    return { ...r, _photoUrls: signed.map((s) => s.signedUrl) };
+                  } catch (e) {
+                    return { ...r, _photoUrls: [] };
+                  }
+                }
+                return { ...r, _photoUrls: [] };
+              })
+            );
+
+            setJournal(withUrls);
+          })
+          .catch(() => {
+            // ignore journal errors for now
+          });
       })
       .catch((fetchError) => {
         if (!abort) {
@@ -333,7 +361,9 @@ export default function PlantDetailPage() {
       </header>
 
       {loading && <p className="plant-detail-state">Loading plant...</p>}
-      {error && <p className="plant-detail-state plant-detail-state--error">{error}</p>}
+      {error && (
+        <p className="plant-detail-state plant-detail-state--error">{error}</p>
+      )}
 
       {!loading && !error && plant && (
         <>
@@ -353,7 +383,9 @@ export default function PlantDetailPage() {
             <div className="plant-detail-meta">
               <p className="plant-detail-subtitle">Plant profile</p>
               <h1>{displayName}</h1>
-              {subtitle && <p className="plant-detail-description">{subtitle}</p>}
+              {subtitle && (
+                <p className="plant-detail-description">{subtitle}</p>
+              )}
               <div className="plant-detail-tags">
                 {plant.sun_level && (
                   <span className="plant-detail-tag">
@@ -371,43 +403,143 @@ export default function PlantDetailPage() {
             </div>
           </section>
 
-          <section className="plant-reminders">
-            <div className="plant-reminders-header">
-              <div>
-                <h2>Care reminders</h2>
-                <p>Automate your watering, misting, and rotation habits.</p>
-              </div>
-              <Button variant="secondary" icon="event" text="View calendar" />
-            </div>
-            {reminderError && (
-              <p className="reminder-inline-error">{reminderError}</p>
-            )}
-            <div className="reminder-grid">
-              {REMINDER_TYPES.map((type) => {
-                const reminder = reminders[type.key];
-                return (
-                  <div className="reminder-card" key={type.key}>
-                    <div className="reminder-card-head">
-                      <div className="reminder-card-icon">
-                        <IconElement icon={type.icon} size={24} />
-                      </div>
-                      <div>
-                        <p className="reminder-card-title">{type.label}</p>
-                        <p className="reminder-card-summary">
-                          {summarizeSchedule(reminder?.schedule)}
-                        </p>
-                      </div>
+          <ToggleGroup
+            options={[
+              { label: "Information", value: "information" },
+              { label: "Reminders", value: "reminders" },
+              { label: "Journal", value: "journal" },
+            ]}
+            value={activeTab}
+            onChange={(v) => setActiveTab(v)}
+            className="plant-tabs"
+          />
+
+          {activeTab === "information" && (
+            <section className="plant-info">
+              <div className="info-section">
+                <h3>How to care</h3>
+                <div className="info-grid">
+                  <div className="info-card">
+                    <div className="info-card__label">Difficulty</div>
+                    <div className="info-card__value">
+                      {plant.difficulty || "—"}
                     </div>
-                    <ReminderSwitch
-                      active={Boolean(reminder?.enabled)}
-                      onToggle={() => handleToggleReminder(type.key)}
-                      disabled={pendingToggleType === type.key}
-                    />
                   </div>
-                );
-              })}
-            </div>
-          </section>
+
+                  <div className="info-card">
+                    <div className="info-card__label">Water</div>
+                    <div className="info-card__value">
+                      {plant.water_amount_ml
+                        ? `${plant.water_amount_ml} ml`
+                        : "—"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="info-section">
+                <h3>Conditions</h3>
+                <div className="info-grid">
+                  <div className="info-card">
+                    <div className="info-card__label">Humidity</div>
+                    <div className="info-card__value">
+                      {plant.humidity_level || "—"}
+                    </div>
+                  </div>
+                  <div className="info-card">
+                    <div className="info-card__label">Sunlight</div>
+                    <div className="info-card__value">
+                      {plant.sun_level || "—"}
+                    </div>
+                  </div>
+                  <div className="info-card">
+                    <div className="info-card__label">Temperature</div>
+                    <div className="info-card__value">
+                      {plant.soil_temperature || "—"}
+                    </div>
+                  </div>
+                  <div className="info-card">
+                    <div className="info-card__label">Soil</div>
+                    <div className="info-card__value">
+                      {plant.soil_type || "—"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {activeTab === "reminders" && (
+            <section className="plant-reminders">
+              <div className="plant-reminders-header">
+                <div>
+                  <h2>Care reminders</h2>
+                  <p>Automate your watering, misting, and rotation habits.</p>
+                </div>
+                <Button variant="secondary" icon="event" text="View calendar" />
+              </div>
+              {reminderError && (
+                <p className="reminder-inline-error">{reminderError}</p>
+              )}
+              <div className="reminder-grid">
+                {REMINDER_TYPES.map((type) => {
+                  const reminder = reminders[type.key];
+                  return (
+                    <div className="reminder-card" key={type.key}>
+                      <div className="reminder-card-head">
+                        <div className="reminder-card-icon">
+                          <IconElement icon={type.icon} size={24} />
+                        </div>
+                        <div>
+                          <p className="reminder-card-title">{type.label}</p>
+                          <p className="reminder-card-summary">
+                            {summarizeSchedule(reminder?.schedule)}
+                          </p>
+                        </div>
+                      </div>
+                      <ReminderSwitch
+                        active={Boolean(reminder?.enabled)}
+                        onToggle={() => handleToggleReminder(type.key)}
+                        disabled={pendingToggleType === type.key}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {activeTab === "journal" && (
+            <section className="plant-journal">
+              <h3>Journal</h3>
+              <div className="journal-timeline">
+                {/* Sample static journal entries - replace with real data when available */}
+                <div className="timeline-item">
+                  <div className="timeline-marker" />
+                  <div className="timeline-card">
+                    <strong>Watered</strong>
+                    <div className="timeline-meta">Aug 4, 2025</div>
+                    <p className="timeline-body">
+                      Watered the plant thoroughly.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="timeline-item">
+                  <div className="timeline-marker" />
+                  <div className="timeline-card">
+                    <strong>Photo</strong>
+                    <div className="timeline-meta">Aug 4, 2025</div>
+                    <div className="timeline-photos">
+                      <div className="thumb" />
+                      <div className="thumb" />
+                      <div className="thumb" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
         </>
       )}
 
@@ -449,7 +581,10 @@ export default function PlantDetailPage() {
                       value="multi_week"
                       checked={reminderForm.frequency === "multi_week"}
                       onChange={(event) =>
-                        handleReminderFormChange("frequency", event.target.value)
+                        handleReminderFormChange(
+                          "frequency",
+                          event.target.value
+                        )
                       }
                     />
                     <span>Multiple times per week</span>
@@ -479,7 +614,10 @@ export default function PlantDetailPage() {
                       value="specific_days"
                       checked={reminderForm.frequency === "specific_days"}
                       onChange={(event) =>
-                        handleReminderFormChange("frequency", event.target.value)
+                        handleReminderFormChange(
+                          "frequency",
+                          event.target.value
+                        )
                       }
                     />
                     <span>Specific days of the week</span>
@@ -510,7 +648,10 @@ export default function PlantDetailPage() {
                       value="biweekly"
                       checked={reminderForm.frequency === "biweekly"}
                       onChange={(event) =>
-                        handleReminderFormChange("frequency", event.target.value)
+                        handleReminderFormChange(
+                          "frequency",
+                          event.target.value
+                        )
                       }
                     />
                     <span>Every other week</span>

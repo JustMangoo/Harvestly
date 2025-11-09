@@ -113,6 +113,83 @@
   box-shadow: 0 12px 32px rgba(32, 25, 18, 0.12);
 }
 
+/* Tabs */
+.plant-tabs {
+  margin-bottom: var(--spacing-md);
+}
+
+/* Information cards */
+.plant-info .info-section {
+  margin-bottom: var(--spacing-lg);
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+}
+.info-card {
+  background: var(--color-light);
+  border-radius: var(--border-radius-base);
+  padding: var(--spacing-sm);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.info-card__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-dark-60);
+}
+.info-card__value {
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+/* Journal timeline */
+.plant-journal h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+}
+.journal-timeline {
+  position: relative;
+  padding-left: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+.timeline-item {
+  display: flex;
+  gap: var(--spacing-base);
+  align-items: flex-start;
+}
+.timeline-marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--color-dark-80);
+  margin-left: -28px;
+  margin-top: 6px;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.03);
+}
+.timeline-card {
+  background: var(--color-secondary-50);
+  padding: var(--spacing-base);
+  border-radius: var(--border-radius-base);
+  flex: 1;
+}
+.timeline-meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-dark-60);
+  margin-top: 6px;
+}
+.timeline-photos {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.timeline-photos .thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #eee, #ddd);
+}
+
 .plant-reminders-header {
   display: flex;
   justify-content: space-between;
