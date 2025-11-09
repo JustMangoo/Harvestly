@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuthSession } from "../components/RequireAuth.jsx";
 import IconElement from "../components/IconElement.jsx";
 import { listPlants } from "../services/plants";
@@ -11,10 +12,10 @@ const INDICATOR_FIELDS = [
 ];
 
 const INDICATOR_COLORS = [
-  "var(--color-primary)",
-  "var(--color-accent-60)",
-  "var(--color-accent)",
-  "var(--color-dark-80)",
+  "var(--color-water-reminder)",
+  "var(--color-rotate-reminder)",
+  "var(--color-fertilize-reminder)",
+  "var(--color-mist-reminder)",
 ];
 
 function buildIndicators(plant) {
@@ -135,46 +136,51 @@ export default function PlantsPage() {
 
               return (
                 <li key={plant.id ?? displayName} className="plant-card">
-                  <div className="plant-card__media">
-                    {imageSrc ? (
-                      <img
-                        src={imageSrc}
-                        alt={`${displayName} photo`}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="plant-card__avatar" aria-hidden="true">
-                        {displayName.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="plant-card__body">
-                    <div className="plant-card__header">
-                      <div>
-                        <p className="plant-card__name">{displayName}</p>
-                        {subtitle && (
-                          <p className="plant-card__subtitle">{subtitle}</p>
-                        )}
-                      </div>
-                      <IconElement
-                        icon="chevron_right"
-                        size={24}
-                        className="plant-card__chevron"
-                      />
-                    </div>
-
-                    <div className="plant-card__indicators">
-                      {indicators.map((indicator) => (
-                        <span
-                          key={indicator.key}
-                          className="plant-card__indicator"
-                          style={{ backgroundColor: indicator.color }}
-                          title={indicator.label}
+                  <Link
+                    to={`/plants/${plant.id}`}
+                    className="plant-card__link"
+                  >
+                    <div className="plant-card__media">
+                      {imageSrc ? (
+                        <img
+                          src={imageSrc}
+                          alt={`${displayName} photo`}
+                          loading="lazy"
                         />
-                      ))}
+                      ) : (
+                        <div className="plant-card__avatar" aria-hidden="true">
+                          {displayName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                     </div>
-                  </div>
+
+                    <div className="plant-card__body">
+                      <div className="plant-card__header">
+                        <div>
+                          <p className="plant-card__name">{displayName}</p>
+                          {subtitle && (
+                            <p className="plant-card__subtitle">{subtitle}</p>
+                          )}
+                        </div>
+                        <IconElement
+                          icon="chevron_right"
+                          size={24}
+                          className="plant-card__chevron"
+                        />
+                      </div>
+
+                      <div className="plant-card__indicators">
+                        {indicators.map((indicator) => (
+                          <span
+                            key={indicator.key}
+                            className="plant-card__indicator"
+                            style={{ backgroundColor: indicator.color }}
+                            title={indicator.label}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </Link>
                 </li>
               );
             })}

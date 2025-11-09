@@ -12,6 +12,7 @@ import HeadwearPage from "./pages/HeadwearPage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
 import PlantsPage from "./pages/PlantsPage.jsx";
+import PlantDetailPage from "./pages/PlantDetailPage.jsx";
 
 function App() {
   return (
@@ -39,6 +40,14 @@ function App() {
             element={
               <RequireAuth>
                 <PlantsPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/plants/:plantId"
+            element={
+              <RequireAuth>
+                <PlantDetailPage />
               </RequireAuth>
             }
           />

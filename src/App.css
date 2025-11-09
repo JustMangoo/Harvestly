@@ -13,6 +13,10 @@
   --color-dark-80: #4c4740;
   --color-dark-60: #79756d;
   --color-gray: #666665;
+  --color-water-reminder: #1b96f0;
+  --color-rotate-reminder: #ee8e1f;
+  --color-fertilize-reminder: #1aad3a;
+  --color-mist-reminder: #fe0077;
 
   /* Text Styles */
   --font-family-heading: "Calistoga", sans-serif;

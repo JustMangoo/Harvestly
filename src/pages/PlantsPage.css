@@ -54,12 +54,17 @@
 }
 
 .plant-card {
-  display: flex;
-  gap: var(--spacing-base);
   background-color: var(--color-light);
   border-radius: calc(var(--border-radius-base) * 1.5);
   padding: var(--spacing-base);
   box-shadow: 0 10px 24px rgba(32, 25, 18, 0.1);
+}
+
+.plant-card__link {
+  display: flex;
+  gap: var(--spacing-base);
+  color: inherit;
+  text-decoration: none;
 }
 
 .plant-card__media {

@@ -1,0 +1,311 @@
+.plant-detail-page {
+  padding: var(--spacing-xl) var(--spacing-lg)
+    calc(var(--spacing-xl) * 3 + var(--spacing-lg));
+  background-color: var(--color-secondary-50);
+  min-height: 100%;
+}
+
+.plant-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.plant-detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  border: none;
+  background: none;
+  color: var(--color-dark);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plant-detail-state {
+  padding: var(--spacing-base);
+  text-align: center;
+  border-radius: var(--border-radius-base);
+  background-color: var(--color-secondary);
+  color: var(--color-dark-80);
+}
+
+.plant-detail-state--error {
+  background-color: var(--color-accent);
+  color: var(--color-light);
+}
+
+.plant-detail-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-base);
+  margin-bottom: var(--spacing-xl);
+}
+
+.plant-detail-photo {
+  width: 100%;
+  border-radius: var(--border-radius-base);
+  overflow: hidden;
+  background-color: var(--color-light);
+  aspect-ratio: 4 / 3;
+}
+
+.plant-detail-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.plant-detail-avatar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-family: var(--font-family-heading);
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.plant-detail-meta h1 {
+  font-family: var(--font-family-heading);
+  font-size: 32px;
+  margin: var(--spacing-xs) 0;
+  color: var(--color-dark);
+}
+
+.plant-detail-subtitle {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  color: var(--color-dark-60);
+}
+
+.plant-detail-description {
+  color: var(--color-dark-60);
+  margin-bottom: var(--spacing-sm);
+}
+
+.plant-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.plant-detail-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--border-radius-base);
+  background-color: var(--color-light);
+  color: var(--color-dark);
+  font-size: var(--font-size-sm);
+}
+
+.plant-reminders {
+  background-color: var(--color-light);
+  border-radius: calc(var(--border-radius-base) * 1.5);
+  padding: var(--spacing-lg);
+  box-shadow: 0 12px 32px rgba(32, 25, 18, 0.12);
+}
+
+.plant-reminders-header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-base);
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.plant-reminders-header h2 {
+  margin: 0;
+}
+
+.plant-reminders-header p {
+  margin: 4px 0 0;
+  color: var(--color-dark-60);
+}
+
+.reminder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-base);
+}
+
+.reminder-card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--border-radius-base);
+  padding: var(--spacing-base);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-base);
+}
+
+.reminder-card-head {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.reminder-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background-color: var(--color-secondary-50);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reminder-card-title {
+  font-weight: 600;
+  margin: 0;
+}
+
+.reminder-card-summary {
+  margin: 4px 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-dark-60);
+}
+
+.reminder-switch {
+  align-self: flex-end;
+  width: 48px;
+  height: 26px;
+  border-radius: 999px;
+  border: none;
+  background-color: rgba(0, 0, 0, 0.2);
+  position: relative;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.reminder-switch.is-on {
+  background-color: var(--color-primary);
+}
+
+.reminder-switch__thumb {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--color-light);
+  transition: transform 150ms ease;
+}
+
+.reminder-switch.is-on .reminder-switch__thumb {
+  transform: translateX(20px);
+}
+
+.reminder-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reminder-modal__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.reminder-modal__content {
+  position: relative;
+  background-color: var(--color-light);
+  border-radius: calc(var(--border-radius-base) * 1.5);
+  padding: var(--spacing-lg);
+  width: min(480px, 90vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 18px 40px rgba(32, 25, 18, 0.3);
+}
+
+.reminder-modal__content header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-base);
+}
+
+.reminder-modal__close {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-base);
+}
+
+.form-field input[type="date"],
+.form-field input[type="number"],
+.form-field select {
+  padding: 10px;
+  border-radius: var(--border-radius-base);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  font-size: var(--font-size-base);
+}
+
+.frequency-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.frequency-option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-weight: 500;
+}
+
+.frequency-detail {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-left: 28px;
+}
+
+.days-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-left: 28px;
+}
+
+.day-chip {
+  border-radius: var(--border-radius-base);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: none;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.day-chip.is-selected {
+  background-color: var(--color-primary);
+  color: var(--color-light);
+  border-color: var(--color-primary);
+}
+
+.form-error {
+  color: var(--color-accent);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+}
+
+.reminder-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+}
