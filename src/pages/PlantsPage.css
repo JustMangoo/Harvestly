@@ -1,37 +1,54 @@
 .plants-page {
   position: relative;
   min-height: 100%;
-  padding: var(--spacing-xl) var(--spacing-lg)
-    calc(var(--spacing-xl) * 3 + var(--spacing-lg));
+  padding-top: 116.72px;
   background-color: var(--color-secondary);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
 }
 
-.plants-header {
+.plants-nav {
+  position: fixed;
+  top: 46.72px;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: 51px;
+  padding: var(--spacing-sm) var(--spacing-base);
+  background-color: var(--color-light);
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.back-button {
+  width: 35px;
+  height: 35px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   color: var(--color-dark);
 }
 
-.plants-subtitle {
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-dark-60);
-  font-size: var(--font-size-sm);
+.page-title {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-base);
+  color: var(--color-dark);
+  font-weight: normal;
 }
 
-.plants-description {
-  color: var(--color-dark-60);
-  font-size: var(--font-size-base);
+.nav-spacer {
+  width: 35px;
 }
 
 .plants-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  flex: 1;
+  padding: 0 var(--spacing-base) var(--spacing-base);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .plants-state {
@@ -50,28 +67,29 @@
 .plant-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-base);
 }
 
 .plant-card {
   background-color: var(--color-light);
-  border-radius: calc(var(--border-radius-base) * 1.5);
-  padding: var(--spacing-base);
-  box-shadow: 0 10px 24px rgba(32, 25, 18, 0.1);
+  border-radius: var(--border-radius-base);
+  padding: var(--spacing-sm) var(--spacing-base);
 }
 
 .plant-card__link {
   display: flex;
-  gap: var(--spacing-base);
+  gap: var(--spacing-md);
   color: inherit;
   text-decoration: none;
+  align-items: center;
 }
 
 .plant-card__media {
-  flex: 0 0 96px;
-  height: 96px;
-  border-radius: var(--border-radius-base);
+  flex: 0 0 116px;
+  height: 116px;
+  border-radius: 8px;
   overflow: hidden;
+  padding: var(--spacing-sm);
 }
 
 .plant-card__media img {
@@ -79,6 +97,7 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  border-radius: 8px;
 }
 
 .plant-card__avatar {
@@ -91,36 +110,39 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 8px;
 }
 
 .plant-card__body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-base);
+  min-width: 210px;
 }
 
 .plant-card__header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: var(--spacing-base);
 }
 
 .plant-card__name {
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-lg);
+  font-size: 20px;
   color: var(--color-dark);
+  margin: 0;
 }
 
 .plant-card__subtitle {
   font-style: italic;
-  font-size: var(--font-size-sm);
-  color: var(--color-dark-60);
-  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  color: #4e4e4e;
+  margin-top: 4px;
 }
 
 .plant-card__chevron {
-  color: var(--color-dark-60);
+  color: var(--color-dark);
 }
 
 .plant-card__indicators {
@@ -129,19 +151,17 @@
 }
 
 .plant-card__indicator {
-  width: 16px;
-  height: 16px;
+  width: 21px;
+  height: 21px;
   border-radius: 50%;
-  border: 2px solid var(--color-light);
-  box-shadow: 0 2px 6px rgba(32, 25, 18, 0.2);
 }
 
 .plants-add-button {
   position: fixed;
-  right: max(var(--spacing-lg), calc((100vw - 430px) / 2 + var(--spacing-lg)));
-  bottom: calc(var(--spacing-xl) + 84px);
-  width: 64px;
-  height: 64px;
+  right: 22px;
+  bottom: 92px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   border: none;
   background-color: var(--color-primary);
@@ -149,23 +169,45 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 28px rgba(104, 156, 69, 0.45);
   cursor: pointer;
-  transition: transform 150ms ease, box-shadow 150ms ease;
   z-index: 2;
 }
 
-.plants-add-button:focus-visible {
-  outline: var(--border-width-md) solid var(--color-light);
-  outline-offset: 4px;
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80px;
+  background-color: var(--color-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) 24px calc(var(--font-size-lg) + var(--spacing-sm));
 }
 
-.plants-add-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 32px rgba(104, 156, 69, 0.5);
+.nav-item {
+  width: 46px;
+  height: 46px;
+  border: none;
+  background: transparent;
+  color: var(--color-dark-60);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
-.plants-add-button:active {
-  transform: translateY(1px);
-  box-shadow: 0 8px 20px rgba(104, 156, 69, 0.4);
+.nav-item.active {
+  color: var(--color-dark);
+}
+
+.nav-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: calc(var(--font-size-lg) * 0.3);
+  width: 33.36%;
+  height: var(--spacing-sm);
+  background-color: rgba(49, 49, 49, 0.2);
+  border-radius: 94.203px;
 }

@@ -4,7 +4,13 @@ import Button from "../components/Button.jsx";
 import IconElement from "../components/IconElement.jsx";
 import { useAuthSession } from "../components/RequireAuth.jsx";
 import { getPlantById } from "../services/plants";
-import { listTasks } from "../services/tasks";
+import {
+  createReminder,
+  deleteReminder,
+  generateReminderContent,
+  listRemindersByPlant,
+  updateReminder,
+} from "../services/reminders";
 import "./PlantDetailPage.css";
 
 const REMINDER_TYPES = [
@@ -51,6 +57,7 @@ function resolvePlantImageSrc(plant) {
 
 function summarizeSchedule(schedule) {
   if (!schedule) return "No reminder scheduled yet.";
+  if (typeof schedule === "string") return schedule;
 
   switch (schedule.frequency) {
     case "multi_week":
@@ -74,13 +81,14 @@ function summarizeSchedule(schedule) {
   }
 }
 
-function ReminderSwitch({ active, onToggle }) {
+function ReminderSwitch({ active, onToggle, disabled }) {
   return (
     <button
       type="button"
       className={`reminder-switch ${active ? "is-on" : ""}`}
       onClick={onToggle}
       aria-pressed={active}
+      disabled={disabled}
     >
       <span className="reminder-switch__thumb" />
     </button>
@@ -99,6 +107,9 @@ export default function PlantDetailPage() {
   const [activeReminderType, setActiveReminderType] = useState(null);
   const [reminderForm, setReminderForm] = useState(DEFAULT_FORM_STATE);
   const [formError, setFormError] = useState("");
+  const [reminderError, setReminderError] = useState("");
+  const [pendingToggleType, setPendingToggleType] = useState(null);
+  const [savingReminder, setSavingReminder] = useState(false);
 
   useEffect(() => {
     let abort = false;
@@ -108,26 +119,24 @@ export default function PlantDetailPage() {
 
     setLoading(true);
     setError(null);
+    setReminderError("");
 
     Promise.all([
       getPlantById({ plantId, userId }),
-      listTasks(userId).catch(() => []),
+      listRemindersByPlant({ userId, plantId }).catch(() => []),
     ])
-      .then(([plantData, tasks]) => {
+      .then(([plantData, reminderRows]) => {
         if (abort) return;
         setPlant(plantData);
 
-        const plantTasks = tasks.filter((task) => task.plant_id === plantId);
         const mappedReminders = createEmptyReminderState();
 
-        plantTasks.forEach((task) => {
-          mappedReminders[task.task_type] = {
+        reminderRows.forEach((reminder) => {
+          mappedReminders[reminder.task_type] = {
             enabled: true,
-            schedule: {
-              frequency: "specific_days",
-              selectedDays: [],
-              nextDue: task.due_date,
-            },
+            id: reminder.id,
+            dueDate: reminder.due_date,
+            schedule: reminder.description || "Custom schedule",
           };
         });
 
@@ -173,14 +182,35 @@ export default function PlantDetailPage() {
     );
   }, [plant, displayName]);
 
-  const handleToggleReminder = (typeKey) => {
+  const handleToggleReminder = async (typeKey) => {
     const current = reminders[typeKey];
+    const userId = session?.user?.id;
 
     if (current?.enabled) {
-      setReminders((prev) => ({
-        ...prev,
-        [typeKey]: { enabled: false },
-      }));
+      if (!current.id || !userId) {
+        setReminders((prev) => ({
+          ...prev,
+          [typeKey]: { enabled: false },
+        }));
+        return;
+      }
+
+      setPendingToggleType(typeKey);
+      setReminderError("");
+      try {
+        await deleteReminder(current.id, userId);
+        setReminders((prev) => ({
+          ...prev,
+          [typeKey]: { enabled: false },
+        }));
+      } catch (toggleError) {
+        console.error(toggleError);
+        setReminderError(
+          toggleError.message || "Failed to disable reminder. Please try again."
+        );
+      } finally {
+        setPendingToggleType(null);
+      }
       return;
     }
 
@@ -216,7 +246,7 @@ export default function PlantDetailPage() {
     });
   };
 
-  const handleReminderFormSubmit = (event) => {
+  const handleReminderFormSubmit = async (event) => {
     event.preventDefault();
 
     if (reminderForm.frequency === "specific_days") {
@@ -228,15 +258,60 @@ export default function PlantDetailPage() {
 
     if (!activeReminderType) return;
 
-    setReminders((prev) => ({
-      ...prev,
-      [activeReminderType]: {
-        enabled: true,
-        schedule: reminderForm,
-      },
-    }));
+    const userId = session?.user?.id;
+    if (!userId || !plantId) {
+      setFormError("Missing account information. Please sign in again.");
+      return;
+    }
 
-    closeReminderForm();
+    const dueDate =
+      reminderForm.startDate || new Date().toISOString().split("T")[0];
+    const summary = summarizeSchedule(reminderForm);
+    const { title } = generateReminderContent(activeReminderType, plant || {});
+    const existingReminder = reminders[activeReminderType];
+
+    setSavingReminder(true);
+    setReminderError("");
+    try {
+      let savedReminder;
+
+      if (existingReminder?.id) {
+        savedReminder = await updateReminder(existingReminder.id, userId, {
+          dueDate,
+          title,
+          description: summary,
+        });
+      } else {
+        savedReminder = await createReminder({
+          userId,
+          plantId,
+          dueDate,
+          taskType: activeReminderType,
+          title,
+          description: summary,
+        });
+      }
+
+      setReminders((prev) => ({
+        ...prev,
+        [activeReminderType]: {
+          enabled: true,
+          id: savedReminder.id,
+          dueDate: savedReminder.due_date,
+          schedule: reminderForm,
+          summary,
+        },
+      }));
+
+      closeReminderForm();
+    } catch (saveError) {
+      console.error(saveError);
+      setFormError(
+        saveError.message || "Failed to save reminder. Please try again."
+      );
+    } finally {
+      setSavingReminder(false);
+    }
   };
 
   const currentReminderLabel = activeReminderType
@@ -257,7 +332,7 @@ export default function PlantDetailPage() {
         <Button variant="secondary" icon="edit" text="Edit plant" />
       </header>
 
-      {loading && <p className="plant-detail-state">Loading plant…</p>}
+      {loading && <p className="plant-detail-state">Loading plant...</p>}
       {error && <p className="plant-detail-state plant-detail-state--error">{error}</p>}
 
       {!loading && !error && plant && (
@@ -304,6 +379,9 @@ export default function PlantDetailPage() {
               </div>
               <Button variant="secondary" icon="event" text="View calendar" />
             </div>
+            {reminderError && (
+              <p className="reminder-inline-error">{reminderError}</p>
+            )}
             <div className="reminder-grid">
               {REMINDER_TYPES.map((type) => {
                 const reminder = reminders[type.key];
@@ -323,6 +401,7 @@ export default function PlantDetailPage() {
                     <ReminderSwitch
                       active={Boolean(reminder?.enabled)}
                       onToggle={() => handleToggleReminder(type.key)}
+                      disabled={pendingToggleType === type.key}
                     />
                   </div>
                 );
@@ -467,8 +546,14 @@ export default function PlantDetailPage() {
                   variant="secondary"
                   text="Cancel"
                   onClick={closeReminderForm}
+                  disabled={savingReminder}
                 />
-                <Button type="submit" text="Save reminder" icon="check" />
+                <Button
+                  type="submit"
+                  text={savingReminder ? "Saving..." : "Save reminder"}
+                  icon="check"
+                  disabled={savingReminder}
+                />
               </div>
             </form>
           </div>

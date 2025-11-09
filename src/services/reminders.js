@@ -1,9 +1,10 @@
-// src/services/tasks.js
+// src/services/reminders.js
 import { supabase } from "../lib/supabaseClient";
 
-const TASK_TYPES = ["water", "fertilize", "mist", "turn"];
+const REMINDER_TYPES = ["water", "fertilize", "mist", "turn"];
+const TABLE = "reminders";
 
-const TASK_TEMPLATES = {
+const REMINDER_TEMPLATES = {
   water: {
     title: (plantName) => `Water ${plantName}`,
     description: (plant) =>
@@ -25,29 +26,25 @@ const TASK_TEMPLATES = {
   turn: {
     title: (plantName) => `Turn ${plantName}`,
     description: () =>
-      "Rotate the pot about 90° to keep growth balanced toward the light.",
+      "Rotate the pot about 90 degrees to keep growth balanced toward the light.",
   },
 };
 
 function resolvePlantName(plant) {
-  return (
-    plant?.nickname?.trim() ||
-    plant?.official_name?.trim() ||
-    "your plant"
-  );
+  return plant?.nickname?.trim() || plant?.official_name?.trim() || "your plant";
 }
 
-export function generateTaskContent(taskType, plant) {
-  if (!TASK_TYPES.includes(taskType)) {
+export function generateReminderContent(taskType, plant) {
+  if (!REMINDER_TYPES.includes(taskType)) {
     throw new Error(
-      `Unsupported task type "${taskType}". Expected one of: ${TASK_TYPES.join(
+      `Unsupported reminder type "${taskType}". Expected one of: ${REMINDER_TYPES.join(
         ", "
       )}`
     );
   }
 
   const plantName = resolvePlantName(plant);
-  const template = TASK_TEMPLATES[taskType];
+  const template = REMINDER_TEMPLATES[taskType];
 
   return {
     title: template.title(plantName),
@@ -55,7 +52,7 @@ export function generateTaskContent(taskType, plant) {
   };
 }
 
-export async function createTask({
+export async function createReminder({
   userId,
   plantId,
   dueDate,
@@ -64,12 +61,12 @@ export async function createTask({
   description,
   completed = false,
 }) {
-  if (!userId) throw new Error("createTask requires a userId.");
-  if (!plantId) throw new Error("createTask requires a plantId.");
-  if (!dueDate) throw new Error("createTask requires a dueDate.");
-  if (!TASK_TYPES.includes(taskType)) {
+  if (!userId) throw new Error("createReminder requires a userId.");
+  if (!plantId) throw new Error("createReminder requires a plantId.");
+  if (!dueDate) throw new Error("createReminder requires a dueDate.");
+  if (!REMINDER_TYPES.includes(taskType)) {
     throw new Error(
-      `Unsupported task type "${taskType}". Expected one of: ${TASK_TYPES.join(
+      `Unsupported reminder type "${taskType}". Expected one of: ${REMINDER_TYPES.join(
         ", "
       )}`
     );
@@ -86,7 +83,7 @@ export async function createTask({
   };
 
   const { data, error } = await supabase
-    .from("tasks")
+    .from(TABLE)
     .insert([payload])
     .select()
     .single();
@@ -95,11 +92,12 @@ export async function createTask({
   return data;
 }
 
-export async function listTasks(userId) {
-  if (!userId) throw new Error("listTasks requires a userId.");
+export async function listRemindersByPlant({ userId, plantId }) {
+  if (!userId) throw new Error("listRemindersByPlant requires a userId.");
+  if (!plantId) throw new Error("listRemindersByPlant requires a plantId.");
 
   const { data, error } = await supabase
-    .from("tasks")
+    .from(TABLE)
     .select(
       `
         id,
@@ -111,30 +109,36 @@ export async function listTasks(userId) {
         description,
         completed,
         inserted_at,
-        updated_at,
-        plants:plant_id (
-          id,
-          nickname,
-          official_name
-        )
+        updated_at
       `
     )
     .eq("user_id", userId)
-    .order("due_date", { ascending: true })
-    .order("inserted_at", { ascending: true });
+    .eq("plant_id", plantId)
+    .order("task_type", { ascending: true });
 
   if (error) throw error;
   return data;
 }
 
-export async function updateTask(id, userId, updates) {
-  if (!id) throw new Error("updateTask requires an id.");
-  if (!userId) throw new Error("updateTask requires a userId.");
+export async function listRemindersForUser(userId) {
+  if (!userId) throw new Error("listRemindersForUser requires a userId.");
+
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("id, plant_id, task_type, due_date, description")
+    .eq("user_id", userId)
+    .order("plant_id", { ascending: true })
+    .order("task_type", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateReminder(id, userId, updates) {
+  if (!id) throw new Error("updateReminder requires an id.");
+  if (!userId) throw new Error("updateReminder requires a userId.");
 
   const allowedUpdates = {};
-  if (typeof updates.completed === "boolean") {
-    allowedUpdates.completed = updates.completed;
-  }
   if (updates.dueDate) {
     allowedUpdates.due_date = updates.dueDate;
   }
@@ -144,13 +148,16 @@ export async function updateTask(id, userId, updates) {
   if (updates.description) {
     allowedUpdates.description = updates.description;
   }
+  if (typeof updates.completed === "boolean") {
+    allowedUpdates.completed = updates.completed;
+  }
 
   if (Object.keys(allowedUpdates).length === 0) {
-    throw new Error("No valid fields supplied to updateTask.");
+    throw new Error("No valid fields supplied to updateReminder.");
   }
 
   const { data, error } = await supabase
-    .from("tasks")
+    .from(TABLE)
     .update(allowedUpdates)
     .eq("id", id)
     .eq("user_id", userId)
@@ -161,12 +168,12 @@ export async function updateTask(id, userId, updates) {
   return data;
 }
 
-export async function deleteTask(id, userId) {
-  if (!id) throw new Error("deleteTask requires an id.");
-  if (!userId) throw new Error("deleteTask requires a userId.");
+export async function deleteReminder(id, userId) {
+  if (!id) throw new Error("deleteReminder requires an id.");
+  if (!userId) throw new Error("deleteReminder requires a userId.");
 
   const { error } = await supabase
-    .from("tasks")
+    .from(TABLE)
     .delete()
     .eq("id", id)
     .eq("user_id", userId);

@@ -3,45 +3,29 @@ import { Link } from "react-router-dom";
 import { useAuthSession } from "../components/RequireAuth.jsx";
 import IconElement from "../components/IconElement.jsx";
 import { listPlants } from "../services/plants";
+import { listRemindersForUser } from "../services/reminders";
 import "./PlantsPage.css";
 
-const INDICATOR_FIELDS = [
-  { key: "sun_level", label: "Sun" },
-  { key: "difficulty", label: "Difficulty" },
-  { key: "notes", label: "Notes" },
+const REMINDER_TYPES = [
+  { key: "water", label: "Watering", color: "var(--color-water-reminder)" },
+  { key: "mist", label: "Misting", color: "var(--color-mist-reminder)" },
+  { key: "turn", label: "Rotation", color: "var(--color-rotate-reminder)" },
+  {
+    key: "fertilize",
+    label: "Fertilizing",
+    color: "var(--color-fertilize-reminder)",
+  },
 ];
 
-const INDICATOR_COLORS = [
-  "var(--color-water-reminder)",
-  "var(--color-rotate-reminder)",
-  "var(--color-fertilize-reminder)",
-  "var(--color-mist-reminder)",
-];
-
-function buildIndicators(plant) {
-  const activeIndicators = INDICATOR_FIELDS.map((field) => {
-    const value = resolveText(plant?.[field.key]);
-    if (!value) return null;
-    return { ...field, value };
-  }).filter(Boolean);
-
-  if (!activeIndicators.length) {
-    return [
-      {
-        key: "profile",
-        label: "Care profile",
-        color: INDICATOR_COLORS[0],
-      },
-    ];
-  }
-
-  return activeIndicators
-    .slice(0, INDICATOR_COLORS.length)
-    .map((field, idx) => ({
-      key: field.key,
-      label: `${field.label}: ${field.value}`,
-      color: INDICATOR_COLORS[idx],
-    }));
+function buildReminderLookup(entries) {
+  return entries.reduce((acc, reminder) => {
+    if (!reminder?.plant_id || !reminder?.task_type) return acc;
+    if (!acc[reminder.plant_id]) acc[reminder.plant_id] = [];
+    if (!acc[reminder.plant_id].includes(reminder.task_type)) {
+      acc[reminder.plant_id].push(reminder.task_type);
+    }
+    return acc;
+  }, {});
 }
 
 function resolvePlantImageSrc(plant) {
@@ -63,6 +47,7 @@ function resolveText(...candidates) {
 export default function PlantsPage() {
   const { session } = useAuthSession();
   const [plants, setPlants] = useState([]);
+  const [reminderLookup, setReminderLookup] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -72,6 +57,7 @@ export default function PlantsPage() {
 
     if (!userId) {
       setPlants([]);
+      setReminderLookup({});
       setError("Missing user session.");
       return;
     }
@@ -79,9 +65,11 @@ export default function PlantsPage() {
     setLoading(true);
     setError(null);
 
-    listPlants(userId)
-      .then((items) => {
-        if (!abort) setPlants(items);
+    Promise.all([listPlants(userId), listRemindersForUser(userId)])
+      .then(([items, reminders]) => {
+        if (abort) return;
+        setPlants(items);
+        setReminderLookup(buildReminderLookup(reminders ?? []));
       })
       .catch((fetchError) => {
         if (!abort) setError(fetchError.message);
@@ -132,14 +120,15 @@ export default function PlantsPage() {
                   ? subtitleCandidate
                   : "";
               const imageSrc = resolvePlantImageSrc(plant);
-              const indicators = buildIndicators(plant);
+              const plantReminderTypes =
+                (plant.id && reminderLookup[plant.id]) || [];
+              const activeReminders = REMINDER_TYPES.filter((type) =>
+                plantReminderTypes.includes(type.key)
+              );
 
               return (
                 <li key={plant.id ?? displayName} className="plant-card">
-                  <Link
-                    to={`/plants/${plant.id}`}
-                    className="plant-card__link"
-                  >
+                  <Link to={`/plants/${plant.id}`} className="plant-card__link">
                     <div className="plant-card__media">
                       {imageSrc ? (
                         <img
@@ -169,16 +158,18 @@ export default function PlantsPage() {
                         />
                       </div>
 
-                      <div className="plant-card__indicators">
-                        {indicators.map((indicator) => (
-                          <span
-                            key={indicator.key}
-                            className="plant-card__indicator"
-                            style={{ backgroundColor: indicator.color }}
-                            title={indicator.label}
-                          />
-                        ))}
-                      </div>
+                      {activeReminders.length > 0 && (
+                        <div className="plant-card__indicators">
+                          {activeReminders.map((indicator) => (
+                            <span
+                              key={indicator.key}
+                              className="plant-card__indicator"
+                              style={{ backgroundColor: indicator.color }}
+                              title={`${indicator.label} reminder active`}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </Link>
                 </li>
@@ -188,13 +179,13 @@ export default function PlantsPage() {
         )}
       </section>
 
-      <button
-        type="button"
+      <Link
+        to="/plants/new"
         className="plants-add-button"
         aria-label="Add a new plant"
       >
         <IconElement icon="add" size={28} filled />
-      </button>
+      </Link>
     </div>
   );
 }

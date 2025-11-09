@@ -1,0 +1,94 @@
+.plant-create-page {
+  padding: var(--spacing-xl) var(--spacing-lg)
+    calc(var(--spacing-xl) * 3 + var(--spacing-lg));
+  background-color: var(--color-secondary-50);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.plant-create-header h1 {
+  font-family: var(--font-family-heading);
+  margin: var(--spacing-xs) 0;
+  color: var(--color-dark);
+}
+
+.plant-create-header p {
+  color: var(--color-dark-60);
+  margin: 0;
+}
+
+.plant-create-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: none;
+  border: none;
+  color: var(--color-dark);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: var(--spacing-sm);
+}
+
+.plant-create-form {
+  background-color: var(--color-light);
+  padding: var(--spacing-lg);
+  border-radius: calc(var(--border-radius-base) * 1.5);
+  box-shadow: 0 12px 32px rgba(32, 25, 18, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-base);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.form-field span {
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.form-field input[type="text"],
+.form-field select,
+.form-field textarea {
+  padding: 12px;
+  border-radius: var(--border-radius-base);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+}
+
+.form-field textarea {
+  resize: vertical;
+}
+
+.difficulty-options {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.difficulty-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 8px 12px;
+  border-radius: var(--border-radius-base);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.form-error {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.plant-create-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-base);
+}
