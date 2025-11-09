@@ -276,7 +276,7 @@ export default function ForumPage() {
       </main>
 
       {/* floating add button like in the design - mobile only overlay */}
-      <button className="floating-add" aria-label="Create post" onClick={() => navigate("/forum/create")}>
+      <button className="floating-add" aria-label="Create post" onClick={() => navigate("/forum/branch")}>
         <IconElement icon="add" size={26} filled={true} />
       </button>
     </div>

@@ -14,6 +14,7 @@ import RequireAuth from "./components/RequireAuth.jsx";
 import PlantsPage from "./pages/PlantsPage.jsx";
 import PlantDetailPage from "./pages/PlantDetailPage.jsx";
 import PlantCreatePage from "./pages/PlantCreatePage.jsx";
+import BranchPost from "./pages/BranchPost.jsx";
 
 function App() {
   return (
@@ -84,6 +85,7 @@ function App() {
               </RequireAuth>
             }
           />
+          <Route path="/forum/branch" element={<BranchPost />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/headwear" element={<HeadwearPage />} />
           <Route path="/auth" element={<AuthPage />} />
