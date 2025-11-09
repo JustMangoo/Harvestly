@@ -262,13 +262,14 @@ export default function ForumPage() {
         </section>
       </main>
 
-      <button
-        className="floating-add"
-        aria-label="Create post"
-        onClick={() => navigate("/forum/branch")}
-      >
-        <IconElement icon="add" size={26} filled={true} />
-      </button>
+<button
+  className="floating-add"
+  aria-label="Create post"
+  onClick={() => navigate("create")}
+>
+  <IconElement icon="add" size={26} filled={true} />
+</button>
+
     </div>
   );
 }

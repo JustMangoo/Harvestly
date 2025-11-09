@@ -15,6 +15,8 @@ import PlantsPage from "./pages/PlantsPage.jsx";
 import PlantDetailPage from "./pages/PlantDetailPage.jsx";
 import PlantCreatePage from "./pages/PlantCreatePage.jsx";
 import PostMockup from "./pages/PostMockup.jsx";
+import CreatePost from "./pages/CreatePost.jsx";
+
 
 function App() {
   return (
@@ -104,6 +106,7 @@ function App() {
               </RequireAuth>
             }
           />
+          <Route path="forum/create" element={<CreatePost />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/headwear" element={<HeadwearPage />} />
           <Route path="/auth" element={<AuthPage />} />
