@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react"; 
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import IconElement from "../components/IconElement.jsx";
+import HeaderBar from "../components/HeaderBar.jsx"; // ✅ import the header
 import "./ForumPage.css";
 
 export default function ForumPage() {
@@ -66,16 +67,18 @@ export default function ForumPage() {
   const [query, setQuery] = useState("");
   const [composer, setComposer] = useState("");
 
-  const activeTopic = topicParam ? topics.find((t) => String(t.id) === String(topicParam)) : null;
+  const activeTopic = topicParam
+    ? topics.find((t) => String(t.id) === String(topicParam))
+    : null;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return posts.filter((p) => {
-      if (activeTopic && String(p.topicId) !== String(activeTopic.id)) return false;
+      if (activeTopic && String(p.topicId) !== String(activeTopic.id))
+        return false;
       if (!q) return true;
       return (
-        p.author.toLowerCase().includes(q) ||
-        p.text.toLowerCase().includes(q)
+        p.author.toLowerCase().includes(q) || p.text.toLowerCase().includes(q)
       );
     });
   }, [posts, query, activeTopic]);
@@ -107,11 +110,8 @@ export default function ForumPage() {
 
   return (
     <div className="forum-page">
-      <header className="forum-header">
-        <div className="forum-title">
-          <h1>Forum{activeTopic ? ` — ${activeTopic.title}` : ""}</h1>
-          <p className="forum-subtitle">Share tips, ask questions, and trade plant wisdom.</p>
-        </div>
+      {/* ✅ Header at top */}
+      <HeaderBar title="Forum" showMenu />
 
         <div className="forum-search">
           <IconElement icon="search" size={20} filled={false} />
@@ -123,13 +123,14 @@ export default function ForumPage() {
             aria-label="Search topics"
           />
         </div>
-      </header>
 
       <main className="forum-content">
         <section className="friends-card" aria-label="Your friends">
           <div className="friends-header">
             <strong>Your Friends</strong>
-            <a className="friends-seeall" href="#!">See All →</a>
+            <a className="friends-seeall" href="#!">
+              See All →
+            </a>
           </div>
           <div className="friends-list">
             {friends.map((f) => (
@@ -147,7 +148,12 @@ export default function ForumPage() {
           <div className="topics-header">
             <strong>Explore Topics</strong>
             {activeTopic && (
-              <button className="clear-topic" onClick={clearTopic} aria-label="Clear topic" title="Back to all">
+              <button
+                className="clear-topic"
+                onClick={clearTopic}
+                aria-label="Clear topic"
+                title="Back to all"
+              >
                 ← All topics
               </button>
             )}
@@ -155,7 +161,11 @@ export default function ForumPage() {
           <div className="topics-grid">
             {topics.map((t) => (
               <button
-                className={`topic-card ${activeTopic && String(activeTopic.id) === String(t.id) ? "active" : ""}`}
+                className={`topic-card ${
+                  activeTopic && String(activeTopic.id) === String(t.id)
+                    ? "active"
+                    : ""
+                }`}
                 key={t.id}
                 type="button"
                 onClick={() => openTopic(t)}
@@ -169,7 +179,6 @@ export default function ForumPage() {
           </div>
         </section>
 
-        {/* POSTS SECTION */}
         <section className="posts-list" aria-live="polite">
           {filtered.length === 0 ? (
             <div className="empty-state">
@@ -201,7 +210,9 @@ export default function ForumPage() {
                           e.stopPropagation();
                           setPosts((s) =>
                             s.map((p) =>
-                              p.id === post.id ? { ...p, likes: p.likes + 1 } : p
+                              p.id === post.id
+                                ? { ...p, likes: p.likes + 1 }
+                                : p
                             )
                           );
                         }}
@@ -214,11 +225,16 @@ export default function ForumPage() {
                         className="icon-btn"
                         onClick={(e) => {
                           e.stopPropagation();
-                          const el = document.querySelector(".composer-input");
+                          const el =
+                            document.querySelector(".composer-input");
                           if (el) el.focus();
                         }}
                       >
-                        <IconElement icon="chat_bubble" size={18} filled={false} />
+                        <IconElement
+                          icon="chat_bubble"
+                          size={18}
+                          filled={false}
+                        />
                         {post.comments > 0 && <span>{post.comments}</span>}
                       </button>
 
@@ -227,7 +243,10 @@ export default function ForumPage() {
                         onClick={(e) => {
                           e.stopPropagation();
                           navigator
-                            .share?.({ title: post.author, text: post.text })
+                            .share?.({
+                              title: post.author,
+                              text: post.text,
+                            })
                             .catch(() => {});
                         }}
                       >
@@ -243,7 +262,11 @@ export default function ForumPage() {
         </section>
       </main>
 
-      <button className="floating-add" aria-label="Create post" onClick={() => navigate("/forum/branch")}>
+      <button
+        className="floating-add"
+        aria-label="Create post"
+        onClick={() => navigate("/forum/branch")}
+      >
         <IconElement icon="add" size={26} filled={true} />
       </button>
     </div>

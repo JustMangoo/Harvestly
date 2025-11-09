@@ -1,23 +1,79 @@
-/* Forum Page Layout */
+/* ========================================================= */
+/* ✅ Forum Page Layout */
+/* ========================================================= */
+
 .forum-page {
   max-width: 740px;
   margin: 0 auto;
   padding: calc(var(--spacing-base) * 1.6);
   background: var(--color-light);
-  min-height: calc(100vh - 140px);
+  min-height: 100dvh;
+  padding-bottom: 100px;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
   font-family: var(--font-family-body);
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
-/* HEADER */
+/* ========================================================= */
+/* ✅ New Forum Header Bar (Reusable style like store topbar) */
+/* ========================================================= */
+
+.forum-headerbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-light);
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.back-arrow {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.back-arrow-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.forum-headerbar-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin: 0;
+}
+
+.forum-headerbar-currency {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.seed-icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* ========================================================= */
+/* ✅ Forum Header & Search */
+/* ========================================================= */
+
 .forum-header {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
   position: sticky;
-  top: 70px;
+  top: 56px; /* Prevents overlapping friends section */
   z-index: 30;
   background: var(--color-light);
   padding: 8px 10px;
@@ -36,7 +92,6 @@
   color: var(--color-dark-60);
 }
 
-/* SEARCH */
 .forum-search {
   display: flex;
   align-items: center;
@@ -66,11 +121,15 @@
   color: var(--color-dark-60);
 }
 
-/* FRIENDS SECTION */
+/* ========================================================= */
+/* ✅ Friends Section */
+/* ========================================================= */
+
 .friends-card {
   background: var(--color-light);
   border-radius: 12px;
   padding: 4px 0;
+  margin-top: 12px;
 }
 
 .friends-header {
@@ -81,255 +140,180 @@
   padding: 0 4px;
 }
 
-.friends-header strong {
-  font-size: 15px;
-  color: var(--color-dark);
-}
-
 .friends-seeall {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-primary);
   text-decoration: none;
-  font-weight: 500;
 }
 
 .friends-list {
   display: flex;
   align-items: center;
-  gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: none;
-}
-
-.friends-list::-webkit-scrollbar {
-  display: none;
+  gap: 8px;
+  padding: 4px;
 }
 
 .friend-avatar {
-  width: 46px;
-  height: 46px;
-  border-radius: 999px;
-  background: var(--color-secondary-50);
+  width: 42px;
+  height: 42px;
+  background: var(--color-secondary);
+  border-radius: 50%;
   display: flex;
-  align-items: center;
   justify-content: center;
-  color: var(--color-dark-80);
-  font-weight: 700;
-  font-size: 14px;
-  flex-shrink: 0;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  align-items: center;
+  font-weight: 600;
+  color: var(--color-light);
 }
 
 .friend-add {
-  width: 46px;
-  height: 46px;
-  border-radius: 999px;
   background: var(--color-primary);
-  color: #fff;
+  border-radius: 50%;
   border: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
+  width: 42px;
+  height: 42px;
+  color: var(--color-light);
   cursor: pointer;
-  flex-shrink: 0;
-  transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.friend-add:hover {
-  background: #55873a;
-  transform: translateY(-2px);
-}
+/* ========================================================= */
+/* ✅ Explore Topics */
+/* ========================================================= */
 
-/* EXPLORE TOPICS */
 .explore-topics {
-  margin-top: 16px;
+  margin-top: 10px;
 }
 
 .topics-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  padding: 0 4px;
+  margin-bottom: var(--spacing-sm);
 }
 
-.topics-header strong {
-  font-size: 15px;
-  color: var(--color-dark);
+.clear-topic {
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .topics-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .topic-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px;
   background: var(--color-secondary-50);
-  border-radius: 12px;
+  border: none;
+  border-radius: var(--border-radius-base);
+  padding: var(--spacing-base);
+  text-align: center;
   cursor: pointer;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  transition: all 0.18s ease;
-}
-
-.topic-card:hover {
-  background: var(--color-secondary);
-  transform: translateY(-2px);
+  font-weight: 600;
 }
 
 .topic-card.active {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-light);
 }
 
-.topic-icon {
-  color: var(--color-dark-60);
-  flex-shrink: 0;
-  font-size: 18px;
-}
+/* ========================================================= */
+/* ✅ Posts List */
+/* ========================================================= */
 
-.topic-card.active .topic-icon {
-  color: #fff;
-}
-
-.topic-title {
-  color: var(--color-dark);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.topic-card.active .topic-title {
-  color: #fff;
-}
-
-/* POSTS SECTION */
 .posts-list {
   display: flex;
   flex-direction: column;
-  margin-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  gap: var(--spacing-sm);
 }
 
 .forum-post {
-  display: flex;
-  flex-direction: column;
   background: var(--color-light);
-  padding: 14px 4px;
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-base);
   cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.forum-post:hover {
-  background: rgba(0, 0, 0, 0.02);
-}
-
-.post-divider {
-  height: 1px;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.05);
-  margin-top: 8px;
 }
 
 .post-left {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .post-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: var(--color-secondary-50);
-  color: var(--color-dark-80);
-  font-weight: 700;
-  font-size: 16px;
+  width: 40px;
+  height: 40px;
+  background: var(--color-secondary);
+  border-radius: 50%;
   display: flex;
-  align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  align-items: center;
+  font-weight: 600;
+  color: var(--color-light);
 }
 
 .post-body {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .post-head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  font-size: var(--font-size-sm);
 }
 
 .post-author {
-  color: var(--color-dark);
-  font-size: 15px;
   font-weight: 600;
 }
 
 .post-time {
   color: var(--color-dark-60);
-  font-size: var(--font-size-sm);
 }
 
 .post-text {
-  color: var(--color-dark-80);
   font-size: var(--font-size-base);
   margin: 4px 0;
-  line-height: 1.5;
-}
-
-/* Post actions */
-.icon-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: none;
-  background: transparent;
-  color: var(--color-dark-60);
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: var(--font-size-sm);
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-.icon-btn:hover {
-  background: var(--color-secondary-50);
-  color: var(--color-dark);
-  transform: translateY(-1px);
-}
-
-.icon-btn span {
-  font-size: 0.9em;
-  color: inherit;
 }
 
 .post-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 6px;
+  gap: 10px;
 }
 
-/* RESPONSIVE */
-@media (max-width: 420px) {
-  .forum-page {
-    padding: calc(var(--spacing-base) * 0.8);
-  }
+.icon-btn {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+}
 
-  .friends-list {
-    gap: 10px;
-  }
+.post-divider {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: 8px;
+}
 
-  .topic-card {
-    padding: 10px;
-  }
+/* ========================================================= */
+/* ✅ Floating Add Button */
+/* ========================================================= */
+
+.floating-add {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  background: var(--color-primary);
+  color: var(--color-light);
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 200;
 }
