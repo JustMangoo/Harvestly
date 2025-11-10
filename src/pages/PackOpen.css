@@ -1,0 +1,75 @@
+.packopen-page { 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  background-color: #D7E1B7;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Default gif size (used for opening animation) */
+.packopen-gif {
+  width: 80%;              /* slightly smaller than before */
+  max-width: 360px;
+  object-fit: contain;
+}
+
+/* Fullscreen style for the 2nd gif (reveal) */
+.packopen-gif.fullscreen {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.packopen-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.reward-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 70%;
+}
+
+.reward-img {
+  width: 180px;
+  height: auto;
+  animation: popIn 0.8s ease forwards;
+}
+
+.continue-btn {
+  background-color: #6da96a;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 28px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 20px;
+}
+
+.continue-btn:hover {
+  background-color: #5b8e57;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes popIn {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

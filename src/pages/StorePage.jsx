@@ -2,7 +2,6 @@ import "./StorePage.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CategoryTabs from "./CategoryTabs";
-import BranchPage from "./BranchPage"; // generic branch page for all categories
 
 import headwearImg from "../assets/Hat.svg";
 import eyewearImg from "../assets/glasses.svg";
@@ -202,9 +201,7 @@ export default function StorePage() {
                 />{" "}
                 {selectedItem.price}
               </span>
-              <button className="purchase-btn" onClick={handlePurchase}>
-                Purchase
-              </button>
+              <button className="purchase-btn" onClick={() => navigate("/packopen")}>Purchase</button>
             </div>
             <button
               className="modal-close"

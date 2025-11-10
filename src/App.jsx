@@ -16,6 +16,7 @@ import PlantDetailPage from "./pages/PlantDetailPage.jsx";
 import PlantCreatePage from "./pages/PlantCreatePage.jsx";
 import PostMockup from "./pages/PostMockup.jsx";
 import CreatePost from "./pages/CreatePost.jsx";
+import PackOpen from "./pages/PackOpen.jsx";
 
 
 function App() {
@@ -106,6 +107,7 @@ function App() {
               </RequireAuth>
             }
           />
+          <Route path="/packopen" element={<PackOpen />} />
           <Route path="forum/create" element={<CreatePost />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/headwear" element={<HeadwearPage />} />
