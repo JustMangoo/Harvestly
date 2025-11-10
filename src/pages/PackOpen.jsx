@@ -9,7 +9,7 @@ import Pack3Gif from "../assets/PackOpen3.gif";
 import Pack4Gif from "../assets/PackOpen4.gif";
 import Pack5Gif from "../assets/PackOpen5.gif";
 
-import Pack1Still from "../assets/Pulls.png";
+import Pack1Still from "../assets/Pack1Still.png";
 import Pack2Still from "../assets/Pack2Still.png";
 import Pack3Still from "../assets/Pack3Still.png";
 import Pack4Still from "../assets/Pack4Still.png";
