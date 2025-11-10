@@ -3,7 +3,7 @@ import "./HeadwearPage.css";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import hat1 from "../assets/Hat.png";
+import hat1 from "../assets/hat.png";
 import backarrow from "../assets/backarrow.svg";
 import goldSeedImg from "../assets/seed.svg";
 
@@ -38,7 +38,10 @@ export default function HeadwearPage() {
           <img src={backarrow} alt="Back" style={{ width: 20, height: 20 }} />
         </button>
 
-        <h1 className="store-title" style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>
+        <h1
+          className="store-title"
+          style={{ margin: 0, fontSize: 18, fontWeight: 700 }}
+        >
           {mainTitle}
         </h1>
 
@@ -63,7 +66,11 @@ export default function HeadwearPage() {
             </div>
             <p className="item-title">{item.name}</p>
             <div className="item-price">
-              <img src={goldSeedImg} alt="Seed" className="seed-icon inline-seed" />
+              <img
+                src={goldSeedImg}
+                alt="Seed"
+                className="seed-icon inline-seed"
+              />
               <span>{item.price}</span>
             </div>
           </div>
