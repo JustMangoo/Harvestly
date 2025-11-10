@@ -1,5 +1,6 @@
 .toggle-group {
-  display: inline-flex;
+  display: flex;
+  width: 100%;
   background-color: var(--color-secondary-50);
   border-radius: var(--border-radius-max);
   padding: 4px;
@@ -7,6 +8,7 @@
 }
 
 .toggle-group button {
+  flex: 1;
   border: none;
   background: transparent;
   border-radius: var(--border-radius-max);

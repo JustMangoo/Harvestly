@@ -373,7 +373,7 @@ export default function PlantCreatePage() {
                 value={values.soil_type}
                 onChange={handleChange}
                 disabled={useRecommended}
-                placeholder="e.g. well-draining mix"
+                placeholder="e.g. well-draining"
               />
             </label>
 

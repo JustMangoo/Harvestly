@@ -11,14 +11,19 @@ import {
   listRemindersByPlant,
   updateReminder,
 } from "../services/reminders";
-import { listJournalByPlant, createSignedUrls } from "../services/journal";
+import {
+  listJournalByPlant,
+  createSignedUrls,
+  createJournalEntry,
+  uploadJournalPhoto,
+} from "../services/journal";
 import "./PlantDetailPage.css";
 
 const REMINDER_TYPES = [
   { key: "water", label: "Watering", icon: "water_drop" },
   { key: "fertilize", label: "Fertilizing", icon: "compost" },
   { key: "mist", label: "Misting", icon: "humidity_percentage" },
-  { key: "turn", label: "Rotation", icon: "sync" },
+  { key: "rotate", label: "Rotation", icon: "sync" },
 ];
 
 const DAYS_OF_WEEK = [
@@ -31,11 +36,25 @@ const DAYS_OF_WEEK = [
   { key: "sunday", label: "Sun" },
 ];
 
+const JOURNAL_ENTRY_TYPES = [
+  { key: "note", label: "Note", icon: "edit_note" },
+  { key: "photo", label: "Photo", icon: "photo_camera" },
+  { key: "water", label: "Watered", icon: "water_drop" },
+  { key: "fertilize", label: "Fertilized", icon: "compost" },
+  { key: "mist", label: "Misted", icon: "humidity_percentage" },
+  { key: "rotate", label: "Rotated", icon: "sync" },
+];
+
+function getJournalIcon(entryType) {
+  const type = JOURNAL_ENTRY_TYPES.find((t) => t.key === entryType);
+  return type?.icon || "description";
+}
+
 const DEFAULT_FORM_STATE = {
-  frequency: "multi_week",
-  timesPerWeek: 2,
+  frequency: "specific_days",
   selectedDays: ["monday"],
-  biweeklyDay: "monday",
+  weekInterval: 2,
+  weeklyDay: "monday",
   startDate: "",
 };
 
@@ -57,8 +76,6 @@ function summarizeSchedule(schedule) {
   if (typeof schedule === "string") return schedule;
 
   switch (schedule.frequency) {
-    case "multi_week":
-      return `${schedule.timesPerWeek}x per week`;
     case "specific_days":
       return schedule.selectedDays.length
         ? `Every ${schedule.selectedDays
@@ -69,11 +86,16 @@ function summarizeSchedule(schedule) {
             )
             .join(", ")}`
         : "Select at least one day";
-    case "biweekly":
-      return `Every other ${
-        DAYS_OF_WEEK.find((d) => d.key === schedule.biweeklyDay)?.label ??
-        schedule.biweeklyDay
-      }`;
+    case "weekly":
+      const interval = schedule.weekInterval || 1;
+      const dayLabel =
+        DAYS_OF_WEEK.find((d) => d.key === schedule.weeklyDay)?.label ||
+        schedule.weeklyDay;
+      if (interval === 1) {
+        return `Every ${dayLabel}`;
+      } else {
+        return `Every ${interval} weeks on ${dayLabel}`;
+      }
     default:
       return "Custom schedule";
   }
@@ -110,6 +132,15 @@ export default function PlantDetailPage() {
   const [savingReminder, setSavingReminder] = useState(false);
   const [activeTab, setActiveTab] = useState("information");
   const [journal, setJournal] = useState([]);
+  const [showJournalForm, setShowJournalForm] = useState(false);
+  const [journalForm, setJournalForm] = useState({
+    entry_type: "note",
+    title: "",
+    body: "",
+    photos: [],
+  });
+  const [savingJournal, setSavingJournal] = useState(false);
+  const [journalError, setJournalError] = useState("");
 
   useEffect(() => {
     let abort = false;
@@ -298,13 +329,12 @@ export default function PlantDetailPage() {
     let recurrenceData = null;
     if (reminderForm.frequency === "specific_days") {
       recurrenceData = { days: reminderForm.selectedDays };
-    } else if (reminderForm.frequency === "biweekly") {
+    } else if (reminderForm.frequency === "weekly") {
       recurrenceData = {
-        day: reminderForm.biweeklyDay,
+        day: reminderForm.weeklyDay,
+        interval: reminderForm.weekInterval,
         start_date: dueDate,
       };
-    } else if (reminderForm.frequency === "multi_week") {
-      recurrenceData = { times_per_week: reminderForm.timesPerWeek };
     }
 
     const existingReminder = reminders[activeReminderType];
@@ -356,6 +386,79 @@ export default function PlantDetailPage() {
     ? REMINDER_TYPES.find((type) => type.key === activeReminderType)?.label
     : "";
 
+  const handleJournalFormSubmit = async (event) => {
+    event.preventDefault();
+    const userId = session?.user?.id;
+
+    if (!userId || !plantId) return;
+
+    setSavingJournal(true);
+    setJournalError("");
+
+    try {
+      const newEntry = await createJournalEntry({
+        userId,
+        plantId,
+        entry: journalForm,
+      });
+
+      // Add to local state with signed URLs if photos exist
+      let entryWithUrls = newEntry;
+      if (newEntry.photos && newEntry.photos.length > 0) {
+        const signed = await createSignedUrls({
+          paths: newEntry.photos,
+          expires: 60,
+        });
+        entryWithUrls = {
+          ...newEntry,
+          _photoUrls: signed.map((s) => s.signedUrl),
+        };
+      } else {
+        entryWithUrls = { ...newEntry, _photoUrls: [] };
+      }
+
+      setJournal((prev) => [entryWithUrls, ...prev]);
+      setShowJournalForm(false);
+      setJournalForm({
+        entry_type: "note",
+        title: "",
+        body: "",
+        photos: [],
+      });
+    } catch (error) {
+      console.error("Failed to create journal entry:", error);
+      setJournalError(error.message || "Failed to create entry");
+    } finally {
+      setSavingJournal(false);
+    }
+  };
+
+  const handlePhotoUpload = async (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length === 0) return;
+
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    try {
+      const uploadedPaths = [];
+      for (const file of files) {
+        const timestamp = Date.now();
+        const filename = `${userId}/${plantId}/${timestamp}-${file.name}`;
+        await uploadJournalPhoto({ path: filename, file });
+        uploadedPaths.push(filename);
+      }
+
+      setJournalForm((prev) => ({
+        ...prev,
+        photos: [...prev.photos, ...uploadedPaths],
+      }));
+    } catch (error) {
+      console.error("Failed to upload photos:", error);
+      setJournalError("Failed to upload photos");
+    }
+  };
+
   return (
     <div className="plant-detail-page">
       <header className="plant-detail-header">
@@ -378,6 +481,12 @@ export default function PlantDetailPage() {
       {!loading && !error && plant && (
         <>
           <section className="plant-detail-hero">
+            <div className="plant-detail-meta">
+              <h1>{displayName}</h1>
+              {subtitle && (
+                <p className="plant-detail-subtitle">"{subtitle}"</p>
+              )}
+            </div>
             <div className="plant-detail-photo">
               {resolvePlantImageSrc(plant) ? (
                 <img
@@ -389,27 +498,6 @@ export default function PlantDetailPage() {
                   {displayName.charAt(0).toUpperCase()}
                 </div>
               )}
-            </div>
-            <div className="plant-detail-meta">
-              <p className="plant-detail-subtitle">Plant profile</p>
-              <h1>{displayName}</h1>
-              {subtitle && (
-                <p className="plant-detail-description">{subtitle}</p>
-              )}
-              <div className="plant-detail-tags">
-                {plant.sun_level && (
-                  <span className="plant-detail-tag">
-                    <IconElement icon="sunny" size={18} />
-                    {plant.sun_level}
-                  </span>
-                )}
-                {plant.difficulty && (
-                  <span className="plant-detail-tag">
-                    <IconElement icon="psychology" size={18} />
-                    {plant.difficulty}
-                  </span>
-                )}
-              </div>
             </div>
           </section>
 
@@ -430,18 +518,24 @@ export default function PlantDetailPage() {
                 <h3>How to care</h3>
                 <div className="info-grid">
                   <div className="info-card">
-                    <div className="info-card__label">Difficulty</div>
-                    <div className="info-card__value">
-                      {plant.difficulty || "—"}
+                    <IconElement icon="speed" size={24} />
+                    <div className="info-card__content">
+                      <div className="info-card__label">Difficulty</div>
+                      <div className="info-card__value">
+                        {plant.difficulty || "—"}
+                      </div>
                     </div>
                   </div>
 
                   <div className="info-card">
-                    <div className="info-card__label">Water</div>
-                    <div className="info-card__value">
-                      {plant.water_amount_ml
-                        ? `${plant.water_amount_ml} ml`
-                        : "—"}
+                    <IconElement icon="water_drop" size={24} />
+                    <div className="info-card__content">
+                      <div className="info-card__label">Water</div>
+                      <div className="info-card__value">
+                        {plant.water_amount_ml
+                          ? `${plant.water_amount_ml} ml`
+                          : "—"}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -451,27 +545,39 @@ export default function PlantDetailPage() {
                 <h3>Conditions</h3>
                 <div className="info-grid">
                   <div className="info-card">
-                    <div className="info-card__label">Humidity</div>
-                    <div className="info-card__value">
-                      {plant.humidity_level || "—"}
+                    <IconElement icon="humidity_percentage" size={24} />
+                    <div className="info-card__content">
+                      <div className="info-card__label">Humidity</div>
+                      <div className="info-card__value">
+                        {plant.humidity_level || "—"}
+                      </div>
                     </div>
                   </div>
                   <div className="info-card">
-                    <div className="info-card__label">Sunlight</div>
-                    <div className="info-card__value">
-                      {plant.sun_level || "—"}
+                    <IconElement icon="sunny" size={24} />
+                    <div className="info-card__content">
+                      <div className="info-card__label">Sunlight</div>
+                      <div className="info-card__value">
+                        {plant.sun_level || "—"}
+                      </div>
                     </div>
                   </div>
                   <div className="info-card">
-                    <div className="info-card__label">Temperature</div>
-                    <div className="info-card__value">
-                      {plant.soil_temperature || "—"}
+                    <IconElement icon="device_thermostat" size={24} />
+                    <div className="info-card__content">
+                      <div className="info-card__label">Temperature</div>
+                      <div className="info-card__value">
+                        {plant.soil_temperature || "—"}
+                      </div>
                     </div>
                   </div>
                   <div className="info-card">
-                    <div className="info-card__label">Soil</div>
-                    <div className="info-card__value">
-                      {plant.soil_type || "—"}
+                    <IconElement icon="compost" size={24} />
+                    <div className="info-card__content">
+                      <div className="info-card__label">Soil</div>
+                      <div className="info-card__value">
+                        {plant.soil_type || "—"}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -486,7 +592,6 @@ export default function PlantDetailPage() {
                   <h2>Care reminders</h2>
                   <p>Automate your watering, misting, and rotation habits.</p>
                 </div>
-                <Button variant="secondary" icon="event" text="View calendar" />
               </div>
               {reminderError && (
                 <p className="reminder-inline-error">{reminderError}</p>
@@ -521,32 +626,61 @@ export default function PlantDetailPage() {
 
           {activeTab === "journal" && (
             <section className="plant-journal">
-              <h3>Journal</h3>
+              <div className="journal-header">
+                <h3>Journal</h3>
+                <Button
+                  variant="secondary"
+                  icon="add"
+                  text="Add entry"
+                  onClick={() => setShowJournalForm(true)}
+                />
+              </div>
+              {journalError && <p className="journal-error">{journalError}</p>}
               <div className="journal-timeline">
-                {/* Sample static journal entries - replace with real data when available */}
-                <div className="timeline-item">
-                  <div className="timeline-marker" />
-                  <div className="timeline-card">
-                    <strong>Watered</strong>
-                    <div className="timeline-meta">Aug 4, 2025</div>
-                    <p className="timeline-body">
-                      Watered the plant thoroughly.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="timeline-item">
-                  <div className="timeline-marker" />
-                  <div className="timeline-card">
-                    <strong>Photo</strong>
-                    <div className="timeline-meta">Aug 4, 2025</div>
-                    <div className="timeline-photos">
-                      <div className="thumb" />
-                      <div className="thumb" />
-                      <div className="thumb" />
+                {journal.length === 0 && (
+                  <p className="journal-empty">
+                    No journal entries yet. Add your first entry to track your
+                    plant's progress!
+                  </p>
+                )}
+                {journal.map((entry) => (
+                  <div className="timeline-item" key={entry.id}>
+                    <div className="timeline-marker">
+                      <IconElement
+                        icon={getJournalIcon(entry.entry_type)}
+                        size={20}
+                      />
+                    </div>
+                    <div className="timeline-card">
+                      <strong>{entry.title || entry.entry_type}</strong>
+                      <div className="timeline-meta">
+                        {new Date(entry.created_at).toLocaleDateString(
+                          undefined,
+                          {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          }
+                        )}
+                      </div>
+                      {entry.body && (
+                        <p className="timeline-body">{entry.body}</p>
+                      )}
+                      {entry._photoUrls && entry._photoUrls.length > 0 && (
+                        <div className="timeline-photos">
+                          {entry._photoUrls.map((url, i) => (
+                            <img
+                              key={i}
+                              src={url}
+                              alt={`Journal photo ${i + 1}`}
+                              className="timeline-photo"
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
             </section>
           )}
@@ -588,39 +722,6 @@ export default function PlantDetailPage() {
                     <input
                       type="radio"
                       name="frequency"
-                      value="multi_week"
-                      checked={reminderForm.frequency === "multi_week"}
-                      onChange={(event) =>
-                        handleReminderFormChange(
-                          "frequency",
-                          event.target.value
-                        )
-                      }
-                    />
-                    <span>Multiple times per week</span>
-                  </label>
-                  {reminderForm.frequency === "multi_week" && (
-                    <div className="frequency-detail">
-                      <input
-                        type="number"
-                        min="1"
-                        max="7"
-                        value={reminderForm.timesPerWeek}
-                        onChange={(event) =>
-                          handleReminderFormChange(
-                            "timesPerWeek",
-                            Number(event.target.value)
-                          )
-                        }
-                      />
-                      <span>times per week</span>
-                    </div>
-                  )}
-
-                  <label className="frequency-option">
-                    <input
-                      type="radio"
-                      name="frequency"
                       value="specific_days"
                       checked={reminderForm.frequency === "specific_days"}
                       onChange={(event) =>
@@ -655,8 +756,8 @@ export default function PlantDetailPage() {
                     <input
                       type="radio"
                       name="frequency"
-                      value="biweekly"
-                      checked={reminderForm.frequency === "biweekly"}
+                      value="weekly"
+                      checked={reminderForm.frequency === "weekly"}
                       onChange={(event) =>
                         handleReminderFormChange(
                           "frequency",
@@ -664,15 +765,30 @@ export default function PlantDetailPage() {
                         )
                       }
                     />
-                    <span>Every other week</span>
+                    <span>Weekly interval</span>
                   </label>
-                  {reminderForm.frequency === "biweekly" && (
+                  {reminderForm.frequency === "weekly" && (
                     <div className="frequency-detail">
-                      <select
-                        value={reminderForm.biweeklyDay}
+                      <span>Every</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="52"
+                        value={reminderForm.weekInterval}
                         onChange={(event) =>
                           handleReminderFormChange(
-                            "biweeklyDay",
+                            "weekInterval",
+                            Number(event.target.value)
+                          )
+                        }
+                        style={{ width: "60px" }}
+                      />
+                      <span>week(s) on</span>
+                      <select
+                        value={reminderForm.weeklyDay}
+                        onChange={(event) =>
+                          handleReminderFormChange(
+                            "weeklyDay",
                             event.target.value
                           )
                         }
@@ -683,7 +799,6 @@ export default function PlantDetailPage() {
                           </option>
                         ))}
                       </select>
-                      <span>every other week</span>
                     </div>
                   )}
                 </div>
@@ -704,6 +819,111 @@ export default function PlantDetailPage() {
                   text={savingReminder ? "Saving..." : "Save reminder"}
                   icon="check"
                   disabled={savingReminder}
+                />
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showJournalForm && (
+        <div className="reminder-modal">
+          <div
+            className="reminder-modal__scrim"
+            onClick={() => setShowJournalForm(false)}
+          />
+          <div className="reminder-modal__content">
+            <header>
+              <h3>Add journal entry</h3>
+              <button
+                type="button"
+                className="reminder-modal__close"
+                onClick={() => setShowJournalForm(false)}
+                aria-label="Close journal form"
+              >
+                <IconElement icon="close" size={20} />
+              </button>
+            </header>
+            <form onSubmit={handleJournalFormSubmit}>
+              <label className="form-field">
+                <span>Entry type</span>
+                <select
+                  value={journalForm.entry_type}
+                  onChange={(e) =>
+                    setJournalForm((prev) => ({
+                      ...prev,
+                      entry_type: e.target.value,
+                    }))
+                  }
+                >
+                  <option value="note">Note</option>
+                  <option value="photo">Photo</option>
+                </select>
+              </label>
+
+              <label className="form-field">
+                <span>Title (optional)</span>
+                <input
+                  type="text"
+                  value={journalForm.title}
+                  onChange={(e) =>
+                    setJournalForm((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
+                  placeholder="e.g., First watering, New growth spotted"
+                />
+              </label>
+
+              <label className="form-field">
+                <span>Notes</span>
+                <textarea
+                  value={journalForm.body}
+                  onChange={(e) =>
+                    setJournalForm((prev) => ({
+                      ...prev,
+                      body: e.target.value,
+                    }))
+                  }
+                  placeholder="Add any observations or details..."
+                  rows={4}
+                  required
+                />
+              </label>
+
+              {journalForm.entry_type === "photo" && (
+                <label className="form-field">
+                  <span>Upload photos</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handlePhotoUpload}
+                  />
+                  {journalForm.photos.length > 0 && (
+                    <div className="photo-preview">
+                      {journalForm.photos.length} photo(s) selected
+                    </div>
+                  )}
+                </label>
+              )}
+
+              {journalError && <p className="form-error">{journalError}</p>}
+
+              <div className="reminder-modal__actions">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  text="Cancel"
+                  onClick={() => setShowJournalForm(false)}
+                  disabled={savingJournal}
+                />
+                <Button
+                  type="submit"
+                  text={savingJournal ? "Saving..." : "Add entry"}
+                  icon="check"
+                  disabled={savingJournal}
                 />
               </div>
             </form>

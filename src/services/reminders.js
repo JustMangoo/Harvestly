@@ -1,7 +1,7 @@
 // src/services/reminders.js
 import { supabase } from "../lib/supabaseClient";
 
-const REMINDER_TYPES = ["water", "fertilize", "mist", "turn"];
+const REMINDER_TYPES = ["water", "fertilize", "mist", "rotate"];
 const TABLE = "reminders";
 
 const REMINDER_TEMPLATES = {
@@ -18,8 +18,8 @@ const REMINDER_TEMPLATES = {
     title: (plantName) => `Mist ${plantName}`,
     description: () => "Mist the foliage lightly",
   },
-  turn: {
-    title: (plantName) => `Turn ${plantName}`,
+  rotate: {
+    title: (plantName) => `Rotate ${plantName}`,
     description: () => "Rotate 90° for even growth",
   },
 };
@@ -129,6 +129,7 @@ export async function listRemindersForUser(userId) {
       due_date,
       frequency,
       recurrence_data,
+      completed,
       plants!inner(
         nickname,
         official_name,
@@ -150,6 +151,7 @@ export async function listRemindersForUser(userId) {
     due_date: row.due_date,
     frequency: row.frequency,
     recurrence_data: row.recurrence_data,
+    completed: row.completed,
     plant: row.plants,
   }));
 }
@@ -248,9 +250,10 @@ export function expandReminderToDates(reminder, startDate, endDate) {
       }
       current.setDate(current.getDate() + 1);
     }
-  } else if (reminder.frequency === "biweekly") {
+  } else if (reminder.frequency === "weekly") {
     const targetDay = reminder.recurrence_data?.day?.toLowerCase();
     const targetDayNumber = dayMap[targetDay];
+    const interval = reminder.recurrence_data?.interval || 1; // Default to every week
     const referenceDate = reminder.recurrence_data?.start_date
       ? new Date(reminder.recurrence_data.start_date)
       : new Date(reminder.due_date);
@@ -262,24 +265,103 @@ export function expandReminderToDates(reminder, startDate, endDate) {
 
     while (current <= end) {
       if (current.getDay() === targetDayNumber) {
-        // Check if this week is on the biweekly schedule
+        // Check if this week is on the N-week schedule
         const daysDiff = Math.floor(
           (current - referenceDate) / (1000 * 60 * 60 * 24)
         );
         const weeksDiff = Math.floor(daysDiff / 7);
-        if (weeksDiff % 2 === 0) {
+        if (weeksDiff % interval === 0) {
           dates.push(formatLocalDate(current));
         }
       }
       current.setDate(current.getDate() + 1);
     }
-  } else if (reminder.frequency === "multi_week") {
-    // For multi_week, we'll need a smarter algorithm to distribute N times per week
-    // For now, just return the due_date as a placeholder
-    if (reminder.due_date) {
-      dates.push(reminder.due_date);
-    }
   }
 
   return dates;
+}
+
+// Mark a task occurrence as complete
+// For recurring tasks: creates a journal entry
+// For one-time tasks: updates the reminder's completed field
+export async function completeTaskOccurrence({
+  userId,
+  reminderId,
+  plantId,
+  taskType,
+  dueDate,
+  isRecurring,
+}) {
+  if (!userId) throw new Error("completeTaskOccurrence requires a userId.");
+  if (!reminderId)
+    throw new Error("completeTaskOccurrence requires a reminderId.");
+  if (!plantId) throw new Error("completeTaskOccurrence requires a plantId.");
+  if (!taskType) throw new Error("completeTaskOccurrence requires a taskType.");
+  if (!dueDate) throw new Error("completeTaskOccurrence requires a dueDate.");
+
+  if (isRecurring) {
+    // For recurring tasks, create a journal entry to track this specific completion
+    // Use the task type directly as the entry type
+    const titleMap = {
+      water: "Watered",
+      fertilize: "Fertilized",
+      mist: "Misted",
+      rotate: "Rotated",
+    };
+
+    const { data, error } = await supabase.from("journal_entries").insert([
+      {
+        user_id: userId,
+        plant_id: plantId,
+        entry_type: taskType, // Use the task type directly (water, fertilize, mist, rotate)
+        title: titleMap[taskType] || `Completed ${taskType}`,
+        metadata: {
+          reminder_id: reminderId,
+          task_type: taskType,
+          completed_date: dueDate,
+        },
+      },
+    ]);
+
+    if (error) throw error;
+    return { success: true, type: "journal_entry" };
+  } else {
+    // For one-time tasks, just mark the reminder as completed
+    const { error } = await supabase
+      .from(TABLE)
+      .update({ completed: true })
+      .eq("id", reminderId)
+      .eq("user_id", userId);
+
+    if (error) throw error;
+    return { success: true, type: "reminder_updated" };
+  }
+}
+
+// Get completed task dates from journal entries
+export async function getCompletedTaskDates(userId, startDate, endDate) {
+  if (!userId) throw new Error("getCompletedTaskDates requires a userId.");
+
+  // Query for all task-related journal entries (water, fertilize, mist, rotate)
+  const { data, error } = await supabase
+    .from("journal_entries")
+    .select("metadata, plant_id, entry_type")
+    .eq("user_id", userId)
+    .in("entry_type", ["water", "fertilize", "mist", "rotate"])
+    .gte("created_at", startDate)
+    .lte("created_at", endDate);
+
+  if (error) throw error;
+
+  // Create a map of reminder_id + date => completed
+  const completedMap = {};
+  (data || []).forEach((entry) => {
+    // Only count entries that have reminder metadata
+    if (entry.metadata?.reminder_id && entry.metadata?.completed_date) {
+      const key = `${entry.metadata.reminder_id}-${entry.metadata.completed_date}`;
+      completedMap[key] = true;
+    }
+  });
+
+  return completedMap;
 }

@@ -4,15 +4,15 @@
 -- Add frequency column to store the recurrence type
 ALTER TABLE reminders 
 ADD COLUMN IF NOT EXISTS frequency VARCHAR(20) 
-CHECK (frequency IN ('specific_days', 'biweekly', 'multi_week', 'once'));
+CHECK (frequency IN ('specific_days', 'weekly', 'once'));
 
 -- Add recurrence_data column to store the pattern details as JSON
 ALTER TABLE reminders 
 ADD COLUMN IF NOT EXISTS recurrence_data JSONB;
 
 -- Add comments for documentation
-COMMENT ON COLUMN reminders.frequency IS 'Type of recurrence: specific_days, biweekly, multi_week, or once';
-COMMENT ON COLUMN reminders.recurrence_data IS 'JSON data storing recurrence pattern - e.g. {"days": ["monday", "wednesday"]} or {"day": "monday", "interval": 2}';
+COMMENT ON COLUMN reminders.frequency IS 'Type of recurrence: specific_days, weekly, or once';
+COMMENT ON COLUMN reminders.recurrence_data IS 'JSON data storing recurrence pattern - e.g. {"days": ["monday", "wednesday"]} or {"day": "monday", "interval": 2, "start_date": "2024-01-01"}';
 COMMENT ON COLUMN reminders.description IS 'Human-readable schedule summary (e.g. "Every Mon, Wed") - kept for backward compatibility';
 
 -- Optional: Set default frequency for existing rows

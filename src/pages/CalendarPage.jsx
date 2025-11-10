@@ -6,6 +6,8 @@ import {
   listRemindersForUser,
   generateReminderContent,
   expandReminderToDates,
+  completeTaskOccurrence,
+  getCompletedTaskDates,
 } from "../services/reminders";
 
 // Utilities: local date key (yyyy-mm-dd) and parser avoiding UTC shift
@@ -25,6 +27,7 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(dateKey(new Date()));
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [completedTasks, setCompletedTasks] = useState({});
   const { session } = useAuthSession();
 
   // Fetch all user reminders once (could optimize by month)
@@ -32,42 +35,76 @@ export default function CalendarPage() {
     const userId = session?.user?.id;
     if (!userId) return;
     setLoading(true);
-    listRemindersForUser(userId)
-      .then(setReminders)
-      .catch(() => {})
+
+    const monthStart = new Date(current.getFullYear(), current.getMonth(), 1);
+    const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0);
+
+    Promise.all([
+      listRemindersForUser(userId),
+      getCompletedTaskDates(
+        userId,
+        monthStart.toISOString(),
+        monthEnd.toISOString()
+      ),
+    ])
+      .then(([remindersData, completedData]) => {
+        console.log("Fetched reminders:", remindersData);
+        console.log("Completed tasks:", completedData);
+        setReminders(remindersData);
+        setCompletedTasks(completedData);
+      })
+      .catch((error) => {
+        console.error("Error fetching calendar data:", error);
+      })
       .finally(() => setLoading(false));
-  }, [session]);
+  }, [session, current]);
 
   // Expand reminders into actual dates for the current month
   const expandedReminders = useMemo(() => {
     const monthStart = new Date(current.getFullYear(), current.getMonth(), 1);
     const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0);
 
-    return reminders.flatMap((reminder) => {
+    const expanded = reminders.flatMap((reminder) => {
       const dates = expandReminderToDates(reminder, monthStart, monthEnd);
       return dates.map((date) => ({
         ...reminder,
         due_date: date,
       }));
     });
+
+    console.log("Expanded reminders:", expanded);
+    return expanded;
   }, [reminders, current]);
 
   // Filter reminders for selected date and enrich with generated content
   const todaysTasks = useMemo(() => {
-    return expandedReminders
+    const tasks = expandedReminders
       .filter((r) => r.due_date?.startsWith(selectedDate))
       .map((r) => {
         const { title, description } = generateReminderContent(
           r.task_type,
           r.plant || {}
         );
+        const isRecurring =
+          r.frequency && r.frequency !== "once" && r.frequency !== "";
+        const completionKey = `${r.id}-${r.due_date}`;
+        const isCompleted = isRecurring
+          ? completedTasks[completionKey]
+          : r.completed;
+
         return {
           ...r,
           title,
           description,
+          isRecurring,
+          isCompleted: Boolean(isCompleted),
         };
       });
-  }, [expandedReminders, selectedDate]);
+
+    console.log("Selected date:", selectedDate);
+    console.log("Today's tasks:", tasks);
+    return tasks;
+  }, [expandedReminders, selectedDate, completedTasks]);
 
   function prevMonth() {
     setCurrent((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1));
@@ -79,6 +116,38 @@ export default function CalendarPage() {
     const today = new Date();
     setCurrent(today);
     setSelectedDate(dateKey(today));
+  }
+
+  async function handleTaskToggle(task) {
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    try {
+      await completeTaskOccurrence({
+        userId,
+        reminderId: task.id,
+        plantId: task.plant_id,
+        taskType: task.task_type,
+        dueDate: task.due_date,
+        isRecurring: task.isRecurring,
+      });
+
+      // Update local state
+      if (task.isRecurring) {
+        const completionKey = `${task.id}-${task.due_date}`;
+        setCompletedTasks((prev) => ({
+          ...prev,
+          [completionKey]: true,
+        }));
+      } else {
+        // Update the reminder in the list
+        setReminders((prev) =>
+          prev.map((r) => (r.id === task.id ? { ...r, completed: true } : r))
+        );
+      }
+    } catch (error) {
+      console.error("Failed to complete task:", error);
+    }
   }
 
   return (
@@ -131,7 +200,22 @@ export default function CalendarPage() {
             )}
             <ul className="events-list">
               {todaysTasks.map((t) => (
-                <li key={t.id} className="event-item">
+                <li
+                  key={`${t.id}-${t.due_date}`}
+                  className={`event-item ${
+                    t.isCompleted ? "is-completed" : ""
+                  }`}
+                >
+                  <label className="task-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={t.isCompleted}
+                      onChange={() => handleTaskToggle(t)}
+                      disabled={t.isCompleted}
+                      className="task-checkbox"
+                    />
+                    <span className="checkbox-custom" />
+                  </label>
                   <span
                     className="task-color-badge"
                     style={{

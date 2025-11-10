@@ -9,7 +9,7 @@ import "./PlantsPage.css";
 const REMINDER_TYPES = [
   { key: "water", label: "Watering", color: "var(--color-water-reminder)" },
   { key: "mist", label: "Misting", color: "var(--color-mist-reminder)" },
-  { key: "turn", label: "Rotation", color: "var(--color-rotate-reminder)" },
+  { key: "rotate", label: "Rotation", color: "var(--color-rotate-reminder)" },
   {
     key: "fertilize",
     label: "Fertilizing",

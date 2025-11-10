@@ -125,7 +125,67 @@
   padding: 8px;
   border-radius: 8px;
   background: var(--color-secondary-50);
+  transition: opacity 0.2s ease;
 }
+
+.event-item.is-completed {
+  opacity: 0.5;
+}
+
+.event-item.is-completed .event-title {
+  text-decoration: line-through;
+}
+
+.task-checkbox-label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.task-checkbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  width: 0;
+  height: 0;
+}
+
+.checkbox-custom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-dark-40);
+  border-radius: 4px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-top: 2px;
+}
+
+.task-checkbox:checked + .checkbox-custom {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.task-checkbox:checked + .checkbox-custom::after {
+  content: "✓";
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.task-checkbox:disabled + .checkbox-custom {
+  cursor: not-allowed;
+}
+
+.task-checkbox:not(:disabled) + .checkbox-custom:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-20);
+}
+
 .task-color-badge {
   width: 10px;
   height: 10px;

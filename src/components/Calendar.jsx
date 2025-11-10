@@ -44,7 +44,7 @@ const TASK_COLORS = {
   water: "var(--color-water-reminder)",
   fertilize: "var(--color-fertilize-reminder)",
   mist: "var(--color-mist-reminder)",
-  turn: "var(--color-rotate-reminder)",
+  rotate: "var(--color-rotate-reminder)",
 };
 
 export default function Calendar({
@@ -84,6 +84,12 @@ export default function Calendar({
               const isCurrentMonth = day.getMonth() === month;
               const dateKey = localDateKey(day);
               const tasks = reminderMap[dateKey] || [];
+
+              // Get unique task types for this date
+              const uniqueTaskTypes = [
+                ...new Set(tasks.map((t) => t.task_type)),
+              ];
+
               const isSelected = selectedDate && dateKey === selectedDate;
               const isToday = dateKey === localDateKey(new Date());
               return (
@@ -100,26 +106,25 @@ export default function Calendar({
                 >
                   <span className="day-number">{day.getDate()}</span>
                   {/* Dot stack */}
-                  {tasks.length > 0 && (
+                  {uniqueTaskTypes.length > 0 && (
                     <span
                       className="task-dots"
                       aria-label={`${tasks.length} tasks`}
                     >
-                      {tasks.slice(0, 4).map((t, i) => (
+                      {uniqueTaskTypes.slice(0, 4).map((taskType, i) => (
                         <span
-                          key={i}
+                          key={taskType}
                           className="task-dot"
                           style={{
                             backgroundColor:
-                              TASK_COLORS[t.task_type] ||
-                              "var(--color-accent-60)",
+                              TASK_COLORS[taskType] || "var(--color-accent-60)",
                           }}
                         />
                       ))}
-                      {tasks.length > 4 && (
+                      {uniqueTaskTypes.length > 4 && (
                         <span
                           className="task-dot more"
-                          title={`+${tasks.length - 4}`}
+                          title={`+${uniqueTaskTypes.length - 4}`}
                         >
                           +
                         </span>

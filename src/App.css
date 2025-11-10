@@ -3,6 +3,7 @@
 :root {
   /* Color Pallate */
   --color-primary: #689c45;
+  --color-primary-20: rgba(104, 156, 69, 0.2);
   --color-secondary: #d7e1b7;
   --color-secondary-50: #ebf0d6;
   --color-accent: #634120;
