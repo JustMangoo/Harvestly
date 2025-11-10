@@ -1,0 +1,121 @@
+.badges-page {
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--color-light);
+  display: flex;
+  flex-direction: column;
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+.badges-nav {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 430px;
+  width: 100%;
+  z-index: 10;
+  height: 56px;
+  padding: 0 var(--spacing-base);
+  background-color: var(--color-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-secondary-50);
+}
+
+.back-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-dark);
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.page-title {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-lg);
+  color: var(--color-dark);
+  font-weight: 600;
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-spacer {
+  width: 40px;
+}
+
+.badges-content {
+  flex: 1;
+  padding: calc(56px + var(--spacing-base)) var(--spacing-base) calc(80px + var(--spacing-base));
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-base);
+}
+
+.badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.badge-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--border-radius-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.badge-icon.locked {
+  background-color: var(--color-secondary-50);
+  color: var(--color-dark-40);
+}
+
+.badge-icon.unlocked {
+  background-color: var(--color-secondary);
+  font-size: 48px;
+}
+
+.badge-emoji {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.badge-name {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-xs);
+  color: var(--color-dark);
+  text-align: center;
+  margin: 0;
+  line-height: 1.2;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 430px) {
+  .badges-nav {
+    left: 0;
+    transform: none;
+  }
+}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthSession } from "../components/RequireAuth.jsx";
 import IconElement from "../components/IconElement.jsx";
 import { listPlants } from "../services/plants";
@@ -45,6 +45,7 @@ function resolveText(...candidates) {
 }
 
 export default function PlantsPage() {
+  const navigate = useNavigate();
   const { session } = useAuthSession();
   const [plants, setPlants] = useState([]);
   const [reminderLookup, setReminderLookup] = useState({});
@@ -87,13 +88,13 @@ export default function PlantsPage() {
 
   return (
     <div className="plants-page">
-      <header className="plants-header">
-        <p className="plants-subtitle">Plant shelf</p>
-        <h1>My plants</h1>
-        <p className="plants-description">
-          Keep an eye on every sprout, leaf, and bloom at a glance.
-        </p>
-      </header>
+      <nav className="plants-nav">
+        <button className="back-button" onClick={() => navigate(-1)}>
+          <IconElement icon="arrow_back" size={24} />
+        </button>
+        <h1 className="page-title">My plants</h1>
+        <div className="nav-spacer" />
+      </nav>
 
       <section className="plants-content">
         {loading && <p className="plants-state">Loading your plants…</p>}
