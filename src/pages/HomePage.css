@@ -2,12 +2,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: var(--spacing-sm);
-  height: 100%;
+  /* Use min-height so it always fills the viewport */
+  min-height: 100vh;
 }
 
 .main-garden {
   aspect-ratio: 1/1;
   width: 100%;
+}
+
+.home-actions {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 }

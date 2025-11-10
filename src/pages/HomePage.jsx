@@ -93,6 +93,7 @@ export default function HomePage() {
           <Button icon="format_paint" variant="secondary" />
         </Link>
       </div>
+
       <TaskList
         title="Upcoming"
         tasks={upcomingTasks}

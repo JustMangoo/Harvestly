@@ -62,7 +62,7 @@ h1 {
   margin: 0 auto;
   position: relative;
   background-color: var(--color-light);
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 main {
@@ -81,4 +81,9 @@ main {
   background-repeat: repeat;
   /* Match SVG tile size to avoid distortion (approx from Figma pattern) */
   background-size: 176px 96px;
+}
+
+/* Ensure all route pages stretch to at least the viewport height */
+[class$="-page"] {
+  min-height: 100vh;
 }
