@@ -1,38 +1,44 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./CalendarPage.css";
+import Calendar from "../components/Calendar.jsx";
+import { useAuthSession } from "../components/RequireAuth.jsx";
+import { listRemindersForUser } from "../services/reminders";
 
-function getMonthMatrix(date) {
-  const matrix = [];
-  const year = date.getFullYear();
-  const month = date.getMonth();
-
-  // first day of month
-  const firstOfMonth = new Date(year, month, 1);
-  const startDay = firstOfMonth.getDay(); // 0 (Sun) - 6 (Sat)
-
-  // determine first day to show (previous month's tail)
-  const startDate = new Date(year, month, 1 - startDay);
-
-  let day = new Date(startDate);
-  for (let week = 0; week < 6; week++) {
-    const weekRow = [];
-    for (let d = 0; d < 7; d++) {
-      weekRow.push(new Date(day));
-      day.setDate(day.getDate() + 1);
-    }
-    matrix.push(weekRow);
-  }
-
-  return matrix;
+// Utilities: local date key (yyyy-mm-dd) and parser avoiding UTC shift
+function dateKey(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+function parseLocalDateKey(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 
 export default function CalendarPage() {
   const [current, setCurrent] = useState(() => new Date());
+  const [selectedDate, setSelectedDate] = useState(dateKey(new Date()));
+  const [reminders, setReminders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const { session } = useAuthSession();
 
-  const monthMatrix = useMemo(() => getMonthMatrix(current), [current]);
+  // Fetch all user reminders once (could optimize by month)
+  useEffect(() => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+    setLoading(true);
+    listRemindersForUser(userId)
+      .then(setReminders)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [session]);
 
-  const monthName = current.toLocaleString(undefined, { month: "long" });
-  const year = current.getFullYear();
+  // Filter reminders for selected date
+  const todaysTasks = useMemo(
+    () => reminders.filter((r) => r.due_date?.startsWith(selectedDate)),
+    [reminders, selectedDate]
+  );
 
   function prevMonth() {
     setCurrent((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1));
@@ -41,24 +47,15 @@ export default function CalendarPage() {
     setCurrent((c) => new Date(c.getFullYear(), c.getMonth() + 1, 1));
   }
   function goToday() {
-    setCurrent(new Date());
+    const today = new Date();
+    setCurrent(today);
+    setSelectedDate(dateKey(today));
   }
-
-  // sample static events (placeholder until design details provided)
-  const sampleEvents = [
-    { time: "09:00", title: "Water mint", date: new Date() },
-    { time: "14:00", title: "Prune basil", date: new Date() },
-  ];
-
-  const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
     <div className="calendar-page">
       <header className="calendar-header">
         <div className="calendar-title">
-          <h2>
-            {monthName} {year}
-          </h2>
           <div className="calendar-controls">
             <button
               className="btn-ghost"
@@ -83,47 +80,36 @@ export default function CalendarPage() {
 
       <div className="calendar-container">
         <main className="calendar-main">
-          <div className="weekday-row">
-            {weekdayNames.map((w) => (
-              <div key={w} className="weekday-cell">
-                {w}
-              </div>
-            ))}
-          </div>
-
-          <div className="month-grid">
-            {monthMatrix.map((week, wi) => (
-              <div className="week-row" key={wi}>
-                {week.map((day) => {
-                  const isCurrentMonth = day.getMonth() === current.getMonth();
-                  const isToday = ((d) =>
-                    d.toDateString() === new Date().toDateString())(day);
-                  return (
-                    <div
-                      key={day.toISOString()}
-                      className={
-                        "day-cell " +
-                        (isCurrentMonth ? "current-month" : "other-month") +
-                        (isToday ? " today" : "")
-                      }
-                    >
-                      <div className="day-number">{day.getDate()}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
+          <Calendar
+            date={current}
+            reminders={reminders}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
         </main>
-
         <aside className="calendar-sidebar">
           <div className="sidebar-section">
-            <h3>Events</h3>
+            <h3>
+              {parseLocalDateKey(selectedDate).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </h3>
+            {loading && <p className="event-item">Loading...</p>}
+            {!loading && todaysTasks.length === 0 && (
+              <p className="event-item">No tasks</p>
+            )}
             <ul className="events-list">
-              {sampleEvents.map((ev, i) => (
-                <li key={i} className="event-item">
-                  <div className="event-time">{ev.time}</div>
-                  <div className="event-title">{ev.title}</div>
+              {todaysTasks.map((t) => (
+                <li key={t.id} className="event-item">
+                  <span
+                    className="task-color-badge"
+                    style={{
+                      backgroundColor: `var(--color-${t.task_type}-reminder)`,
+                    }}
+                  />
+                  <div className="event-title">{t.title}</div>
                 </li>
               ))}
             </ul>

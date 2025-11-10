@@ -44,8 +44,8 @@
 }
 
 .calendar-container {
-  display: grid;
-  grid-template-columns: 1fr 260px;
+  display: flex;
+  flex-direction: column;
   gap: var(--spacing-lg);
 }
 
@@ -125,6 +125,12 @@
   padding: 8px;
   border-radius: 8px;
   background: var(--color-secondary-50);
+}
+.task-color-badge {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
 }
 .event-time {
   font-weight: 700;
