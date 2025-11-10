@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="176.783" height="96.132" viewBox="0 0 176.783 96.132" fill="none">
+    <!-- Figma-like grass tuft pattern tile (designed to repeat seamlessly) -->
+    <defs>
+        <g id="tuft" stroke="#689C45" stroke-width="2" stroke-linecap="round">
+            <path d="M6.63607 0.00013C10.5763 3.20251 12.2121 19.5763 11.3939 20.0275" />
+            <path d="M18.4149 4.18666C15.3098 8.77896 17.7983 19.2053 16.9248 19.4115" />
+            <path d="M0 5.14336C3.36954 8.4639 5.93476 19.2053 5.06123 19.4115" />
+        </g>
+    </defs>
+    <!-- Two offset tufts per tile to create a diagonal grid when repeated -->
+    <g opacity="0.6">
+        <use href="#tuft" x="6" y="8" />
+        <use href="#tuft" x="94.391" y="56.066" />
+    </g>
+</svg>

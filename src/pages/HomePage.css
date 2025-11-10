@@ -4,4 +4,10 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
+  height: 100%;
+}
+
+.main-garden {
+  aspect-ratio: 1/1;
+  width: 100%;
 }

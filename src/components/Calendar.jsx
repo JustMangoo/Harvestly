@@ -13,7 +13,7 @@ function localDateKey(d) {
 function buildMonthMatrix(year, month) {
   const matrix = [];
   const firstOfMonth = new Date(year, month, 1);
-  const startDay = firstOfMonth.getDay(); // 0-6 (Sun-Sat)
+  const startDay = (firstOfMonth.getDay() + 6) % 7; // Mon = 0, Sun = 6
   const startDate = new Date(year, month, 1 - startDay);
   let cursor = new Date(startDate);
   for (let w = 0; w < 6; w++) {
@@ -25,6 +25,20 @@ function buildMonthMatrix(year, month) {
     matrix.push(row);
   }
   return matrix;
+}
+
+// Helper to build week row (just 7 days around a given date)
+function buildWeekRow(date) {
+  const dayOfWeek = (date.getDay() + 6) % 7; // Mon = 0
+  const startDate = new Date(date);
+  startDate.setDate(date.getDate() - dayOfWeek);
+
+  const row = [];
+  for (let i = 0; i < 7; i++) {
+    row.push(new Date(startDate));
+    startDate.setDate(startDate.getDate() + 1);
+  }
+  return row;
 }
 
 // Map reminders to yyyy-mm-dd => array of tasks
@@ -52,31 +66,78 @@ export default function Calendar({
   reminders = [],
   selectedDate,
   onSelectDate,
+  variant = "full", // "full" or "week"
+  onPrevMonth,
+  onNextMonth,
 }) {
   const year = date.getFullYear();
   const month = date.getMonth();
-  const matrix = useMemo(() => buildMonthMatrix(year, month), [year, month]);
+  const matrix = useMemo(
+    () =>
+      variant === "full" ? buildMonthMatrix(year, month) : [buildWeekRow(date)],
+    [variant, year, month, date]
+  );
   const reminderMap = useMemo(
     () => groupRemindersByDate(reminders),
     [reminders]
   );
 
-  const monthName = date.toLocaleString(undefined, { month: "long" });
+  const monthName = date.toLocaleString(undefined, {
+    month: "long",
+    year: "numeric",
+  });
+  const showHeader = variant === "full";
 
   return (
-    <div className="calendar-component">
-      <div className="calendar-header-inline">
-        <h2>
-          {monthName} {year}
-        </h2>
-      </div>
+    <div
+      className={`calendar-component ${
+        variant === "week" ? "calendar-week" : ""
+      }`}
+    >
+      {showHeader && (
+        <div className="calendar-month-header">
+          <button
+            className="calendar-nav-button"
+            onClick={onPrevMonth}
+            aria-label="Previous month"
+          >
+            <svg width="11" height="19" viewBox="0 0 11 19" fill="currentColor">
+              <path
+                d="M10 1L2 9.5L10 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+              />
+            </svg>
+          </button>
+          <h2 className="calendar-month-name">{monthName}</h2>
+          <button
+            className="calendar-nav-button"
+            onClick={onNextMonth}
+            aria-label="Next month"
+          >
+            <svg width="11" height="19" viewBox="0 0 11 19" fill="currentColor">
+              <path
+                d="M1 1L9 9.5L1 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
+
       <div className="weekday-row">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((w) => (
+        {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((w) => (
           <div key={w} className="weekday-cell">
             {w}
           </div>
         ))}
       </div>
+
+      {variant === "full" && <div className="calendar-divider" />}
+
       <div className="month-grid">
         {matrix.map((week, wi) => (
           <div className="week-row" key={wi}>
@@ -92,6 +153,7 @@ export default function Calendar({
 
               const isSelected = selectedDate && dateKey === selectedDate;
               const isToday = dateKey === localDateKey(new Date());
+
               return (
                 <button
                   type="button"
@@ -105,13 +167,10 @@ export default function Calendar({
                   onClick={() => onSelectDate?.(dateKey)}
                 >
                   <span className="day-number">{day.getDate()}</span>
-                  {/* Dot stack */}
+                  {/* Dot row */}
                   {uniqueTaskTypes.length > 0 && (
-                    <span
-                      className="task-dots"
-                      aria-label={`${tasks.length} tasks`}
-                    >
-                      {uniqueTaskTypes.slice(0, 4).map((taskType, i) => (
+                    <span className="task-dots">
+                      {uniqueTaskTypes.slice(0, 4).map((taskType) => (
                         <span
                           key={taskType}
                           className="task-dot"
@@ -121,14 +180,6 @@ export default function Calendar({
                           }}
                         />
                       ))}
-                      {uniqueTaskTypes.length > 4 && (
-                        <span
-                          className="task-dot more"
-                          title={`+${uniqueTaskTypes.length - 4}`}
-                        >
-                          +
-                        </span>
-                      )}
                     </span>
                   )}
                 </button>

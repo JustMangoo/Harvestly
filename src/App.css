@@ -73,3 +73,12 @@ main {
 .home-page {
   padding: 16px;
 }
+
+/* Reusable grass pattern background */
+.bg-grass-pattern {
+  background-color: var(--color-secondary);
+  background-image: url("./assets/grass-pattern.svg");
+  background-repeat: repeat;
+  /* Match SVG tile size to avoid distortion (approx from Figma pattern) */
+  background-size: 176px 96px;
+}

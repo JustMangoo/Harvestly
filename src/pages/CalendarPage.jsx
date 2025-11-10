@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "./CalendarPage.css";
 import Calendar from "../components/Calendar.jsx";
+import TaskList from "../components/TaskList.jsx";
 import { useAuthSession } from "../components/RequireAuth.jsx";
 import {
   listRemindersForUser,
@@ -59,6 +60,8 @@ export default function CalendarPage() {
       .finally(() => setLoading(false));
   }, [session, current]);
 
+  // Mobile-only page: no responsive branching required
+
   // Expand reminders into actual dates for the current month
   const expandedReminders = useMemo(() => {
     const monthStart = new Date(current.getFullYear(), current.getMonth(), 1);
@@ -79,7 +82,12 @@ export default function CalendarPage() {
   // Filter reminders for selected date and enrich with generated content
   const todaysTasks = useMemo(() => {
     const tasks = expandedReminders
-      .filter((r) => r.due_date?.startsWith(selectedDate))
+      .filter((r) => {
+        if (!r.due_date) return false;
+        // Normalize possible ISO timestamps to just the date portion
+        const datePart = r.due_date.split("T")[0];
+        return datePart === selectedDate;
+      })
       .map((r) => {
         const { title, description } = generateReminderContent(
           r.task_type,
@@ -102,7 +110,7 @@ export default function CalendarPage() {
       });
 
     console.log("Selected date:", selectedDate);
-    console.log("Today's tasks:", tasks);
+    console.log("Today's tasks (normalized filter):", tasks);
     return tasks;
   }, [expandedReminders, selectedDate, completedTasks]);
 
@@ -152,87 +160,29 @@ export default function CalendarPage() {
 
   return (
     <div className="calendar-page">
-      <header className="calendar-header">
-        <div className="calendar-title">
-          <div className="calendar-controls">
-            <button
-              className="btn-ghost"
-              onClick={prevMonth}
-              aria-label="Previous month"
-            >
-              ‹
-            </button>
-            <button className="btn-ghost" onClick={goToday}>
-              Today
-            </button>
-            <button
-              className="btn-ghost"
-              onClick={nextMonth}
-              aria-label="Next month"
-            >
-              ›
-            </button>
-          </div>
-        </div>
-      </header>
-
       <div className="calendar-container">
         <main className="calendar-main">
           <Calendar
+            variant="full"
             date={current}
             reminders={expandedReminders}
             selectedDate={selectedDate}
             onSelectDate={setSelectedDate}
+            onPrevMonth={prevMonth}
+            onNextMonth={nextMonth}
           />
         </main>
-        <aside className="calendar-sidebar">
-          <div className="sidebar-section">
-            <h3>
-              {parseLocalDateKey(selectedDate).toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </h3>
-            {loading && <p className="event-item">Loading...</p>}
-            {!loading && todaysTasks.length === 0 && (
-              <p className="event-item">No tasks</p>
-            )}
-            <ul className="events-list">
-              {todaysTasks.map((t) => (
-                <li
-                  key={`${t.id}-${t.due_date}`}
-                  className={`event-item ${
-                    t.isCompleted ? "is-completed" : ""
-                  }`}
-                >
-                  <label className="task-checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={t.isCompleted}
-                      onChange={() => handleTaskToggle(t)}
-                      disabled={t.isCompleted}
-                      className="task-checkbox"
-                    />
-                    <span className="checkbox-custom" />
-                  </label>
-                  <span
-                    className="task-color-badge"
-                    style={{
-                      backgroundColor: `var(--color-${t.task_type}-reminder)`,
-                    }}
-                  />
-                  <div className="event-content">
-                    <div className="event-title">{t.title}</div>
-                    {t.description && (
-                      <div className="event-description">{t.description}</div>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </aside>
+
+        <TaskList
+          title={parseLocalDateKey(selectedDate).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
+          tasks={todaysTasks}
+          onTaskToggle={handleTaskToggle}
+          showToggleButton={false}
+        />
       </div>
     </div>
   );
