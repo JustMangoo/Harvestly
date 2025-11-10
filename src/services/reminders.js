@@ -8,30 +8,26 @@ const REMINDER_TEMPLATES = {
   water: {
     title: (plantName) => `Water ${plantName}`,
     description: (plant) =>
-      plant?.water_amount?.trim()
-        ? plant.water_amount.trim()
-        : "Around 500ml.",
+      plant?.water_amount_ml ? `${plant.water_amount_ml}ml` : "Water as needed",
   },
   fertilize: {
-    title: (plantName) => `Add fertilizer to ${plantName}`,
-    description: () => "Please check your fertiliser package for more info.",
+    title: (plantName) => `Fertilize ${plantName}`,
+    description: () => "Add fertilizer according to package instructions",
   },
   mist: {
     title: (plantName) => `Mist ${plantName}`,
-    description: (plant) =>
-      plant?.notes?.trim()
-        ? `Focus on: ${plant.notes.trim()}`
-        : "Give the foliage a gentle, even misting.",
+    description: () => "Mist the foliage lightly",
   },
   turn: {
     title: (plantName) => `Turn ${plantName}`,
-    description: () =>
-      "Rotate the pot about 90 degrees to keep growth balanced toward the light.",
+    description: () => "Rotate 90° for even growth",
   },
 };
 
 function resolvePlantName(plant) {
-  return plant?.nickname?.trim() || plant?.official_name?.trim() || "your plant";
+  return (
+    plant?.nickname?.trim() || plant?.official_name?.trim() || "your plant"
+  );
 }
 
 export function generateReminderContent(taskType, plant) {
@@ -57,7 +53,6 @@ export async function createReminder({
   plantId,
   dueDate,
   taskType,
-  title,
   description,
   completed = false,
 }) {
@@ -77,7 +72,6 @@ export async function createReminder({
     plant_id: plantId,
     due_date: dueDate,
     task_type: taskType,
-    title,
     description,
     completed,
   };
@@ -125,13 +119,35 @@ export async function listRemindersForUser(userId) {
 
   const { data, error } = await supabase
     .from(TABLE)
-    .select("id, plant_id, task_type, due_date, description")
+    .select(
+      `
+      id,
+      plant_id,
+      task_type,
+      due_date,
+      description,
+      plants!inner(
+        nickname,
+        official_name,
+        water_amount_ml
+      )
+    `
+    )
     .eq("user_id", userId)
-    .order("plant_id", { ascending: true })
+    .order("due_date", { ascending: true })
     .order("task_type", { ascending: true });
 
   if (error) throw error;
-  return data;
+
+  // Transform to flat structure with plant data embedded
+  return (data || []).map((row) => ({
+    id: row.id,
+    plant_id: row.plant_id,
+    task_type: row.task_type,
+    due_date: row.due_date,
+    schedule_description: row.description,
+    plant: row.plants,
+  }));
 }
 
 export async function updateReminder(id, userId, updates) {
@@ -141,9 +157,6 @@ export async function updateReminder(id, userId, updates) {
   const allowedUpdates = {};
   if (updates.dueDate) {
     allowedUpdates.due_date = updates.dueDate;
-  }
-  if (updates.title) {
-    allowedUpdates.title = updates.title;
   }
   if (updates.description) {
     allowedUpdates.description = updates.description;

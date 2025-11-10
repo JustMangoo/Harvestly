@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import "./CalendarPage.css";
 import Calendar from "../components/Calendar.jsx";
 import { useAuthSession } from "../components/RequireAuth.jsx";
-import { listRemindersForUser } from "../services/reminders";
+import {
+  listRemindersForUser,
+  generateReminderContent,
+} from "../services/reminders";
 
 // Utilities: local date key (yyyy-mm-dd) and parser avoiding UTC shift
 function dateKey(d) {
@@ -34,11 +37,22 @@ export default function CalendarPage() {
       .finally(() => setLoading(false));
   }, [session]);
 
-  // Filter reminders for selected date
-  const todaysTasks = useMemo(
-    () => reminders.filter((r) => r.due_date?.startsWith(selectedDate)),
-    [reminders, selectedDate]
-  );
+  // Filter reminders for selected date and enrich with generated content
+  const todaysTasks = useMemo(() => {
+    return reminders
+      .filter((r) => r.due_date?.startsWith(selectedDate))
+      .map((r) => {
+        const { title, description } = generateReminderContent(
+          r.task_type,
+          r.plant || {}
+        );
+        return {
+          ...r,
+          title,
+          description,
+        };
+      });
+  }, [reminders, selectedDate]);
 
   function prevMonth() {
     setCurrent((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1));
@@ -109,13 +123,15 @@ export default function CalendarPage() {
                       backgroundColor: `var(--color-${t.task_type}-reminder)`,
                     }}
                   />
-                  <div className="event-title">{t.title}</div>
+                  <div className="event-content">
+                    <div className="event-title">{t.title}</div>
+                    {t.description && (
+                      <div className="event-description">{t.description}</div>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
-          </div>
-          <div className="sidebar-section">
-            <button className="btn-primary">New Task</button>
           </div>
         </aside>
       </div>

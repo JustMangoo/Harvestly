@@ -8,7 +8,6 @@ import { getPlantById } from "../services/plants";
 import {
   createReminder,
   deleteReminder,
-  generateReminderContent,
   listRemindersByPlant,
   updateReminder,
 } from "../services/reminders";
@@ -295,7 +294,6 @@ export default function PlantDetailPage() {
     const dueDate =
       reminderForm.startDate || new Date().toISOString().split("T")[0];
     const summary = summarizeSchedule(reminderForm);
-    const { title } = generateReminderContent(activeReminderType, plant || {});
     const existingReminder = reminders[activeReminderType];
 
     setSavingReminder(true);
@@ -306,7 +304,6 @@ export default function PlantDetailPage() {
       if (existingReminder?.id) {
         savedReminder = await updateReminder(existingReminder.id, userId, {
           dueDate,
-          title,
           description: summary,
         });
       } else {
@@ -315,7 +312,6 @@ export default function PlantDetailPage() {
           plantId,
           dueDate,
           taskType: activeReminderType,
-          title,
           description: summary,
         });
       }
