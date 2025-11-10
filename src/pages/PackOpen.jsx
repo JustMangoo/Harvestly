@@ -10,10 +10,10 @@ import Pack4Gif from "../assets/PackOpen4.gif";
 import Pack5Gif from "../assets/PackOpen5.gif";
 
 import Pack1Still from "../assets/Pulls.png";
-import Pack2Still from "../assets/Pulls.png";
-import Pack3Still from "../assets/Pulls.png";
-import Pack4Still from "../assets/Pulls.png";
-import Pack5Still from "../assets/Pulls.png";
+import Pack2Still from "../assets/Pack2Still.png";
+import Pack3Still from "../assets/Pack3Still.png";
+import Pack4Still from "../assets/Pack4Still.png";
+import Pack5Still from "../assets/Pack5Still.png";
 
 export default function PackOpen() {
   const navigate = useNavigate();
