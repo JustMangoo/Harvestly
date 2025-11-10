@@ -18,7 +18,8 @@ import PostMockup from "./pages/PostMockup.jsx";
 import CreatePost from "./pages/CreatePost.jsx";
 import PackOpen from "./pages/PackOpen.jsx";
 import SubscriptionPage from "./pages/SubscriptionPage";
-
+import BadgesPage from "./pages/BadgesPage.jsx";
+import ShareGardenPage from "./pages/ShareGardenPage.jsx";
 
 function App() {
   return (
@@ -114,6 +115,12 @@ function App() {
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/headwear" element={<HeadwearPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/badges" element={<BadgesPage />} />
+          <Route
+            path="/share-garden"
+            element={<ShareGardenPage />}
+          />
+
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

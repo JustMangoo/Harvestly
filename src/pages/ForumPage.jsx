@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import IconElement from "../components/IconElement.jsx";
-import HeaderBar from "../components/HeaderBar.jsx"; // ✅ import the header
+import HeaderBar from "../components/HeaderBar.jsx";
+import { FRIENDS } from "../data/friendsData.js";
 import "./ForumPage.css";
 
 export default function ForumPage() {
@@ -49,12 +50,6 @@ export default function ForumPage() {
     },
   ]);
 
-  const friends = [
-    { id: 1, name: "Maya" },
-    { id: 2, name: "Noah" },
-    { id: 3, name: "Zoe" },
-  ];
-
   const topics = [
     { id: 1, title: "Dealing with Pests" },
     { id: 2, title: "Getting Started" },
@@ -66,6 +61,10 @@ export default function ForumPage() {
 
   const [query, setQuery] = useState("");
   const [composer, setComposer] = useState("");
+  const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+  const [friendCode, setFriendCode] = useState("12345-67");
+  const [pasteCode, setPasteCode] = useState("");
+  const [copiedFriendCode, setCopiedFriendCode] = useState(false);
 
   const activeTopic = topicParam
     ? topics.find((t) => String(t.id) === String(topicParam))
@@ -108,21 +107,35 @@ export default function ForumPage() {
     navigate(`/forum`);
   };
 
+  const handleCopyFriendCode = () => {
+    navigator.clipboard.writeText(friendCode);
+    setCopiedFriendCode(true);
+    setTimeout(() => setCopiedFriendCode(false), 2000);
+  };
+
+  const handlePasteCode = () => {
+    if (pasteCode.trim()) {
+      console.log("Adding friend with code:", pasteCode);
+      // TODO: Implement add friend functionality
+      setPasteCode("");
+      setShowAddFriendModal(false);
+    }
+  };
+
   return (
     <div className="forum-page">
-      {/* ✅ Header at top */}
       <HeaderBar title="Forum" showMenu />
 
-        <div className="forum-search">
-          <IconElement icon="search" size={20} filled={false} />
-          <input
-            type="search"
-            placeholder="Search Topics"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            aria-label="Search topics"
-          />
-        </div>
+      <div className="forum-search">
+        <IconElement icon="search" size={20} filled={false} />
+        <input
+          type="search"
+          placeholder="Search Topics"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          aria-label="Search topics"
+        />
+      </div>
 
       <main className="forum-content">
         <section className="friends-card" aria-label="Your friends">
@@ -133,12 +146,16 @@ export default function ForumPage() {
             </a>
           </div>
           <div className="friends-list">
-            {friends.map((f) => (
+            {FRIENDS.map((f) => (
               <div className="friend-avatar" key={f.id} title={f.name}>
-                {f.name.charAt(0).toUpperCase()}
+                <img src={f.avatar} alt={f.name} />
               </div>
             ))}
-            <button className="friend-add" aria-label="Add friend">
+            <button
+              className="friend-add"
+              aria-label="Add friend"
+              onClick={() => setShowAddFriendModal(true)}
+            >
               <IconElement icon="add" size={18} filled={true} />
             </button>
           </div>
@@ -225,8 +242,7 @@ export default function ForumPage() {
                         className="icon-btn"
                         onClick={(e) => {
                           e.stopPropagation();
-                          const el =
-                            document.querySelector(".composer-input");
+                          const el = document.querySelector(".composer-input");
                           if (el) el.focus();
                         }}
                       >
@@ -262,14 +278,79 @@ export default function ForumPage() {
         </section>
       </main>
 
-<button
-  className="floating-add"
-  aria-label="Create post"
-  onClick={() => navigate("create")}
->
-  <IconElement icon="add" size={26} filled={true} />
-</button>
+      <button
+        className="floating-add"
+        aria-label="Create post"
+        onClick={() => navigate("create")}
+      >
+        <IconElement icon="add" size={26} filled={true} />
+      </button>
 
+      {/* Add Friend Modal */}
+      {showAddFriendModal && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowAddFriendModal(false)}
+        >
+          <div
+            className="add-friend-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="modal-title">Add Friend</h2>
+
+            <div className="modal-section">
+              <h3 className="modal-section-title">Share your code</h3>
+              <div className="friend-code-container">
+                <input
+                  type="text"
+                  className="friend-code-input"
+                  value={friendCode}
+                  readOnly
+                />
+                <button
+                  className={`copy-friend-code-button ${
+                    copiedFriendCode ? "copied" : ""
+                  }`}
+                  onClick={handleCopyFriendCode}
+                >
+                  {copiedFriendCode ? "Copied!" : "Copy"}
+                </button>
+              </div>
+            </div>
+
+            <div className="modal-divider">
+              <span>Or</span>
+            </div>
+
+            <div className="modal-section">
+              <h3 className="modal-section-title">Enter friend's code</h3>
+              <div className="paste-code-container">
+                <input
+                  type="text"
+                  className="paste-code-input"
+                  placeholder="Enter code"
+                  value={pasteCode}
+                  onChange={(e) => setPasteCode(e.target.value)}
+                />
+                <button
+                  className="add-friend-button"
+                  onClick={handlePasteCode}
+                  disabled={!pasteCode.trim()}
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            <button
+              className="modal-close"
+              onClick={() => setShowAddFriendModal(false)}
+            >
+              <IconElement icon="close" size={24} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

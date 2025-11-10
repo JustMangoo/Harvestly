@@ -358,6 +358,18 @@ export default function ProfilePage() {
     setLocation(e.target.value);
   };
 
+  const handleMyPlantsClick = () => {
+    navigate("/plants");
+  };
+
+  const handleBadgesClick = () => {
+    navigate("/badges");
+  };
+
+  const handleShareClick = () => {
+    navigate("/share-garden");
+  };
+
   return (
     <div className="profile-page">
       <div className="profile-background" />
@@ -441,21 +453,21 @@ export default function ProfilePage() {
         </div>
 
         <div className="action-buttons">
-          <button className="action-button">
+          <button className="action-button" onClick={handleMyPlantsClick}>
             <div className="action-button-icon">
               <IconElement icon="Psychiatry" size={24} />
             </div>
             <span className="action-button-text">My plants</span>
           </button>
           <div className="action-divider" />
-          <button className="action-button">
+          <button className="action-button" onClick={handleBadgesClick}>
             <div className="action-button-icon">
               <IconElement icon="award_star" size={24} />
             </div>
             <span className="action-button-text">Badges</span>
           </button>
           <div className="action-divider" />
-          <button className="action-button">
+          <button className="action-button" onClick={handleShareClick}>
             <div className="action-button-icon">
               <IconElement icon="group" size={24} />
             </div>
