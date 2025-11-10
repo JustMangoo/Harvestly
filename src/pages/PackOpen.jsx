@@ -1,79 +1,67 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PackOpen.css";
 
-import OpeningGif from "../assets/PackOpen.gif";
-import PullsGif from "../assets/Pulls.gif";
+// Import all gif + still pairs
+import Pack1Gif from "../assets/PackOpen1.gif";
+import Pack2Gif from "../assets/PackOpen2.gif";
+import Pack3Gif from "../assets/PackOpen3.gif";
+import Pack4Gif from "../assets/PackOpen4.gif";
+import Pack5Gif from "../assets/PackOpen5.gif";
+
+import Pack1Still from "../assets/Pack1Still.png";
+import Pack2Still from "../assets/Pack2Still.png";
+import Pack3Still from "../assets/Pack3Still.png";
+import Pack4Still from "../assets/Pack4Still.png";
+import Pack5Still from "../assets/Pack5Still.png";
 
 export default function PackOpen() {
   const navigate = useNavigate();
-  const [stage, setStage] = useState(0); // 0 = opening, 1 = reveal, 2 = frozen
-  const [chosenGif, setChosenGif] = useState(null);
-  const revealRef = useRef(null);
+  const [stage, setStage] = useState(0); // 0 = gif playing, 1 = still image
+  const [chosenPack, setChosenPack] = useState(null);
 
-  // Randomized GIF selection (replace with other gif imports if you add more)
-  const revealGifs = [PullsGif, PullsGif, PullsGif, PullsGif, PullsGif];
+  const packOptions = [
+    { gif: Pack1Gif, still: Pack1Still },
+    { gif: Pack2Gif, still: Pack2Still },
+    { gif: Pack3Gif, still: Pack3Still },
+    { gif: Pack4Gif, still: Pack4Still },
+    { gif: Pack5Gif, still: Pack5Still },
+  ];
 
   useEffect(() => {
-    const randomGif = revealGifs[Math.floor(Math.random() * revealGifs.length)];
-    setChosenGif(randomGif);
+    const randomPack = packOptions[Math.floor(Math.random() * packOptions.length)];
+    setChosenPack(randomPack);
 
-    // --- Timing control ---
-    const openTime = 650;  // ms (0:00:00:48)
-    const revealTime = 1100; // ms (0:00:01:10)
-
-    const timers = [
-      setTimeout(() => setStage(1), openTime),              // show reveal gif
-      setTimeout(() => setStage(2), openTime + revealTime), // freeze on end
-    ];
-
-    return () => timers.forEach(clearTimeout);
+    // Gif lasts 2.1s, switch to still immediately after
+    const timer = setTimeout(() => setStage(1), 2100);
+    return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    // When freezing, clone the reveal frame into a <canvas> snapshot
-    if (stage === 2 && revealRef.current) {
-      const video = revealRef.current;
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      const img = new Image();
-      img.src = video.src;
-      img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        video.src = canvas.toDataURL("image/png");
-      };
-    }
-  }, [stage]);
 
   return (
     <div className="packopen-page">
-      {/* Opening animation */}
-      {stage === 0 && (
-        <img src={OpeningGif} alt="Opening Pack" className="packopen-gif" />
-      )}
-
-      {/* Reveal animation */}
-      {stage === 1 && chosenGif && (
+      {/* Play random gif */}
+      {stage === 0 && chosenPack && (
         <img
-          ref={revealRef}
-          src={chosenGif}
-          alt="Revealing Pack"
+          src={chosenPack.gif}
+          alt="Pack Opening"
           className="packopen-gif fullscreen"
         />
       )}
 
-      {/* Frozen end frame with continue button */}
-      {stage === 2 && (
+      {/* Show matching still */}
+      {stage === 1 && chosenPack && (
         <div className="packopen-result">
-          <img
-            src={chosenGif}
-            alt="Reward Frozen"
-            className="packopen-gif"
-            ref={revealRef}
-          />
-          <button className="continue-btn" onClick={() => navigate("/store")}>
+          <div className="reward-container">
+            <img
+              src={chosenPack.still}
+              alt="Reward"
+              className="reward-img fullscreen"
+            />
+          </div>
+          <button
+            className="continue-btn"
+            onClick={() => navigate("/store")}
+          >
             Continue
           </button>
         </div>
