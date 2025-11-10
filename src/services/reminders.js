@@ -53,7 +53,8 @@ export async function createReminder({
   plantId,
   dueDate,
   taskType,
-  description,
+  frequency,
+  recurrenceData,
   completed = false,
 }) {
   if (!userId) throw new Error("createReminder requires a userId.");
@@ -72,7 +73,8 @@ export async function createReminder({
     plant_id: plantId,
     due_date: dueDate,
     task_type: taskType,
-    description,
+    frequency: frequency || "once",
+    recurrence_data: recurrenceData || null,
     completed,
   };
 
@@ -99,8 +101,8 @@ export async function listRemindersByPlant({ userId, plantId }) {
         plant_id,
         due_date,
         task_type,
-        title,
-        description,
+        frequency,
+        recurrence_data,
         completed,
         inserted_at,
         updated_at
@@ -125,7 +127,8 @@ export async function listRemindersForUser(userId) {
       plant_id,
       task_type,
       due_date,
-      description,
+      frequency,
+      recurrence_data,
       plants!inner(
         nickname,
         official_name,
@@ -145,7 +148,8 @@ export async function listRemindersForUser(userId) {
     plant_id: row.plant_id,
     task_type: row.task_type,
     due_date: row.due_date,
-    schedule_description: row.description,
+    frequency: row.frequency,
+    recurrence_data: row.recurrence_data,
     plant: row.plants,
   }));
 }
@@ -158,8 +162,11 @@ export async function updateReminder(id, userId, updates) {
   if (updates.dueDate) {
     allowedUpdates.due_date = updates.dueDate;
   }
-  if (updates.description) {
-    allowedUpdates.description = updates.description;
+  if (updates.frequency) {
+    allowedUpdates.frequency = updates.frequency;
+  }
+  if (updates.recurrenceData !== undefined) {
+    allowedUpdates.recurrence_data = updates.recurrenceData;
   }
   if (typeof updates.completed === "boolean") {
     allowedUpdates.completed = updates.completed;
@@ -192,4 +199,87 @@ export async function deleteReminder(id, userId) {
     .eq("user_id", userId);
 
   if (error) throw error;
+}
+
+// Utility to format date as yyyy-mm-dd in local timezone
+function formatLocalDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+// Expand a reminder into actual occurrence dates within a date range
+export function expandReminderToDates(reminder, startDate, endDate) {
+  const dates = [];
+
+  if (!reminder.frequency || reminder.frequency === "once") {
+    // Single occurrence - just use due_date
+    if (reminder.due_date) {
+      dates.push(reminder.due_date);
+    }
+    return dates;
+  }
+
+  const dayMap = {
+    sunday: 0,
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thursday: 4,
+    friday: 5,
+    saturday: 6,
+  };
+
+  if (reminder.frequency === "specific_days") {
+    const targetDays = reminder.recurrence_data?.days || [];
+    const targetDayNumbers = targetDays
+      .map((day) => dayMap[day.toLowerCase()])
+      .filter((num) => num !== undefined);
+
+    if (targetDayNumbers.length === 0) return dates;
+
+    let current = new Date(startDate);
+    const end = new Date(endDate);
+
+    while (current <= end) {
+      if (targetDayNumbers.includes(current.getDay())) {
+        dates.push(formatLocalDate(current));
+      }
+      current.setDate(current.getDate() + 1);
+    }
+  } else if (reminder.frequency === "biweekly") {
+    const targetDay = reminder.recurrence_data?.day?.toLowerCase();
+    const targetDayNumber = dayMap[targetDay];
+    const referenceDate = reminder.recurrence_data?.start_date
+      ? new Date(reminder.recurrence_data.start_date)
+      : new Date(reminder.due_date);
+
+    if (targetDayNumber === undefined) return dates;
+
+    let current = new Date(startDate);
+    const end = new Date(endDate);
+
+    while (current <= end) {
+      if (current.getDay() === targetDayNumber) {
+        // Check if this week is on the biweekly schedule
+        const daysDiff = Math.floor(
+          (current - referenceDate) / (1000 * 60 * 60 * 24)
+        );
+        const weeksDiff = Math.floor(daysDiff / 7);
+        if (weeksDiff % 2 === 0) {
+          dates.push(formatLocalDate(current));
+        }
+      }
+      current.setDate(current.getDate() + 1);
+    }
+  } else if (reminder.frequency === "multi_week") {
+    // For multi_week, we'll need a smarter algorithm to distribute N times per week
+    // For now, just return the due_date as a placeholder
+    if (reminder.due_date) {
+      dates.push(reminder.due_date);
+    }
+  }
+
+  return dates;
 }

@@ -293,7 +293,20 @@ export default function PlantDetailPage() {
 
     const dueDate =
       reminderForm.startDate || new Date().toISOString().split("T")[0];
-    const summary = summarizeSchedule(reminderForm);
+
+    // Build recurrence_data based on frequency
+    let recurrenceData = null;
+    if (reminderForm.frequency === "specific_days") {
+      recurrenceData = { days: reminderForm.selectedDays };
+    } else if (reminderForm.frequency === "biweekly") {
+      recurrenceData = {
+        day: reminderForm.biweeklyDay,
+        start_date: dueDate,
+      };
+    } else if (reminderForm.frequency === "multi_week") {
+      recurrenceData = { times_per_week: reminderForm.timesPerWeek };
+    }
+
     const existingReminder = reminders[activeReminderType];
 
     setSavingReminder(true);
@@ -304,7 +317,8 @@ export default function PlantDetailPage() {
       if (existingReminder?.id) {
         savedReminder = await updateReminder(existingReminder.id, userId, {
           dueDate,
-          description: summary,
+          frequency: reminderForm.frequency,
+          recurrenceData,
         });
       } else {
         savedReminder = await createReminder({
@@ -312,7 +326,8 @@ export default function PlantDetailPage() {
           plantId,
           dueDate,
           taskType: activeReminderType,
-          description: summary,
+          frequency: reminderForm.frequency,
+          recurrenceData,
         });
       }
 
@@ -323,7 +338,6 @@ export default function PlantDetailPage() {
           id: savedReminder.id,
           dueDate: savedReminder.due_date,
           schedule: reminderForm,
-          summary,
         },
       }));
 

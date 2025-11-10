@@ -5,6 +5,7 @@ import { useAuthSession } from "../components/RequireAuth.jsx";
 import {
   listRemindersForUser,
   generateReminderContent,
+  expandReminderToDates,
 } from "../services/reminders";
 
 // Utilities: local date key (yyyy-mm-dd) and parser avoiding UTC shift
@@ -37,9 +38,23 @@ export default function CalendarPage() {
       .finally(() => setLoading(false));
   }, [session]);
 
+  // Expand reminders into actual dates for the current month
+  const expandedReminders = useMemo(() => {
+    const monthStart = new Date(current.getFullYear(), current.getMonth(), 1);
+    const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0);
+
+    return reminders.flatMap((reminder) => {
+      const dates = expandReminderToDates(reminder, monthStart, monthEnd);
+      return dates.map((date) => ({
+        ...reminder,
+        due_date: date,
+      }));
+    });
+  }, [reminders, current]);
+
   // Filter reminders for selected date and enrich with generated content
   const todaysTasks = useMemo(() => {
-    return reminders
+    return expandedReminders
       .filter((r) => r.due_date?.startsWith(selectedDate))
       .map((r) => {
         const { title, description } = generateReminderContent(
@@ -52,7 +67,7 @@ export default function CalendarPage() {
           description,
         };
       });
-  }, [reminders, selectedDate]);
+  }, [expandedReminders, selectedDate]);
 
   function prevMonth() {
     setCurrent((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1));
@@ -96,7 +111,7 @@ export default function CalendarPage() {
         <main className="calendar-main">
           <Calendar
             date={current}
-            reminders={reminders}
+            reminders={expandedReminders}
             selectedDate={selectedDate}
             onSelectDate={setSelectedDate}
           />
