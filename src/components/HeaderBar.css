@@ -1,0 +1,83 @@
+/* ========================================================= */
+/* ✅ Reusable Header Bar Styles */
+/* ========================================================= */
+
+.header-bar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-light);
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  height: 56px;
+  box-sizing: border-box;
+}
+
+/* Left back button */
+.header-back {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-back-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  object-fit: contain;
+}
+
+/* Center title */
+.header-title {
+  flex: 1;
+  text-align: center;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+/* Right side */
+.header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 50px;
+}
+
+/* Seed count */
+.header-seeds {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.seed-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+/* 3 dots button */
+.header-menu {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.menu-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}

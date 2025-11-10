@@ -64,9 +64,7 @@
   gap: var(--spacing-base);
   padding: var(--spacing-base);
   border-radius: var(--border-radius-base);
-  background: #fff;
-  box-shadow: 0 6px 20px rgba(32, 25, 18, 0.04);
-  border: 1px solid rgba(16, 16, 16, 0.04);
+
 }
 
 .post-avatar img {
