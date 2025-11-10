@@ -1,0 +1,90 @@
+@import url("https://fonts.googleapis.com/css2?family=Calistoga&family=Inter:wght@400;600&display=swap");
+
+.subscription-card {
+  background-color: var(--color-secondary);
+  border-radius: var(--border-radius-base);
+  padding: var(--spacing-lg);
+  text-align: center;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  font-family: var(--font-family-body);
+  background-image: url("../assets/bg-pattern.svg");
+  background-size: cover;
+}
+
+.subscription-title {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  color: var(--color-dark);
+  margin-bottom: var(--spacing-md);
+}
+
+.subscription-features {
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--color-light);
+  border-radius: var(--border-radius-base);
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-base);
+}
+
+.feature {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  border-right: 1px solid var(--color-secondary-50);
+}
+
+.feature:last-child {
+  border-right: none;
+}
+
+.feature img {
+  width: 22px;
+  height: 22px;
+}
+
+.feature span {
+  font-size: var(--font-size-sm);
+  color: var(--color-dark);
+  font-weight: 500;
+}
+
+/* ✅ Center the Subscribe Button */
+.subscription-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.subscribe-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  background-color: var(--color-primary);
+  color: var(--color-light);
+  font-family: var(--font-family-body);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  border: none;
+  border-radius: var(--border-radius-max);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.subscribe-btn:hover {
+  background-color: #5a8a3b;
+}
+
+.arrow-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: var(--spacing-xs);
+}

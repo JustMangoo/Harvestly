@@ -187,3 +187,44 @@
   border: none;
   cursor: pointer;
 }
+
+/* Update item-icon to prevent cropping */
+.item-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  overflow: visible;
+}
+
+.item-icon img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Update the grid item container */
+.headwear-item {
+  background: var(--color-light);
+  border: var(--border-width-sm) solid var(--color-secondary-50);
+  border-radius: var(--border-radius-base);
+  padding: var(--spacing-md);
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  transition: all 0.2s;
+}
+
+.headwear-item:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
