@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CategoryTabs from "./CategoryTabs";
 
-import headwearImg from "../assets/Hat.png";
+import headwearImg from "../assets/hat.png";
 import eyewearImg from "../assets/glasses.png";
 import neckwearImg from "../assets/tie.png";
 import furnitureImg from "../assets/Chair.svg";
@@ -130,9 +130,15 @@ export default function StorePage() {
             >
               <div className="mystery-content">
                 <div className="mystery-left">
-                  <p className="mystery-top-text">Try your luck and get a mystery item</p>
+                  <p className="mystery-top-text">
+                    Try your luck and get a mystery item
+                  </p>
                   <div className="mystery-price-row">
-                    <img src={goldSeedImg} alt="Gold Seed" className="mystery-seed" />
+                    <img
+                      src={goldSeedImg}
+                      alt="Gold Seed"
+                      className="mystery-seed"
+                    />
                     <p className="mystery-price">{mysteryPack.price}</p>
                   </div>
                 </div>
@@ -222,7 +228,13 @@ export default function StorePage() {
             </div>
 
             {/* center the button */}
-            <div style={{ display: "flex", justifyContent: "center", marginTop: 12 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: 12,
+              }}
+            >
               <button
                 className="subscribe-btn"
                 onClick={() => navigate("/subscription")}
@@ -310,7 +322,11 @@ function BranchPage({ title, items, setSelectedItem, goldSeedImg, onBack }) {
             <img src={item.img} alt={item.name} />
             <p>{item.name}</p>
             <span className="branch-price">
-              <img src={goldSeedImg} alt="Seed" className="seed-icon inline-seed" />{" "}
+              <img
+                src={goldSeedImg}
+                alt="Seed"
+                className="seed-icon inline-seed"
+              />{" "}
               {item.price}
             </span>
           </div>
