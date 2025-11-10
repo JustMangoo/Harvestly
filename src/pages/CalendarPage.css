@@ -44,8 +44,8 @@
 }
 
 .calendar-container {
-  display: grid;
-  grid-template-columns: 1fr 260px;
+  display: flex;
+  flex-direction: column;
   gap: var(--spacing-lg);
 }
 
@@ -121,10 +121,24 @@
 .event-item {
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: flex-start;
   padding: 8px;
   border-radius: 8px;
   background: var(--color-secondary-50);
+}
+.task-color-badge {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.event-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
 }
 .event-time {
   font-weight: 700;
@@ -134,6 +148,12 @@
 .event-title {
   color: var(--color-dark);
   font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+.event-description {
+  color: var(--color-dark-60);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
 }
 
 @media (max-width: 880px) {
