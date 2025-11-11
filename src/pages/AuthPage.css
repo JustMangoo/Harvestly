@@ -4,22 +4,36 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-base);
   background-color: var(--color-secondary);
   background-image: url("../assets/grass-pattern.svg");
   background-repeat: repeat;
   background-size: 176px 96px;
 }
 
+.auth-container {
+  width: 100%;
+  max-width: 390px; /* iPhone width from design */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.auth-header {
+  width: 100%;
+  max-width: 354px;
+  margin-bottom: var(--spacing-lg);
+}
+
 .auth-page h2 {
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-xl);
+  font-size: 32px; /* design uses 32px */
   color: var(--color-dark);
   margin: 0 0 var(--spacing-sm) 0;
   text-align: center;
 }
 
-.auth-page > p {
+.auth-subtext {
   font-family: var(--font-family-body);
   font-size: var(--font-size-sm);
   color: var(--color-dark-60);
@@ -28,13 +42,21 @@
   max-width: 320px;
 }
 
+.auth-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-dark);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .auth-form {
-  width: 100%;
-  max-width: 320px;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-base);
   margin-bottom: var(--spacing-base);
+  width: 100%;
 }
 
 .auth-form label {
@@ -45,6 +67,7 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-dark);
+  width: 100%;
 }
 
 .auth-form input {
@@ -55,7 +78,7 @@
   color: var(--color-dark);
   background-color: var(--color-light);
   border: var(--border-width-md) solid var(--color-dark-60);
-  border-radius: var(--border-radius-base);
+  border-radius: 12px; /* design radius */
   outline: none;
   transition: border-color 0.2s ease;
 }
@@ -67,6 +90,33 @@
 .auth-form input::placeholder {
   color: var(--color-dark-60);
 }
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon input {
+  padding-right: 44px; /* room for icon button */
+}
+
+.toggle-visibility {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: var(--color-dark-60);
+  cursor: pointer;
+}
+
+/* Social auth UI removed per request */
 
 .error-message {
   font-family: var(--font-family-body);

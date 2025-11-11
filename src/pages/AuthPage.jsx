@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { IoEye, IoEyeOff } from "react-icons/io5";
 import Button from "../components/Button.jsx";
 import { supabase } from "../lib/supabaseClient";
 import "./AuthPage.css";
@@ -11,7 +12,14 @@ export default function AuthPage() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState(null);
   const [authMessage, setAuthMessage] = useState(null);
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [credentials, setCredentials] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -57,9 +65,21 @@ export default function AuthPage() {
         });
         if (error) throw error;
       } else {
+        // Simple client-side validation before sign-up
+        if (credentials.password.length < 8) {
+          throw new Error("Password must be at least 8 characters long.");
+        }
+        if (credentials.password !== credentials.confirmPassword) {
+          throw new Error("Passwords do not match.");
+        }
         const { data, error } = await supabase.auth.signUp({
           email: credentials.email,
           password: credentials.password,
+          options: {
+            data: {
+              name: credentials.name,
+            },
+          },
         });
         if (error) throw error;
         if (!data.user) {
@@ -81,70 +101,150 @@ export default function AuthPage() {
 
   return (
     <div className="auth-page">
-      <h2>{authMode === "signIn" ? "Sign in" : "Create an account"}</h2>
-      <p>
-        {authMode === "signIn"
-          ? "Access your saved plants and tasks."
-          : "Create an account to keep your plants in sync across devices."}
-      </p>
+      <div className="auth-container">
+        <div className="auth-header">
+          <h2>
+            {authMode === "signIn" ? "Welcome back!" : "Join Harvestly today"}
+          </h2>
+          <p className="auth-subtext">
+            {authMode === "signIn" ? (
+              <>
+                Don’t have an account?{" "}
+                <button
+                  type="button"
+                  className="auth-link"
+                  onClick={() => setAuthMode("signUp")}
+                  disabled={authLoading}
+                >
+                  Sign-up here
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  className="auth-link"
+                  onClick={() => setAuthMode("signIn")}
+                  disabled={authLoading}
+                >
+                  Login here
+                </button>
+              </>
+            )}
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="auth-form">
-        <label>
-          Email
-          <input
-            type="email"
-            name="email"
-            value={credentials.email}
-            onChange={handleCredentialChange}
-            required
-          />
-        </label>
-        <label>
-          Password
-          <input
-            type="password"
-            name="password"
-            value={credentials.password}
-            onChange={handleCredentialChange}
-            required
-          />
-        </label>
-        <Button
-          type="submit"
-          icon={authMode === "signIn" ? "login" : "person_add"}
-          text={
-            authLoading
-              ? authMode === "signIn"
-                ? "Signing in..."
-                : "Creating..."
-              : authMode === "signIn"
-              ? "Sign In"
-              : "Sign Up"
-          }
-          disabled={authLoading}
-        />
-      </form>
-      <Button
-        variant="ghost"
-        onClick={() =>
-          setAuthMode((mode) => (mode === "signIn" ? "signUp" : "signIn"))
-        }
-        text={
-          authMode === "signIn"
-            ? "Need an account? Sign up"
-            : "Already have an account? Sign in"
-        }
-        disabled={authLoading}
-      />
+        <form onSubmit={handleSubmit} className="auth-form">
+          {authMode === "signUp" && (
+            <label>
+              Name
+              <input
+                type="text"
+                name="name"
+                value={credentials.name}
+                onChange={handleCredentialChange}
+                placeholder="ex. Max"
+                required
+              />
+            </label>
+          )}
 
-      {authError && <p className="error-message">{authError}</p>}
-      {authMessage && <p className="auth-message">{authMessage}</p>}
-      {authMode === "signUp" && (
-        <p className="auth-help">
-          After signing up, Supabase will email a confirmation link. Follow it
-          before logging in.
-        </p>
-      )}
+          <label>
+            Email
+            <input
+              type="email"
+              name="email"
+              value={credentials.email}
+              onChange={handleCredentialChange}
+              placeholder="example@gmail.com"
+              required
+            />
+          </label>
+
+          <label>
+            Password
+            <div className="input-with-icon">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={credentials.password}
+                onChange={handleCredentialChange}
+                placeholder="must be 8 characters"
+                required
+                minLength={8}
+              />
+              <button
+                type="button"
+                className="toggle-visibility"
+                onClick={() => setShowPassword((s) => !s)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                tabIndex={-1}
+              >
+                {showPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
+              </button>
+            </div>
+          </label>
+
+          {authMode === "signUp" && (
+            <label>
+              Confirm password
+              <div className="input-with-icon">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={credentials.confirmPassword}
+                  onChange={handleCredentialChange}
+                  placeholder="repeat password"
+                  required
+                  minLength={8}
+                />
+                <button
+                  type="button"
+                  className="toggle-visibility"
+                  onClick={() => setShowConfirmPassword((s) => !s)}
+                  aria-label={
+                    showConfirmPassword ? "Hide password" : "Show password"
+                  }
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <IoEyeOff size={20} />
+                  ) : (
+                    <IoEye size={20} />
+                  )}
+                </button>
+              </div>
+            </label>
+          )}
+
+          <Button
+            type="submit"
+            icon={authMode === "signIn" ? "login" : "person_add"}
+            text={
+              authLoading
+                ? authMode === "signIn"
+                  ? "Signing in..."
+                  : "Creating..."
+                : authMode === "signIn"
+                ? "Log In"
+                : "Continue"
+            }
+            disabled={authLoading}
+          />
+        </form>
+
+        {/* Social auth removed as requested */}
+
+        {authError && <p className="error-message">{authError}</p>}
+        {authMessage && <p className="auth-message">{authMessage}</p>}
+        {authMode === "signUp" && (
+          <p className="auth-help">
+            After signing up, Supabase will email a confirmation link. Follow it
+            before logging in.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
