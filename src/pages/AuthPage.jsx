@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import { supabase } from "../lib/supabaseClient";
+import "./AuthPage.css";
 
 export default function AuthPage() {
   const navigate = useNavigate();
