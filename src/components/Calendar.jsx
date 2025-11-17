@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import "./Calendar.css";
+import { useNavigate } from "react-router-dom";
 
 // Local date key (yyyy-mm-dd) without UTC conversion
 function localDateKey(d) {
@@ -70,6 +71,7 @@ export default function Calendar({
   onPrevMonth,
   onNextMonth,
 }) {
+  const navigate = useNavigate();
   const year = date.getFullYear();
   const month = date.getMonth();
   const matrix = useMemo(
@@ -87,6 +89,7 @@ export default function Calendar({
     year: "numeric",
   });
   const showHeader = variant === "full";
+  const isSelectable = variant === "full";
 
   return (
     <div
@@ -162,9 +165,20 @@ export default function Calendar({
                     "cal-day " +
                     (isCurrentMonth ? "current-month" : "other-month") +
                     (isSelected ? " is-selected" : "") +
-                    (isToday ? " is-today" : "")
+                    (isToday ? " is-today" : "") +
+                    (variant === "week" ? " is-week-link" : "")
                   }
-                  onClick={() => onSelectDate?.(dateKey)}
+                  onClick={() =>
+                    variant === "week"
+                      ? navigate("/calendar")
+                      : onSelectDate?.(dateKey)
+                  }
+                  tabIndex={0}
+                  aria-label={
+                    variant === "week"
+                      ? `Open full calendar (week of ${monthName})`
+                      : `Select ${dateKey}`
+                  }
                 >
                   <span className="day-number">{day.getDate()}</span>
                   {/* Dot row */}

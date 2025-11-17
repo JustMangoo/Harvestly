@@ -9,6 +9,7 @@ import {
   expandReminderToDates,
   completeTaskOccurrence,
   getCompletedTaskDates,
+  uncompleteTaskOccurrence,
 } from "../services/reminders";
 
 // Utilities: local date key (yyyy-mm-dd) and parser avoiding UTC shift
@@ -49,8 +50,6 @@ export default function CalendarPage() {
       ),
     ])
       .then(([remindersData, completedData]) => {
-        console.log("Fetched reminders:", remindersData);
-        console.log("Completed tasks:", completedData);
         setReminders(remindersData);
         setCompletedTasks(completedData);
       })
@@ -81,10 +80,9 @@ export default function CalendarPage() {
 
   // Filter reminders for selected date and enrich with generated content
   const todaysTasks = useMemo(() => {
-    const tasks = expandedReminders
+    return expandedReminders
       .filter((r) => {
         if (!r.due_date) return false;
-        // Normalize possible ISO timestamps to just the date portion
         const datePart = r.due_date.split("T")[0];
         return datePart === selectedDate;
       })
@@ -93,25 +91,16 @@ export default function CalendarPage() {
           r.task_type,
           r.plant || {}
         );
-        const isRecurring =
-          r.frequency && r.frequency !== "once" && r.frequency !== "";
         const completionKey = `${r.id}-${r.due_date}`;
-        const isCompleted = isRecurring
-          ? completedTasks[completionKey]
-          : r.completed;
-
+        const isCompleted = Boolean(completedTasks[completionKey]);
         return {
           ...r,
           title,
           description,
-          isRecurring,
-          isCompleted: Boolean(isCompleted),
+          isRecurring: true,
+          isCompleted,
         };
       });
-
-    console.log("Selected date:", selectedDate);
-    console.log("Today's tasks (normalized filter):", tasks);
-    return tasks;
   }, [expandedReminders, selectedDate, completedTasks]);
 
   function prevMonth() {
@@ -130,31 +119,42 @@ export default function CalendarPage() {
     const userId = session?.user?.id;
     if (!userId) return;
 
-    try {
-      await completeTaskOccurrence({
-        userId,
-        reminderId: task.id,
-        plantId: task.plant_id,
-        taskType: task.task_type,
-        dueDate: task.due_date,
-        isRecurring: task.isRecurring,
-      });
+    const completionKey = `${task.id}-${task.due_date}`;
+    const alreadyEntryId = completedTasks[completionKey];
 
-      // Update local state
-      if (task.isRecurring) {
-        const completionKey = `${task.id}-${task.due_date}`;
-        setCompletedTasks((prev) => ({
-          ...prev,
-          [completionKey]: true,
-        }));
+    try {
+      if (task.isCompleted && alreadyEntryId) {
+        // Uncomplete
+        const res = await uncompleteTaskOccurrence({
+          userId,
+          reminderId: task.id,
+          dueDate: task.due_date,
+        });
+        if (res.success) {
+          setCompletedTasks((prev) => {
+            const copy = { ...prev };
+            delete copy[completionKey];
+            return copy;
+          });
+        }
       } else {
-        // Update the reminder in the list
-        setReminders((prev) =>
-          prev.map((r) => (r.id === task.id ? { ...r, completed: true } : r))
-        );
+        // Complete
+        const res = await completeTaskOccurrence({
+          userId,
+          reminderId: task.id,
+          plantId: task.plant_id,
+          taskType: task.task_type,
+          dueDate: task.due_date,
+        });
+        if (res.entryId) {
+          setCompletedTasks((prev) => ({
+            ...prev,
+            [completionKey]: res.entryId,
+          }));
+        }
       }
     } catch (error) {
-      console.error("Failed to complete task:", error);
+      console.error("Toggle task failed:", error);
     }
   }
 

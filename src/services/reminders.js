@@ -55,7 +55,6 @@ export async function createReminder({
   taskType,
   frequency,
   recurrenceData,
-  completed = false,
 }) {
   if (!userId) throw new Error("createReminder requires a userId.");
   if (!plantId) throw new Error("createReminder requires a plantId.");
@@ -75,7 +74,6 @@ export async function createReminder({
     task_type: taskType,
     frequency: frequency || "once",
     recurrence_data: recurrenceData || null,
-    completed,
   };
 
   const { data, error } = await supabase
@@ -103,7 +101,6 @@ export async function listRemindersByPlant({ userId, plantId }) {
         task_type,
         frequency,
         recurrence_data,
-        completed,
         inserted_at,
         updated_at
       `
@@ -129,7 +126,6 @@ export async function listRemindersForUser(userId) {
       due_date,
       frequency,
       recurrence_data,
-      completed,
       plants!inner(
         nickname,
         official_name,
@@ -151,7 +147,6 @@ export async function listRemindersForUser(userId) {
     due_date: row.due_date,
     frequency: row.frequency,
     recurrence_data: row.recurrence_data,
-    completed: row.completed,
     plant: row.plants,
   }));
 }
@@ -169,9 +164,6 @@ export async function updateReminder(id, userId, updates) {
   }
   if (updates.recurrenceData !== undefined) {
     allowedUpdates.recurrence_data = updates.recurrenceData;
-  }
-  if (typeof updates.completed === "boolean") {
-    allowedUpdates.completed = updates.completed;
   }
 
   if (Object.keys(allowedUpdates).length === 0) {
@@ -283,14 +275,12 @@ export function expandReminderToDates(reminder, startDate, endDate) {
 
 // Mark a task occurrence as complete
 // For recurring tasks: creates a journal entry
-// For one-time tasks: updates the reminder's completed field
 export async function completeTaskOccurrence({
   userId,
   reminderId,
   plantId,
   taskType,
   dueDate,
-  isRecurring,
 }) {
   if (!userId) throw new Error("completeTaskOccurrence requires a userId.");
   if (!reminderId)
@@ -299,21 +289,20 @@ export async function completeTaskOccurrence({
   if (!taskType) throw new Error("completeTaskOccurrence requires a taskType.");
   if (!dueDate) throw new Error("completeTaskOccurrence requires a dueDate.");
 
-  if (isRecurring) {
-    // For recurring tasks, create a journal entry to track this specific completion
-    // Use the task type directly as the entry type
-    const titleMap = {
-      water: "Watered",
-      fertilize: "Fertilized",
-      mist: "Misted",
-      rotate: "Rotated",
-    };
+  const titleMap = {
+    water: "Watered",
+    fertilize: "Fertilized",
+    mist: "Misted",
+    rotate: "Rotated",
+  };
 
-    const { data, error } = await supabase.from("journal_entries").insert([
+  const { data, error } = await supabase
+    .from("journal_entries")
+    .insert([
       {
         user_id: userId,
         plant_id: plantId,
-        entry_type: taskType, // Use the task type directly (water, fertilize, mist, rotate)
+        entry_type: taskType,
         title: titleMap[taskType] || `Completed ${taskType}`,
         metadata: {
           reminder_id: reminderId,
@@ -321,31 +310,55 @@ export async function completeTaskOccurrence({
           completed_date: dueDate,
         },
       },
-    ]);
+    ])
+    .select();
 
-    if (error) throw error;
-    return { success: true, type: "journal_entry" };
-  } else {
-    // For one-time tasks, just mark the reminder as completed
-    const { error } = await supabase
-      .from(TABLE)
-      .update({ completed: true })
-      .eq("id", reminderId)
-      .eq("user_id", userId);
-
-    if (error) throw error;
-    return { success: true, type: "reminder_updated" };
-  }
+  if (error) throw error;
+  const entryId = Array.isArray(data) && data.length ? data[0].id : null;
+  return { success: true, type: "journal_entry", entryId };
 }
 
-// Get completed task dates from journal entries
+// Remove completion journal entry for an occurrence
+export async function uncompleteTaskOccurrence({
+  userId,
+  reminderId,
+  dueDate,
+}) {
+  if (!userId) throw new Error("uncompleteTaskOccurrence requires a userId.");
+  if (!reminderId)
+    throw new Error("uncompleteTaskOccurrence requires a reminderId.");
+  if (!dueDate) throw new Error("uncompleteTaskOccurrence requires a dueDate.");
+
+  // Find the journal entry for this occurrence
+  const { data, error } = await supabase
+    .from("journal_entries")
+    .select("id, metadata")
+    .eq("user_id", userId)
+    .eq("metadata->>reminder_id", reminderId)
+    .eq("metadata->>completed_date", dueDate)
+    .limit(1);
+
+  if (error) throw error;
+  if (!data || !data.length) return { success: true, removed: false };
+
+  const entryId = data[0].id;
+  const del = await supabase
+    .from("journal_entries")
+    .delete()
+    .eq("id", entryId)
+    .eq("user_id", userId);
+
+  if (del.error) throw del.error;
+  return { success: true, removed: true, entryId };
+}
+
+// Get completed task dates now returns map of completionKey -> journalEntryId
 export async function getCompletedTaskDates(userId, startDate, endDate) {
   if (!userId) throw new Error("getCompletedTaskDates requires a userId.");
 
-  // Query for all task-related journal entries (water, fertilize, mist, rotate)
   const { data, error } = await supabase
     .from("journal_entries")
-    .select("metadata, plant_id, entry_type")
+    .select("id, metadata, entry_type")
     .eq("user_id", userId)
     .in("entry_type", ["water", "fertilize", "mist", "rotate"])
     .gte("created_at", startDate)
@@ -353,15 +366,12 @@ export async function getCompletedTaskDates(userId, startDate, endDate) {
 
   if (error) throw error;
 
-  // Create a map of reminder_id + date => completed
   const completedMap = {};
   (data || []).forEach((entry) => {
-    // Only count entries that have reminder metadata
     if (entry.metadata?.reminder_id && entry.metadata?.completed_date) {
       const key = `${entry.metadata.reminder_id}-${entry.metadata.completed_date}`;
-      completedMap[key] = true;
+      completedMap[key] = entry.id; // store journal entry id
     }
   });
-
   return completedMap;
 }
