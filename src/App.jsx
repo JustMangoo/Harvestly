@@ -14,7 +14,7 @@ import RequireAuth from "./components/RequireAuth.jsx";
 import PlantsPage from "./pages/PlantsPage.jsx";
 import PlantDetailPage from "./pages/PlantDetailPage.jsx";
 import PlantCreatePage from "./pages/PlantCreatePage.jsx";
-import PostMockup from "./pages/PostMockup.jsx";
+import PostDetailPage from "./pages/PostDetailPage.jsx";
 import CreatePost from "./pages/CreatePost.jsx";
 import PackOpen from "./pages/PackOpen.jsx";
 import SubscriptionPage from "./pages/SubscriptionPage";
@@ -96,7 +96,7 @@ function App() {
             path="/forum/post/:postId"
             element={
               <RequireAuth>
-                <PostMockup />
+                <PostDetailPage />
               </RequireAuth>
             }
           />
@@ -116,11 +116,7 @@ function App() {
           <Route path="/headwear" element={<HeadwearPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/badges" element={<BadgesPage />} />
-          <Route
-            path="/share-garden"
-            element={<ShareGardenPage />}
-          />
-
+          <Route path="/share-garden" element={<ShareGardenPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

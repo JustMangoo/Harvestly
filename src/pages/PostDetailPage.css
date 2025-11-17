@@ -64,7 +64,6 @@
   gap: var(--spacing-base);
   padding: var(--spacing-base);
   border-radius: var(--border-radius-base);
-
 }
 
 .post-avatar img {
@@ -140,14 +139,14 @@
 /* ============================= */
 /* Comments Section              */
 /* ============================= */
-.postmockup-comments {
+.post-detail-comments {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
   margin-top: var(--spacing-base);
 }
 
-.postmockup-comments h2 {
+.post-detail-comments h2 {
   font-family: var(--font-family-heading);
   font-size: var(--spacing-lg);
   margin-bottom: var(--spacing-sm);

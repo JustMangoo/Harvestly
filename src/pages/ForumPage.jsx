@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import IconElement from "../components/IconElement.jsx";
 import HeaderBar from "../components/HeaderBar.jsx";
 import { FRIENDS } from "../data/friendsData.js";
+import { listPosts, timeAgo } from "../services/forum";
 import "./ForumPage.css";
 
 export default function ForumPage() {
@@ -11,44 +12,27 @@ export default function ForumPage() {
   const params = useParams();
   const topicParam = params?.topicId ?? null;
 
-  const [posts, setPosts] = useState([
-    {
-      id: 101,
-      topicId: 1,
-      author: "Lina",
-      text: "My chili plant leaves are yellowing — any tips?",
-      likes: 3,
-      comments: 2,
-      time: "2h",
-    },
-    {
-      id: 102,
-      topicId: 2,
-      author: "Omar",
-      text: "Just repotted my monstera. Soil mix recommendations?",
-      likes: 6,
-      comments: 4,
-      time: "1d",
-    },
-    {
-      id: 103,
-      topicId: 3,
-      author: "Ava",
-      text: "Show us your fav watering setups 🌱",
-      likes: 1,
-      comments: 5,
-      time: "3d",
-    },
-    {
-      id: 104,
-      topicId: 1,
-      author: "Elliot",
-      text: "Neem oil worked wonders for me — dilute 1:10.",
-      likes: 8,
-      comments: 3,
-      time: "4d",
-    },
-  ]);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        setLoading(true);
+        const data = await listPosts({ limit: 50 });
+        if (!cancelled) setPosts(data);
+      } catch (e) {
+        console.error("Failed to load posts", e);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const topics = [
     { id: 1, title: "Dealing with Pests" },
@@ -73,14 +57,14 @@ export default function ForumPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return posts.filter((p) => {
-      if (activeTopic && String(p.topicId) !== String(activeTopic.id))
-        return false;
       if (!q) return true;
       return (
-        p.author.toLowerCase().includes(q) || p.text.toLowerCase().includes(q)
+        p.author_name?.toLowerCase().includes(q) ||
+        p.title?.toLowerCase().includes(q) ||
+        p.body?.toLowerCase().includes(q)
       );
     });
-  }, [posts, query, activeTopic]);
+  }, [posts, query]);
 
   const handleSubmit = () => {
     if (!composer.trim()) return;
@@ -197,7 +181,11 @@ export default function ForumPage() {
         </section>
 
         <section className="posts-list" aria-live="polite">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="empty-state">
+              <p>Loading posts…</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="empty-state">
               <p>No posts found.</p>
             </div>
@@ -212,14 +200,21 @@ export default function ForumPage() {
               >
                 <div className="post-left">
                   <div className="post-avatar" aria-hidden>
-                    {post.author.charAt(0).toUpperCase()}
+                    {(post.author_name || "?").charAt(0).toUpperCase()}
                   </div>
                   <div className="post-body">
                     <div className="post-head">
-                      <strong className="post-author">{post.author}</strong>
-                      <span className="post-time">{post.time}</span>
+                      <strong className="post-author">
+                        {post.author_name}
+                      </strong>
+                      <span className="post-time">
+                        {timeAgo(post.published_at)}
+                      </span>
                     </div>
-                    <p className="post-text">{post.text}</p>
+                    {post.title && (
+                      <div className="post-title">{post.title}</div>
+                    )}
+                    <p className="post-text">{post.body}</p>
                     <div className="post-actions">
                       <button
                         className="icon-btn"
@@ -228,22 +223,21 @@ export default function ForumPage() {
                           setPosts((s) =>
                             s.map((p) =>
                               p.id === post.id
-                                ? { ...p, likes: p.likes + 1 }
+                                ? { ...p, like_count: (p.like_count ?? 0) + 1 }
                                 : p
                             )
                           );
                         }}
                       >
                         <IconElement icon="thumb_up" size={18} filled={false} />
-                        {post.likes > 0 && <span>{post.likes}</span>}
+                        {post.like_count > 0 && <span>{post.like_count}</span>}
                       </button>
 
                       <button
                         className="icon-btn"
                         onClick={(e) => {
                           e.stopPropagation();
-                          const el = document.querySelector(".composer-input");
-                          if (el) el.focus();
+                          navigate(`/forum/post/${post.id}`);
                         }}
                       >
                         <IconElement
@@ -251,7 +245,6 @@ export default function ForumPage() {
                           size={18}
                           filled={false}
                         />
-                        {post.comments > 0 && <span>{post.comments}</span>}
                       </button>
 
                       <button
@@ -260,8 +253,8 @@ export default function ForumPage() {
                           e.stopPropagation();
                           navigator
                             .share?.({
-                              title: post.author,
-                              text: post.text,
+                              title: post.title || post.author_name,
+                              text: post.body,
                             })
                             .catch(() => {});
                         }}

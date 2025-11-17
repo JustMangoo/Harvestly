@@ -56,7 +56,8 @@
 
 .share-content {
   flex: 1;
-  padding: calc(56px + var(--spacing-lg)) var(--spacing-base) calc(80px + var(--spacing-base));
+  padding: calc(56px + var(--spacing-lg)) var(--spacing-base)
+    calc(80px + var(--spacing-base));
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -140,7 +141,7 @@
   padding: 0 var(--spacing-base);
 }
 
-.friends-list {
+.share-garden-page .friends-list {
   display: flex;
   flex-direction: row;
   gap: var(--spacing-base);
@@ -151,11 +152,11 @@
   scrollbar-width: none;
 }
 
-.friends-list::-webkit-scrollbar {
+.share-garden-page .friends-list::-webkit-scrollbar {
   display: none;
 }
 
-.friend-item {
+.share-garden-page .friend-item {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -164,14 +165,14 @@
   flex-shrink: 0;
 }
 
-.friend-info {
+.share-garden-page .friend-info {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-xs);
 }
 
-.friend-avatar {
+.share-garden-page .friend-avatar {
   width: 64px;
   height: 64px;
   min-width: 64px;
@@ -182,14 +183,14 @@
   background-color: var(--color-secondary-50);
 }
 
-.friend-avatar img {
+.share-garden-page .friend-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.friend-details {
+.share-garden-page .friend-details {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -197,7 +198,7 @@
   text-align: center;
 }
 
-.friend-name {
+.share-garden-page .friend-name {
   font-family: var(--font-family-body);
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -207,7 +208,7 @@
   white-space: nowrap;
 }
 
-.friend-subtitle {
+.share-garden-page .friend-subtitle {
   font-family: var(--font-family-body);
   font-size: var(--font-size-xs);
   color: var(--color-dark-60);
@@ -216,7 +217,7 @@
   white-space: nowrap;
 }
 
-.send-button {
+.share-garden-page .send-button {
   padding: var(--spacing-xs) var(--spacing-base);
   background-color: var(--color-primary);
   color: var(--color-light);
@@ -232,15 +233,15 @@
   width: 64px;
 }
 
-.send-button:hover:not(.sent) {
+.share-garden-page .send-button:hover:not(.sent) {
   background-color: #5a8839;
 }
 
-.send-button:active:not(.sent) {
+.share-garden-page .send-button:active:not(.sent) {
   transform: scale(0.98);
 }
 
-.send-button.sent {
+.share-garden-page .send-button.sent {
   background-color: transparent;
   color: var(--color-primary);
   border: 2px solid var(--color-primary);

@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import IconElement from "../components/IconElement.jsx";
+import { supabase } from "../lib/supabaseClient";
+import { getUserProfile } from "../services/users";
+import { createPost } from "../services/forum";
 import "./CreatePost.css";
 
 export default function CreatePost() {
@@ -10,10 +13,43 @@ export default function CreatePost() {
 
   const handleCancel = () => navigate(-1);
 
-  const handlePost = () => {
+  const [loading, setLoading] = useState(false);
+
+  const handlePost = async () => {
     if (!text.trim() && !title.trim()) return;
-    console.log("Post created:", { title, text });
-    navigate("/forum");
+    try {
+      setLoading(true);
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr) throw userErr;
+      const user = userData?.user ?? null;
+      let authorName = "Anonymous";
+      if (user?.id) {
+        try {
+          const profile = await getUserProfile(user.id);
+          authorName =
+            profile?.username ||
+            user.user_metadata?.name ||
+            user.email ||
+            authorName;
+        } catch (_) {
+          authorName = user?.user_metadata?.name || user?.email || authorName;
+        }
+      }
+
+      await createPost({
+        title: title.trim(),
+        text: text.trim(),
+        authorName,
+        userId: user?.id,
+      });
+
+      navigate("/forum");
+    } catch (e) {
+      console.error("Failed to create post", e);
+      alert("Failed to create post. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -24,11 +60,13 @@ export default function CreatePost() {
           Cancel
         </button>
         <button
-          className={`post-btn ${!text.trim() && !title.trim() ? "disabled" : ""}`}
+          className={`post-btn ${
+            !text.trim() && !title.trim() ? "disabled" : ""
+          }`}
           onClick={handlePost}
-          disabled={!text.trim() && !title.trim()}
+          disabled={(!text.trim() && !title.trim()) || loading}
         >
-          Post
+          {loading ? "Posting…" : "Post"}
         </button>
       </div>
 
