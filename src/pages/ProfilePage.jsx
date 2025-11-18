@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import IconElement from "../components/IconElement.jsx";
+import Post from "../components/Post.jsx";
 import "./ProfilePage.css";
 import { supabase } from "../lib/supabaseClient.js";
 import { getUserProfile, updateUserProfile } from "../services/users.js";
+import { listPostsByUser } from "../services/forum.js";
 
 // Import gallery images
 import plantPot from "../assets/gallery/rectangle-136.webp";
@@ -69,6 +71,8 @@ export default function ProfilePage() {
   const [profilePicture, setProfilePicture] = useState(null);
   const [originalProfilePicture, setOriginalProfilePicture] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState([]);
+  const [postsLoading, setPostsLoading] = useState(true);
 
   // Gallery images - all local images with descriptive names
   const galleryImages = [
@@ -118,6 +122,13 @@ export default function ProfilePage() {
   useEffect(() => {
     loadUserProfile();
   }, []);
+
+  // Load user posts when user is loaded
+  useEffect(() => {
+    if (user?.id) {
+      loadUserPosts();
+    }
+  }, [user]);
 
   // Register save function with parent
   useEffect(() => {
@@ -172,6 +183,19 @@ export default function ProfilePage() {
     }
   };
 
+  const loadUserPosts = async () => {
+    if (!user?.id) return;
+    try {
+      setPostsLoading(true);
+      const userPosts = await listPostsByUser({ userId: user.id, limit: 50 });
+      setPosts(userPosts);
+    } catch (error) {
+      console.error("Error loading user posts:", error);
+    } finally {
+      setPostsLoading(false);
+    }
+  };
+
   const saveProfileChanges = async () => {
     if (!user) return;
 
@@ -186,8 +210,7 @@ export default function ProfilePage() {
         avatar_url: profilePicture,
       });
 
-      const nextUsername =
-        updatedProfile?.username?.trim() || fallbackUsername;
+      const nextUsername = updatedProfile?.username?.trim() || fallbackUsername;
       const nextLocation = updatedProfile?.location?.trim() || "";
       const nextAvatar = updatedProfile?.avatar_url || null;
       const nextFollowers =
@@ -439,7 +462,7 @@ export default function ProfilePage() {
             </div>
             <div className="profile-stats-container">
               <div className="profile-stat">
-                <span className="profile-stat-number">1</span>
+                <span className="profile-stat-number">{posts.length}</span>
                 <span className="profile-stat-label">Posts</span>
               </div>
               <div className="profile-stat">
@@ -478,32 +501,45 @@ export default function ProfilePage() {
         <div className="posts-section">
           <h3 className="posts-header">Posts</h3>
           {isAuthenticated ? (
-            <div className="post-item">
-              <h4 className="post-title">
-                Need help with my chili plant, its leaves are turning yellow and
-                looking sad 😢🌶️
-              </h4>
-              <p className="post-content">
-                Hey everyone, I'm hoping someone can help me figure out what's
-                going on with my chili plant. It's been super healthy until
-                recently, but now the leaves are starting to yellow and droop a
-                bit.
-              </p>
-              <div className="post-actions">
-                <button className="post-action-button">
-                  <IconElement icon="favorite" size={14} filled={false} />
-                  <span>0</span>
-                </button>
-                <button className="post-action-button">
-                  <IconElement icon="comment" size={14} filled={false} />
-                  <span>0</span>
-                </button>
-                <button className="post-action-button">
-                  <IconElement icon="share" size={14} filled={false} />
-                  <span>Share</span>
-                </button>
+            postsLoading ? (
+              <div className="posts-loading">
+                <p>Loading posts...</p>
               </div>
-            </div>
+            ) : posts.length === 0 ? (
+              <div className="posts-empty">
+                <p>No posts yet. Share something with the community!</p>
+              </div>
+            ) : (
+              <div className="posts-list">
+                {posts.map((post) => (
+                  <Post
+                    key={post.id}
+                    post={post}
+                    variant="preview"
+                    onClick={() => navigate(`/forum/post/${post.id}`)}
+                    onLike={() => {
+                      setPosts((prev) =>
+                        prev.map((p) =>
+                          p.id === post.id
+                            ? { ...p, like_count: (p.like_count ?? 0) + 1 }
+                            : p
+                        )
+                      );
+                    }}
+                    onComment={() => navigate(`/forum/post/${post.id}`)}
+                    onShare={() =>
+                      navigator
+                        .share?.({
+                          title: post.title || post.author_name,
+                          text: post.body,
+                        })
+                        .catch(() => {})
+                    }
+                    onAuthorClick={(userId) => navigate(`/profile/${userId}`)}
+                  />
+                ))}
+              </div>
+            )
           ) : (
             <div className="posts-guest-message">
               <p className="posts-guest-text">

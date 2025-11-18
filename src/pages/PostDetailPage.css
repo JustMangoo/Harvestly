@@ -92,6 +92,10 @@
   color: var(--color-dark);
 }
 
+.post-author:hover {
+  text-decoration: underline;
+}
+
 .post-text {
   font-size: var(--spacing-base);
   line-height: 1.5;
@@ -177,6 +181,10 @@
   font-weight: 600;
   font-size: var(--font-size-sm);
   color: var(--color-dark);
+}
+
+.comment-body strong:hover {
+  text-decoration: underline;
 }
 
 .comment-body p {

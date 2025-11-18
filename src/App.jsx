@@ -20,6 +20,7 @@ import PackOpen from "./pages/PackOpen.jsx";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import BadgesPage from "./pages/BadgesPage.jsx";
 import ShareGardenPage from "./pages/ShareGardenPage.jsx";
+import UserProfilePage from "./pages/UserProfilePage.jsx";
 
 function App() {
   return (
@@ -106,6 +107,14 @@ function App() {
             element={
               <RequireAuth>
                 <ProfilePage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/profile/:userId"
+            element={
+              <RequireAuth>
+                <UserProfilePage />
               </RequireAuth>
             }
           />

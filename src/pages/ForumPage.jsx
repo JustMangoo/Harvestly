@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import IconElement from "../components/IconElement.jsx";
+import Post from "../components/Post.jsx";
 import HeaderBar from "../components/HeaderBar.jsx";
 import { FRIENDS } from "../data/friendsData.js";
 import { listPosts, timeAgo } from "../services/forum";
@@ -191,81 +192,32 @@ export default function ForumPage() {
             </div>
           ) : (
             filtered.map((post, i) => (
-              <article
-                className="forum-post"
+              <Post
                 key={post.id}
+                post={post}
+                variant="preview"
+                showDivider={i < filtered.length - 1}
                 onClick={() => navigate(`/forum/post/${post.id}`)}
-                role="button"
-                tabIndex={0}
-              >
-                <div className="post-left">
-                  <div className="post-avatar" aria-hidden>
-                    {(post.author_name || "?").charAt(0).toUpperCase()}
-                  </div>
-                  <div className="post-body">
-                    <div className="post-head">
-                      <strong className="post-author">
-                        {post.author_name}
-                      </strong>
-                      <span className="post-time">
-                        {timeAgo(post.published_at)}
-                      </span>
-                    </div>
-                    {post.title && (
-                      <div className="post-title">{post.title}</div>
-                    )}
-                    <p className="post-text">{post.body}</p>
-                    <div className="post-actions">
-                      <button
-                        className="icon-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPosts((s) =>
-                            s.map((p) =>
-                              p.id === post.id
-                                ? { ...p, like_count: (p.like_count ?? 0) + 1 }
-                                : p
-                            )
-                          );
-                        }}
-                      >
-                        <IconElement icon="thumb_up" size={18} filled={false} />
-                        {post.like_count > 0 && <span>{post.like_count}</span>}
-                      </button>
-
-                      <button
-                        className="icon-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/forum/post/${post.id}`);
-                        }}
-                      >
-                        <IconElement
-                          icon="chat_bubble"
-                          size={18}
-                          filled={false}
-                        />
-                      </button>
-
-                      <button
-                        className="icon-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigator
-                            .share?.({
-                              title: post.title || post.author_name,
-                              text: post.body,
-                            })
-                            .catch(() => {});
-                        }}
-                      >
-                        <IconElement icon="share" size={18} filled={false} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                {i < filtered.length - 1 && <div className="post-divider" />}
-              </article>
+                onLike={() =>
+                  setPosts((s) =>
+                    s.map((p) =>
+                      p.id === post.id
+                        ? { ...p, like_count: (p.like_count ?? 0) + 1 }
+                        : p
+                    )
+                  )
+                }
+                onComment={() => navigate(`/forum/post/${post.id}`)}
+                onShare={() =>
+                  navigator
+                    .share?.({
+                      title: post.title || post.author_name,
+                      text: post.body,
+                    })
+                    .catch(() => {})
+                }
+                onAuthorClick={(userId) => navigate(`/profile/${userId}`)}
+              />
             ))
           )}
         </section>

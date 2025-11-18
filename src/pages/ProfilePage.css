@@ -22,10 +22,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-xl);
   padding: var(--spacing-base);
   width: 100%;
-  max-width: 390px;
   margin: 0 auto;
   z-index: 1;
 }
@@ -148,7 +147,7 @@
 }
 
 .profile-user-stats {
-  width: 358px;
+  width: 100%;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;

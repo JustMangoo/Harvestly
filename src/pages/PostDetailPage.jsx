@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./PostDetailPage.css";
 import { FaHeart, FaRegComment } from "react-icons/fa";
 import backarrow from "../assets/backarrow.svg";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   getPostById,
   listComments,
@@ -16,9 +16,11 @@ import {
 } from "../services/forum";
 import { supabase } from "../lib/supabaseClient";
 import { getUserProfile } from "../services/users";
+import Button from "../components/Button";
 
 const PostDetailPage = () => {
   const { postId } = useParams();
+  const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]); // each: {id, author_name, body, like_count, created_at, replies: []}
   const [loading, setLoading] = useState(true);
@@ -174,28 +176,38 @@ const PostDetailPage = () => {
         />
       </div>
       <div className="comment-body">
-        <strong>{comment.author_name}</strong>
+        <strong
+          onClick={() =>
+            comment.user_id && navigate(`/profile/${comment.user_id}`)
+          }
+          style={{ cursor: comment.user_id ? "pointer" : "default" }}
+        >
+          {comment.author_name}
+        </strong>
         <span className="comment-time">{timeAgo(comment.created_at)}</span>
         <p>{comment.body}</p>
 
         <div className="comment-actions">
-          <button
-            className="comment-action-btn"
+          <Button
+            icon="Favorite"
+            text={`${comment.like_count || 0}`}
+            variant="outline"
+            size="sm"
             onClick={() => onLikeComment(comment.id)}
-          >
-            <FaHeart className="icon-element" />{" "}
-            <span>{comment.like_count || 0}</span>
-          </button>
-          <button
-            className="comment-action-btn"
+            iconFilled={false}
+          />
+          <Button
+            icon="Chat_bubble"
+            text="Reply"
+            variant="outline"
+            size="sm"
             onClick={() =>
               setActiveCommentId(
                 activeCommentId === comment.id ? null : comment.id
               )
             }
-          >
-            Reply
-          </button>
+            iconFilled={false}
+          />
         </div>
 
         {activeCommentId === comment.id && (
@@ -207,12 +219,12 @@ const PostDetailPage = () => {
               onChange={(e) => setReplyText(e.target.value)}
               className="reply-input"
             />
-            <button
-              className="reply-send-btn"
+            <Button
+              text="Send"
+              variant="primary"
+              size="sm"
               onClick={() => onReply(comment.id)}
-            >
-              Send
-            </button>
+            />
           </div>
         )}
 
@@ -231,17 +243,25 @@ const PostDetailPage = () => {
               />
             </div>
             <div className="comment-body">
-              <strong>{reply.author_name}</strong>
+              <strong
+                onClick={() =>
+                  reply.user_id && navigate(`/profile/${reply.user_id}`)
+                }
+                style={{ cursor: reply.user_id ? "pointer" : "default" }}
+              >
+                {reply.author_name}
+              </strong>
               <span className="comment-time">{timeAgo(reply.created_at)}</span>
               <p>{reply.body}</p>
               <div className="comment-actions">
-                <button
-                  className="comment-action-btn"
+                <Button
+                  icon="Favorite"
+                  text={`${reply.like_count || 0}`}
+                  variant="outline"
+                  size="sm"
                   onClick={() => onLikeReply(comment.id, reply.id)}
-                >
-                  <FaHeart className="icon-element" />{" "}
-                  <span>{reply.like_count || 0}</span>
-                </button>
+                  iconFilled={false}
+                />
               </div>
             </div>
           </div>
@@ -282,16 +302,28 @@ const PostDetailPage = () => {
           </div>
           <div className="post-body">
             <div className="post-head">
-              <div className="post-author">{post.author_name}</div>
+              <div
+                className="post-author"
+                onClick={() =>
+                  post.user_id && navigate(`/profile/${post.user_id}`)
+                }
+                style={{ cursor: post.user_id ? "pointer" : "default" }}
+              >
+                {post.author_name}
+              </div>
               <div className="post-time">{timeAgo(post.published_at)}</div>
             </div>
             {post.title && <h2 className="post-title">{post.title}</h2>}
             <div className="post-text">{post.body}</div>
             <div className="post-actions">
-              <button className="post-action-btn" onClick={onLikePost}>
-                <FaHeart className="icon-element" />{" "}
-                <span>{post.like_count || 0}</span>
-              </button>
+              <Button
+                icon="Favorite"
+                text={`${post.like_count || 0}`}
+                variant="outline"
+                size="sm"
+                onClick={onLikePost}
+                iconFilled={false}
+              />
             </div>
           </div>
         </div>
@@ -313,9 +345,12 @@ const PostDetailPage = () => {
             onChange={(e) => setNewComment(e.target.value)}
             className="reply-input"
           />
-          <button className="reply-send-btn" onClick={onAddComment}>
-            Comment
-          </button>
+          <Button
+            text="Comment"
+            variant="primary"
+            size="sm"
+            onClick={onAddComment}
+          />
         </div>
       </div>
     </div>

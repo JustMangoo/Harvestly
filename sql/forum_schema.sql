@@ -18,6 +18,7 @@ create table if not exists public.forum_posts (
 );
 
 create index if not exists forum_posts_published_idx on public.forum_posts (published_at desc);
+create index if not exists forum_posts_user_idx on public.forum_posts (user_id, published_at desc);
 
 -- Comments
 create table if not exists public.forum_comments (

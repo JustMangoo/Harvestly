@@ -43,7 +43,7 @@
   --button-padding-y: var(--spacing-xs);
   --button-padding-x: var(--spacing-sm);
   --button-gap: var(--spacing-xs);
-  --button-radius: var(--border-radius-sm);
+  --button-radius: var(--border-radius-max);
   font-size: var(--font-size-sm);
 }
 

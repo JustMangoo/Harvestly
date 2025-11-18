@@ -46,8 +46,22 @@ export async function listPosts({ limit = 20, offset = 0 } = {}) {
   const { data, error } = await supabase
     .from("forum_posts")
     .select(
-      "id, title, body, author_name, like_count, published_at, created_at"
+      "id, title, body, author_name, like_count, published_at, created_at, user_id"
     )
+    .order("published_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+  if (error) throw error;
+  return data || [];
+}
+
+export async function listPostsByUser({ userId, limit = 20, offset = 0 } = {}) {
+  if (!userId) return [];
+  const { data, error } = await supabase
+    .from("forum_posts")
+    .select(
+      "id, title, body, author_name, like_count, published_at, created_at, user_id"
+    )
+    .eq("user_id", userId)
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
   if (error) throw error;
@@ -58,7 +72,7 @@ export async function getPostById(id) {
   const { data, error } = await supabase
     .from("forum_posts")
     .select(
-      "id, title, body, author_name, like_count, published_at, created_at"
+      "id, title, body, author_name, like_count, published_at, created_at, user_id"
     )
     .eq("id", id)
     .single();
@@ -80,7 +94,7 @@ export async function likePost(id, delta = 1) {
 export async function listComments(postId) {
   const { data, error } = await supabase
     .from("forum_comments")
-    .select("id, body, author_name, like_count, created_at")
+    .select("id, body, author_name, like_count, created_at, user_id")
     .eq("post_id", postId)
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -116,7 +130,7 @@ export async function likeComment(id, delta = 1) {
 export async function listReplies(commentId) {
   const { data, error } = await supabase
     .from("forum_replies")
-    .select("id, body, author_name, like_count, created_at")
+    .select("id, body, author_name, like_count, created_at, user_id")
     .eq("comment_id", commentId)
     .order("created_at", { ascending: true });
   if (error) throw error;
