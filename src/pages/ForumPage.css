@@ -275,68 +275,6 @@
   gap: var(--spacing-sm);
 }
 
-.forum-post {
-  background: var(--color-light);
-  padding: var(--spacing-sm);
-  border-radius: var(--border-radius-base);
-  cursor: pointer;
-}
-
-.post-left {
-  display: flex;
-  gap: var(--spacing-sm);
-}
-
-.post-avatar {
-  width: 40px;
-  height: 40px;
-  background: var(--color-secondary);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 600;
-  color: var(--color-light);
-}
-
-.post-body {
-  flex: 1;
-}
-
-.post-head {
-  display: flex;
-  justify-content: space-between;
-  font-size: var(--font-size-sm);
-}
-
-.post-author {
-  font-weight: 600;
-}
-
-.post-time {
-  color: var(--color-dark-60);
-}
-
-.post-text {
-  font-size: var(--font-size-base);
-  margin: 4px 0;
-}
-
-.post-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.icon-btn {
-  background: none;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-}
-
 .post-divider {
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   margin-top: 8px;

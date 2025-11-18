@@ -12,7 +12,7 @@ import petsImg from "../assets/PetROCK.svg";
 import largeDecorImg from "../assets/Tree.svg";
 import mysteryPackImg from "../assets/pack.svg";
 import goldSeedImg from "../assets/seed.svg";
-import backarrow from "../assets/backarrow.svg";
+import AppBar from "../components/AppBar";
 import infinityIcon from "../assets/infinity.svg";
 import calendarIcon from "../assets/calendar.svg";
 import seedIcon from "../assets/seed.svg";
@@ -83,20 +83,17 @@ export default function StorePage() {
 
   return (
     <div className="store-page">
-      {/* Top Bar */}
-      <div className="store-topbar">
-        <button
-          className="back-arrow"
-          onClick={() => (branch ? handleBackToMain() : navigate(-1))}
-        >
-          <img src={backarrow} alt="Back" className="back-arrow-icon" />
-        </button>
-        <h1 className="store-title">Store</h1>
-        <div className="store-currency">
-          <img src={goldSeedImg} alt="Seed" className="seed-icon" />
-          <span>199</span>
-        </div>
-      </div>
+      <AppBar
+        showBack
+        title="Store"
+        onBack={() => (branch ? handleBackToMain() : navigate(-1))}
+        rightContent={
+          <div className="store-currency">
+            <img src={goldSeedImg} alt="Seed" className="seed-icon" />
+            <span>199</span>
+          </div>
+        }
+      />
 
       {/* Tabs */}
       <CategoryTabs

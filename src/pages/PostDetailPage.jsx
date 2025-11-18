@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./PostDetailPage.css";
-import { FaHeart, FaRegComment } from "react-icons/fa";
-import backarrow from "../assets/backarrow.svg";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   getPostById,
@@ -17,6 +15,7 @@ import {
 import { supabase } from "../lib/supabaseClient";
 import { getUserProfile } from "../services/users";
 import Button from "../components/Button";
+import AppBar from "../components/AppBar";
 
 const PostDetailPage = () => {
   const { postId } = useParams();
@@ -246,59 +245,52 @@ const PostDetailPage = () => {
 
   return (
     <div className="forum-page">
-      {/* Header */}
-      <div className="headwear-header">
-        <button className="back-btn" onClick={() => window.history.back()}>
-          <img src={backarrow} alt="Back" />
-        </button>
-      </div>
+      <AppBar showBack />
 
       {/* Main Post */}
       {loading ? (
         <div className="post-card">
-          <div className="post-body">
-            <p>Loading…</p>
-          </div>
+          <p>Loading…</p>
         </div>
       ) : error ? (
         <div className="post-card">
-          <div className="post-body">
-            <p>Error: {error}</p>
-          </div>
+          <p>Error: {error}</p>
         </div>
       ) : post ? (
         <div className="post-card">
-          <div className="post-avatar">
-            <img
-              src={`https://i.pravatar.cc/150?u=${postDisplayName || post.id}`}
-              alt="User avatar"
-            />
-          </div>
-          <div className="post-body">
-            <div className="post-head">
-              <div
-                className="post-author"
-                onClick={() =>
-                  post.user_id && navigate(`/profile/${post.user_id}`)
-                }
-                style={{ cursor: post.user_id ? "pointer" : "default" }}
-              >
-                {postDisplayName}
-              </div>
-              <div className="post-time">{timeAgo(post.published_at)}</div>
-            </div>
-            {post.title && <h2 className="post-title">{post.title}</h2>}
-            <div className="post-text">{post.body}</div>
-            <div className="post-actions">
-              <Button
-                icon="Favorite"
-                text={`${post.like_count || 0}`}
-                variant="outline"
-                size="sm"
-                onClick={onLikePost}
-                iconFilled={false}
+          <div className="post-head">
+            <div className="post-avatar">
+              <img
+                src={`https://i.pravatar.cc/150?u=${
+                  postDisplayName || post.id
+                }`}
+                alt="User avatar"
               />
             </div>
+            <div
+              className="post-author"
+              onClick={() =>
+                post.user_id && navigate(`/profile/${post.user_id}`)
+              }
+              style={{ cursor: post.user_id ? "pointer" : "default" }}
+            >
+              {postDisplayName}
+            </div>
+            <div className="post-time">{timeAgo(post.published_at)}</div>
+          </div>
+          <div className="post-content">
+            {post.title && <h2 className="post-title">{post.title}</h2>}
+            <div className="post-text">{post.body}</div>
+          </div>
+          <div className="post-actions">
+            <Button
+              icon="Favorite"
+              text={`${post.like_count || 0}`}
+              variant="outline"
+              size="sm"
+              onClick={onLikePost}
+              iconFilled={false}
+            />
           </div>
         </div>
       ) : null}

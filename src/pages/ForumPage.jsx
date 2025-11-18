@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import IconElement from "../components/IconElement.jsx";
 import Post from "../components/Post.jsx";
-import HeaderBar from "../components/HeaderBar.jsx";
+import AppBar from "../components/AppBar.jsx";
 import { FRIENDS } from "../data/friendsData.js";
 import { listPosts, timeAgo } from "../services/forum";
 import "./ForumPage.css";
@@ -110,7 +110,7 @@ export default function ForumPage() {
 
   return (
     <div className="forum-page">
-      <HeaderBar title="Forum" showMenu />
+      <AppBar title="Forum" showBack />
 
       <div className="forum-search">
         <IconElement icon="search" size={20} filled={false} />

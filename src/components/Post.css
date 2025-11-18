@@ -71,7 +71,7 @@
 
 .post-card__actions {
   display: flex;
-  gap: 10px;
+  gap: var(--spacing-sm);
 }
 
 .post-card__icon-btn {

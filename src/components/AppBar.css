@@ -1,0 +1,46 @@
+/* ========================================= */
+/* Reusable App Bar                         */
+/* ========================================= */
+
+.app-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+.app-bar-section {
+  display: flex;
+  align-items: center;
+}
+.app-bar-section.left {
+  width: 64px;
+}
+.app-bar-section.center {
+  flex: 1;
+  justify-content: center;
+}
+.app-bar-section.right {
+  width: 64px;
+  justify-content: flex-end;
+}
+
+.app-bar-title {
+  margin: 0;
+  font-family: var(--font-family-heading, inherit);
+  font-size: var(--font-size-xl, 20px);
+  font-weight: 600;
+  color: var(--color-dark);
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* IconElement inherits font-size from inline style */
+.app-bar-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}

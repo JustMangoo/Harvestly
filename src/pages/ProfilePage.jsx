@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import Button from "../components/Button.jsx";
+import AppBar from "../components/AppBar";
 import IconElement from "../components/IconElement.jsx";
 import Post from "../components/Post.jsx";
 import "./ProfilePage.css";
@@ -393,8 +394,48 @@ export default function ProfilePage() {
     navigate("/share-garden");
   };
 
+  const handleEditProfile = () => {
+    setIsEditMode(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+  };
+
+  const handleSaveEdit = async () => {
+    await saveProfileChanges();
+    setIsEditMode(false);
+  };
+
   return (
     <div className="profile-page">
+      <AppBar
+        showBack
+        rightContent={
+          isEditMode ? (
+            <div className="app-bar-edit-actions">
+              <Button
+                variant="secondary"
+                onClick={handleCancelEdit}
+                aria-label="Cancel Edit"
+                size="sm"
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleSaveEdit} aria-label="Save Edit" size="sm">
+                Save
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="secondary"
+              onClick={handleEditProfile}
+              aria-label="Edit Profile"
+              icon="edit"
+            ></Button>
+          )
+        }
+      />
       <div className="profile-background" />
       <div className="profile-container">
         <div className="profile-info">
@@ -530,7 +571,8 @@ export default function ProfilePage() {
                     onShare={() =>
                       navigator
                         .share?.({
-                          title: post.title || (post?.profiles?.username ?? "Post"),
+                          title:
+                            post.title || (post?.profiles?.username ?? "Post"),
                           text: post.body,
                         })
                         .catch(() => {})

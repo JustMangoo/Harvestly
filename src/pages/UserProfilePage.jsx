@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import IconElement from "../components/IconElement.jsx";
+import AppBar from "../components/AppBar";
 import Post from "../components/Post.jsx";
 import "./ProfilePage.css";
 import { getUserProfile } from "../services/users.js";
@@ -70,11 +71,10 @@ export default function UserProfilePage() {
 
   return (
     <div className="profile-page">
+      <AppBar showBack title={profile.username || "Profile"} />
       <div className="profile-background" />
       <div className="profile-container">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          <IconElement icon="arrow_back" size={24} />
-        </button>
+        {/* Back button now handled by AppBar */}
 
         <div className="profile-info">
           <div className="profile-avatar">
