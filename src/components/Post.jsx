@@ -85,7 +85,7 @@ export default function Post({
           />
           <Button
             icon="Share"
-            text={post.title || displayName}
+            text="share"
             variant="outline"
             size="sm"
             onClick={onShare}
