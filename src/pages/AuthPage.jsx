@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import Button from "../components/Button.jsx";
 import { supabase } from "../lib/supabaseClient";
+import { updateUserProfile } from "../services/users";
 import "./AuthPage.css";
 
 export default function AuthPage() {
@@ -82,6 +83,17 @@ export default function AuthPage() {
           },
         });
         if (error) throw error;
+
+        // Create profile with username from email
+        if (data.user) {
+          try {
+            const username = credentials.email.split("@")[0];
+            await updateUserProfile(data.user.id, { username });
+          } catch (profileError) {
+            console.error("Failed to create profile:", profileError);
+          }
+        }
+
         if (!data.user) {
           setAuthMessage(
             "Check your email to confirm your account before signing in."

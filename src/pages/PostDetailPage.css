@@ -34,6 +34,8 @@
   padding: var(--spacing-base);
   font-family: var(--font-family-body);
   background: var(--color-light);
+  /* Add bottom padding so content isn't hidden behind input bar */
+  padding-bottom: 120px;
 }
 
 /* Header with back button */
@@ -46,6 +48,17 @@
   flex-direction: column;
   gap: var(--spacing-base);
   border-radius: var(--border-radius-base);
+}
+
+.post-author-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.post-time {
+  font-size: var(--font-size-xs);
+  color: var(--color-dark-60);
 }
 
 .post-avatar {
@@ -137,14 +150,13 @@
 .post-detail-comments {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-base);
   margin-top: var(--spacing-base);
 }
 
 .post-detail-comments h2 {
   font-family: var(--font-family-heading);
   font-size: var(--spacing-lg);
-  margin-bottom: var(--spacing-sm);
   color: var(--color-dark);
 }
 
@@ -162,35 +174,32 @@
   object-fit: cover;
 }
 
-.comment-body {
+.comment-main {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.comment-body strong {
+.comment-main header {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+.comment-main strong {
   font-weight: 600;
   font-size: var(--font-size-sm);
   color: var(--color-dark);
 }
 
-.comment-body strong:hover {
-  text-decoration: underline;
+.comment-time {
+  font-size: var(--font-size-xs);
+  color: var(--color-dark-60);
 }
 
-.comment-body p {
+.comment-main p {
   margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-dark-60);
   line-height: 1.4;
-}
-
-/* Replies inside comments (smaller & indented) */
-.comment-body .reply {
-  margin-left: 44px; /* indent to distinguish reply */
-  font-size: 13px;
-  color: var(--color-dark-60);
-  line-height: 1.3;
 }
 
 /* Floating Add Button (mobile) */
@@ -265,10 +274,56 @@
 }
 
 /* Replies styling */
-.comment-body .reply {
-  margin-left: 44px; /* indent */
-  font-size: 13px;
-  color: var(--color-dark-60);
-  line-height: 1.3;
-  margin-top: 4px;
+.comment-main .reply {
+  margin-top: var(--spacing-base);
+}
+
+/* ============================= */
+/* Sticky Bottom Comment Input    */
+/* ============================= */
+.comment-input-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 72px; /* sit above bottom navigation */
+  width: min(100%, 430px);
+  box-sizing: border-box;
+  background: var(--color-light);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 8px 12px;
+  z-index: 1000;
+}
+
+.replying-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-secondary-50);
+  color: var(--color-dark);
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+}
+
+.replying-cancel {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.comment-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment-input {
+  flex: 1;
+  border: 1px solid var(--color-secondary-50);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: var(--font-size-sm);
+  outline: none;
 }

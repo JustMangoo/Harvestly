@@ -15,6 +15,7 @@ import {
 import { supabase } from "../lib/supabaseClient";
 import { getUserProfile } from "../services/users";
 import Button from "../components/Button";
+import IconElement from "../components/IconElement";
 import AppBar from "../components/AppBar";
 
 const PostDetailPage = () => {
@@ -27,6 +28,7 @@ const PostDetailPage = () => {
   const [newComment, setNewComment] = useState("");
   const [replyText, setReplyText] = useState("");
   const [activeCommentId, setActiveCommentId] = useState(null);
+  const [replyTargetName, setReplyTargetName] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -146,16 +148,18 @@ const PostDetailPage = () => {
           alt="User avatar"
         />
       </div>
-      <div className="comment-body">
-        <strong
-          onClick={() =>
-            comment.user_id && navigate(`/profile/${comment.user_id}`)
-          }
-          style={{ cursor: comment.user_id ? "pointer" : "default" }}
-        >
-          {comment.profiles?.username ?? "Anonymous"}
-        </strong>
-        <span className="comment-time">{timeAgo(comment.created_at)}</span>
+      <div className="comment-main">
+        <header>
+          <strong
+            onClick={() =>
+              comment.user_id && navigate(`/profile/${comment.user_id}`)
+            }
+            style={{ cursor: comment.user_id ? "pointer" : "default" }}
+          >
+            {comment.profiles?.username ?? "Anonymous"}
+          </strong>
+          <span className="comment-time">{timeAgo(comment.created_at)}</span>
+        </header>
         <p>{comment.body}</p>
 
         <div className="comment-actions">
@@ -172,39 +176,20 @@ const PostDetailPage = () => {
             text="Reply"
             variant="outline"
             size="sm"
-            onClick={() =>
-              setActiveCommentId(
-                activeCommentId === comment.id ? null : comment.id
-              )
-            }
+            onClick={() => {
+              const next = activeCommentId === comment.id ? null : comment.id;
+              setActiveCommentId(next);
+              setReplyTargetName(
+                next ? comment.profiles?.username ?? "Anonymous" : ""
+              );
+              if (!next) setReplyText("");
+            }}
             iconFilled={false}
           />
         </div>
 
-        {activeCommentId === comment.id && (
-          <div className="reply-input-container">
-            <input
-              type="text"
-              placeholder="Write a reply..."
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              className="reply-input"
-            />
-            <Button
-              text="Send"
-              variant="primary"
-              size="sm"
-              onClick={() => onReply(comment.id)}
-            />
-          </div>
-        )}
-
         {(comment.replies || []).map((reply) => (
-          <div
-            key={reply.id}
-            className="comment-card comment-reply"
-            style={{ marginLeft: "36px" }}
-          >
+          <div key={reply.id} className="comment-card reply">
             <div className="comment-avatar">
               <img
                 src={`https://i.pravatar.cc/150?u=${
@@ -213,16 +198,20 @@ const PostDetailPage = () => {
                 alt="User avatar"
               />
             </div>
-            <div className="comment-body">
-              <strong
-                onClick={() =>
-                  reply.user_id && navigate(`/profile/${reply.user_id}`)
-                }
-                style={{ cursor: reply.user_id ? "pointer" : "default" }}
-              >
-                {reply.profiles?.username ?? "Anonymous"}
-              </strong>
-              <span className="comment-time">{timeAgo(reply.created_at)}</span>
+            <div className="comment-main">
+              <header>
+                <strong
+                  onClick={() =>
+                    reply.user_id && navigate(`/profile/${reply.user_id}`)
+                  }
+                  style={{ cursor: reply.user_id ? "pointer" : "default" }}
+                >
+                  {reply.profiles?.username ?? "Anonymous"}
+                </strong>
+                <span className="comment-time">
+                  {timeAgo(reply.created_at)}
+                </span>
+              </header>
               <p>{reply.body}</p>
               <div className="comment-actions">
                 <Button
@@ -259,22 +248,24 @@ const PostDetailPage = () => {
       ) : post ? (
         <div className="post-card">
           <div className="post-head">
-            <div className="post-avatar">
-              <img
-                src={`https://i.pravatar.cc/150?u=${
-                  postDisplayName || post.id
-                }`}
-                alt="User avatar"
-              />
-            </div>
-            <div
-              className="post-author"
-              onClick={() =>
-                post.user_id && navigate(`/profile/${post.user_id}`)
-              }
-              style={{ cursor: post.user_id ? "pointer" : "default" }}
-            >
-              {postDisplayName}
+            <div className="post-author-info">
+              <div className="post-avatar">
+                <img
+                  src={`https://i.pravatar.cc/150?u=${
+                    postDisplayName || post.id
+                  }`}
+                  alt="User avatar"
+                />
+              </div>
+              <div
+                className="post-author"
+                onClick={() =>
+                  post.user_id && navigate(`/profile/${post.user_id}`)
+                }
+                style={{ cursor: post.user_id ? "pointer" : "default" }}
+              >
+                {postDisplayName}
+              </div>
             </div>
             <div className="post-time">{timeAgo(post.published_at)}</div>
           </div>
@@ -303,19 +294,47 @@ const PostDetailPage = () => {
         ) : (
           comments.map((comment) => renderComment(comment))
         )}
-        <div className="reply-input-container" style={{ marginTop: 12 }}>
+      </div>
+
+      {/* Sticky bottom input bar */}
+      <div className="comment-input-bar">
+        {activeCommentId && (
+          <div className="replying-banner">
+            <span>Replying to {replyTargetName || "user"}</span>
+            <button
+              className="replying-cancel"
+              onClick={() => {
+                setActiveCommentId(null);
+                setReplyTargetName("");
+                setReplyText("");
+              }}
+              aria-label="Cancel reply"
+            >
+              <IconElement icon="close" size={18} filled={false} />
+            </button>
+          </div>
+        )}
+        <div className="comment-input-row">
           <input
             type="text"
-            placeholder="Write a comment..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            className="reply-input"
+            className="comment-input"
+            placeholder={
+              activeCommentId ? "Write a reply..." : "Write a comment..."
+            }
+            value={activeCommentId ? replyText : newComment}
+            onChange={(e) =>
+              activeCommentId
+                ? setReplyText(e.target.value)
+                : setNewComment(e.target.value)
+            }
           />
           <Button
-            text="Comment"
+            text={activeCommentId ? "Send" : "Comment"}
             variant="primary"
             size="sm"
-            onClick={onAddComment}
+            onClick={() =>
+              activeCommentId ? onReply(activeCommentId) : onAddComment()
+            }
           />
         </div>
       </div>
