@@ -96,9 +96,11 @@ export default function UserProfilePage() {
                   {profile.username || "User"}
                 </h2>
               </div>
-              <p className="profile-location">
-                {profile.location || "Location not set"}
-              </p>
+              {profile.location && (
+                <p className="profile-location">
+                  {profile.location || "Location not set"}
+                </p>
+              )}
             </div>
             <div className="profile-stats-container">
               <div className="profile-stat">
@@ -146,7 +148,8 @@ export default function UserProfilePage() {
                   onShare={() =>
                     navigator
                       .share?.({
-                        title: post.title || (post?.profiles?.username ?? "Post"),
+                        title:
+                          post.title || (post?.profiles?.username ?? "Post"),
                         text: post.body,
                       })
                       .catch(() => {})

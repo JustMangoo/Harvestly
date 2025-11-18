@@ -173,6 +173,7 @@ export default function AuthPage() {
                 placeholder="must be 8 characters"
                 required
                 minLength={8}
+                autoComplete="new-password"
               />
               <button
                 type="button"
@@ -198,6 +199,7 @@ export default function AuthPage() {
                   placeholder="repeat password"
                   required
                   minLength={8}
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"

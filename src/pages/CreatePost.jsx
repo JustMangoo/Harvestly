@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabaseClient";
 import { getUserProfile } from "../services/users";
 import { createPost } from "../services/forum";
 import "./CreatePost.css";
+import Button from "../components/Button.jsx";
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -41,30 +42,21 @@ export default function CreatePost() {
     <div className="create-post-page">
       {/* ✅ Top bar */}
       <div className="create-post-topbar">
-        <button className="cancel-btn" onClick={handleCancel}>
+        <Button size="md" variant="secondary" onClick={handleCancel}>
           Cancel
-        </button>
-        <button
-          className={`post-btn ${
-            !text.trim() && !title.trim() ? "disabled" : ""
-          }`}
+        </Button>
+        <Button
+          size="md"
+          className={` ${!text.trim() && !title.trim() ? "disabled" : ""}`}
           onClick={handlePost}
           disabled={(!text.trim() && !title.trim()) || loading}
         >
           {loading ? "Posting…" : "Post"}
-        </button>
+        </Button>
       </div>
 
       {/* ✅ Body */}
       <div className="create-post-body">
-        <div className="create-post-avatar">
-          <img
-            src="/assets/profile-placeholder.png"
-            alt="User avatar"
-            className="avatar-img"
-          />
-        </div>
-
         <div className="create-post-fields">
           <input
             type="text"
