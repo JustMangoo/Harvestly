@@ -7,7 +7,7 @@ import Button from "./Button.jsx";
 /**
  * Post component
  * Props:
- * - post: { id, title, body, author_name, like_count, published_at, user_id }
+ * - post: { id, title, body, like_count, published_at, user_id }
  * - variant: 'preview' | 'full' (default: 'preview')
  * - showDivider: boolean (preview only)
  * - onClick: () => void
@@ -27,8 +27,7 @@ export default function Post({
   onAuthorClick,
 }) {
   if (!post) return null;
-  const { id, title, body, author_name, like_count, published_at, user_id } =
-    post;
+  const { id, title, body, like_count, published_at, user_id } = post;
 
   const handleAuthorClick = (e) => {
     e.stopPropagation();
@@ -36,6 +35,8 @@ export default function Post({
       onAuthorClick(user_id);
     }
   };
+
+  const displayName = post?.profiles?.username ?? "Anonymous";
 
   return (
     <article className="post-card" onClick={onClick} role="button" tabIndex={0}>
@@ -46,7 +47,7 @@ export default function Post({
             onClick={handleAuthorClick}
             style={{ cursor: onAuthorClick && user_id ? "pointer" : "default" }}
           >
-            @{author_name}
+            @{displayName}
           </strong>
           <span className="post-card__time">{timeAgo(published_at)}</span>
         </div>
@@ -84,7 +85,7 @@ export default function Post({
           />
           <Button
             icon="Share"
-            text="share"
+            text={post.title || displayName}
             variant="outline"
             size="sm"
             onClick={onShare}

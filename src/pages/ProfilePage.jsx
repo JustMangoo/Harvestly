@@ -530,7 +530,7 @@ export default function ProfilePage() {
                     onShare={() =>
                       navigator
                         .share?.({
-                          title: post.title || post.author_name,
+                          title: post.title || (post?.profiles?.username ?? "Post"),
                           text: post.body,
                         })
                         .catch(() => {})

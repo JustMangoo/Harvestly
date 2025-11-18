@@ -7,8 +7,7 @@ create extension if not exists "pgcrypto";
 -- Posts
 create table if not exists public.forum_posts (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete set null,
-  author_name text not null,
+  user_id uuid references public.profiles(id) on delete set null,
   title text not null,
   body text not null,
   like_count integer not null default 0,
@@ -24,8 +23,7 @@ create index if not exists forum_posts_user_idx on public.forum_posts (user_id, 
 create table if not exists public.forum_comments (
   id uuid primary key default gen_random_uuid(),
   post_id uuid not null references public.forum_posts(id) on delete cascade,
-  user_id uuid references auth.users(id) on delete set null,
-  author_name text not null,
+  user_id uuid references public.profiles(id) on delete set null,
   body text not null,
   like_count integer not null default 0,
   created_at timestamptz not null default now()
@@ -37,8 +35,7 @@ create index if not exists forum_comments_post_idx on public.forum_comments (pos
 create table if not exists public.forum_replies (
   id uuid primary key default gen_random_uuid(),
   comment_id uuid not null references public.forum_comments(id) on delete cascade,
-  user_id uuid references auth.users(id) on delete set null,
-  author_name text not null,
+  user_id uuid references public.profiles(id) on delete set null,
   body text not null,
   like_count integer not null default 0,
   created_at timestamptz not null default now()

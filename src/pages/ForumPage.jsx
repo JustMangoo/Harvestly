@@ -59,8 +59,9 @@ export default function ForumPage() {
     const q = query.trim().toLowerCase();
     return posts.filter((p) => {
       if (!q) return true;
+      const uname = p?.profiles?.username?.toLowerCase() || "";
       return (
-        p.author_name?.toLowerCase().includes(q) ||
+        uname.includes(q) ||
         p.title?.toLowerCase().includes(q) ||
         p.body?.toLowerCase().includes(q)
       );
@@ -211,7 +212,7 @@ export default function ForumPage() {
                 onShare={() =>
                   navigator
                     .share?.({
-                      title: post.title || post.author_name,
+                      title: post.title || (post?.profiles?.username ?? "Post"),
                       text: post.body,
                     })
                     .catch(() => {})

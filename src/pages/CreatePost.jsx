@@ -22,24 +22,9 @@ export default function CreatePost() {
       const { data: userData, error: userErr } = await supabase.auth.getUser();
       if (userErr) throw userErr;
       const user = userData?.user ?? null;
-      let authorName = "Anonymous";
-      if (user?.id) {
-        try {
-          const profile = await getUserProfile(user.id);
-          authorName =
-            profile?.username ||
-            user.user_metadata?.name ||
-            user.email ||
-            authorName;
-        } catch (_) {
-          authorName = user?.user_metadata?.name || user?.email || authorName;
-        }
-      }
-
       await createPost({
         title: title.trim(),
         text: text.trim(),
-        authorName,
         userId: user?.id,
       });
 

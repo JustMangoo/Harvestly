@@ -20,19 +20,12 @@ export function timeAgo(date) {
 }
 
 // POSTS
-export async function createPost({
-  title,
-  text,
-  authorName,
-  userId,
-  publishedAt,
-}) {
+export async function createPost({ title, text, userId, publishedAt }) {
   const { data, error } = await supabase
     .from("forum_posts")
     .insert({
       title,
       body: text,
-      author_name: authorName,
       user_id: userId ?? null,
       published_at: publishedAt ?? new Date().toISOString(),
     })
@@ -46,7 +39,10 @@ export async function listPosts({ limit = 20, offset = 0 } = {}) {
   const { data, error } = await supabase
     .from("forum_posts")
     .select(
-      "id, title, body, author_name, like_count, published_at, created_at, user_id"
+      `
+      id, title, body, like_count, published_at, created_at, user_id,
+      profiles:profiles!forum_posts_user_id_fkey (username, avatar_url)
+    `
     )
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
@@ -59,7 +55,10 @@ export async function listPostsByUser({ userId, limit = 20, offset = 0 } = {}) {
   const { data, error } = await supabase
     .from("forum_posts")
     .select(
-      "id, title, body, author_name, like_count, published_at, created_at, user_id"
+      `
+      id, title, body, like_count, published_at, created_at, user_id,
+      profiles:profiles!forum_posts_user_id_fkey (username, avatar_url)
+    `
     )
     .eq("user_id", userId)
     .order("published_at", { ascending: false })
@@ -72,7 +71,10 @@ export async function getPostById(id) {
   const { data, error } = await supabase
     .from("forum_posts")
     .select(
-      "id, title, body, author_name, like_count, published_at, created_at, user_id"
+      `
+      id, title, body, like_count, published_at, created_at, user_id,
+      profiles:profiles!forum_posts_user_id_fkey (username, avatar_url)
+    `
     )
     .eq("id", id)
     .single();
@@ -94,20 +96,24 @@ export async function likePost(id, delta = 1) {
 export async function listComments(postId) {
   const { data, error } = await supabase
     .from("forum_comments")
-    .select("id, body, author_name, like_count, created_at, user_id")
+    .select(
+      `
+      id, body, like_count, created_at, user_id,
+      profiles:profiles!forum_comments_user_id_fkey (username, avatar_url)
+    `
+    )
     .eq("post_id", postId)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data || [];
 }
 
-export async function createComment({ postId, text, authorName, userId }) {
+export async function createComment({ postId, text, userId }) {
   const { data, error } = await supabase
     .from("forum_comments")
     .insert({
       post_id: postId,
       body: text,
-      author_name: authorName,
       user_id: userId ?? null,
     })
     .select()
@@ -130,20 +136,24 @@ export async function likeComment(id, delta = 1) {
 export async function listReplies(commentId) {
   const { data, error } = await supabase
     .from("forum_replies")
-    .select("id, body, author_name, like_count, created_at, user_id")
+    .select(
+      `
+      id, body, like_count, created_at, user_id,
+      profiles:profiles!forum_replies_user_id_fkey (username, avatar_url)
+    `
+    )
     .eq("comment_id", commentId)
     .order("created_at", { ascending: true });
   if (error) throw error;
   return data || [];
 }
 
-export async function createReply({ commentId, text, authorName, userId }) {
+export async function createReply({ commentId, text, userId }) {
   const { data, error } = await supabase
     .from("forum_replies")
     .insert({
       comment_id: commentId,
       body: text,
-      author_name: authorName,
       user_id: userId ?? null,
     })
     .select()

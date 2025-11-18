@@ -68,23 +68,9 @@ const PostDetailPage = () => {
     try {
       const { data: userData } = await supabase.auth.getUser();
       const user = userData?.user;
-      let authorName = "Anonymous";
-      if (user?.id) {
-        try {
-          const profile = await getUserProfile(user.id);
-          authorName =
-            profile?.username ||
-            user.user_metadata?.name ||
-            user.email ||
-            authorName;
-        } catch (_) {
-          authorName = user?.user_metadata?.name || user?.email || authorName;
-        }
-      }
       const inserted = await createComment({
         postId: postId,
         text: newComment.trim(),
-        authorName,
         userId: user?.id,
       });
       setComments((cs) => [{ ...inserted, replies: [] }, ...cs]);
@@ -111,23 +97,9 @@ const PostDetailPage = () => {
     try {
       const { data: userData } = await supabase.auth.getUser();
       const user = userData?.user;
-      let authorName = "Anonymous";
-      if (user?.id) {
-        try {
-          const profile = await getUserProfile(user.id);
-          authorName =
-            profile?.username ||
-            user.user_metadata?.name ||
-            user.email ||
-            authorName;
-        } catch (_) {
-          authorName = user?.user_metadata?.name || user?.email || authorName;
-        }
-      }
       const inserted = await createReply({
         commentId,
         text: replyText.trim(),
-        authorName,
         userId: user?.id,
       });
       setComments((cs) =>
@@ -170,7 +142,7 @@ const PostDetailPage = () => {
       <div className="comment-avatar">
         <img
           src={`https://i.pravatar.cc/150?u=${
-            comment.author_name || comment.id
+            comment.profiles?.username || comment.id
           }`}
           alt="User avatar"
         />
@@ -182,7 +154,7 @@ const PostDetailPage = () => {
           }
           style={{ cursor: comment.user_id ? "pointer" : "default" }}
         >
-          {comment.author_name}
+          {comment.profiles?.username ?? "Anonymous"}
         </strong>
         <span className="comment-time">{timeAgo(comment.created_at)}</span>
         <p>{comment.body}</p>
@@ -237,7 +209,7 @@ const PostDetailPage = () => {
             <div className="comment-avatar">
               <img
                 src={`https://i.pravatar.cc/150?u=${
-                  reply.author_name || reply.id
+                  reply.profiles?.username || reply.id
                 }`}
                 alt="User avatar"
               />
@@ -249,7 +221,7 @@ const PostDetailPage = () => {
                 }
                 style={{ cursor: reply.user_id ? "pointer" : "default" }}
               >
-                {reply.author_name}
+                {reply.profiles?.username ?? "Anonymous"}
               </strong>
               <span className="comment-time">{timeAgo(reply.created_at)}</span>
               <p>{reply.body}</p>
@@ -269,6 +241,8 @@ const PostDetailPage = () => {
       </div>
     </div>
   );
+
+  const postDisplayName = post?.profiles?.username ?? "Anonymous";
 
   return (
     <div className="forum-page">
@@ -296,7 +270,7 @@ const PostDetailPage = () => {
         <div className="post-card">
           <div className="post-avatar">
             <img
-              src={`https://i.pravatar.cc/150?u=${post.author_name || post.id}`}
+              src={`https://i.pravatar.cc/150?u=${postDisplayName || post.id}`}
               alt="User avatar"
             />
           </div>
@@ -309,7 +283,7 @@ const PostDetailPage = () => {
                 }
                 style={{ cursor: post.user_id ? "pointer" : "default" }}
               >
-                {post.author_name}
+                {postDisplayName}
               </div>
               <div className="post-time">{timeAgo(post.published_at)}</div>
             </div>
