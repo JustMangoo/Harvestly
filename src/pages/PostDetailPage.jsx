@@ -232,6 +232,12 @@ const PostDetailPage = () => {
 
   const postDisplayName = post?.profiles?.username ?? "Anonymous";
 
+  // Calculate total comment count (comments + all replies)
+  const totalCommentCount = comments.reduce(
+    (sum, comment) => sum + 1 + (comment.replies?.length || 0),
+    0
+  );
+
   return (
     <div className="forum-page">
       <AppBar showBack />
@@ -280,6 +286,14 @@ const PostDetailPage = () => {
               variant="outline"
               size="sm"
               onClick={onLikePost}
+              iconFilled={false}
+            />
+            <Button
+              icon="Chat_bubble"
+              text={`${totalCommentCount}`}
+              variant="outline"
+              size="sm"
+              onClick={() => {}}
               iconFilled={false}
             />
           </div>

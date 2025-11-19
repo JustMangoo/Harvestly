@@ -21,6 +21,7 @@ import SubscriptionPage from "./pages/SubscriptionPage";
 import BadgesPage from "./pages/BadgesPage.jsx";
 import ShareGardenPage from "./pages/ShareGardenPage.jsx";
 import UserProfilePage from "./pages/UserProfilePage.jsx";
+import FriendsPage from "./pages/FriendsPage.jsx";
 
 function App() {
   return (
@@ -126,6 +127,14 @@ function App() {
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/badges" element={<BadgesPage />} />
           <Route path="/share-garden" element={<ShareGardenPage />} />
+          <Route
+            path="/friends"
+            element={
+              <RequireAuth>
+                <FriendsPage />
+              </RequireAuth>
+            }
+          />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

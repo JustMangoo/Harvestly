@@ -289,6 +289,14 @@
   align-self: stretch;
 }
 
+.profile-friend-action {
+  width: 100%;
+}
+
+.profile-friend-action button {
+  width: 100%;
+}
+
 .posts-section {
   width: 100%;
 }

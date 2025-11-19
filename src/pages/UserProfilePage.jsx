@@ -2,10 +2,18 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import IconElement from "../components/IconElement.jsx";
 import AppBar from "../components/AppBar";
+import Button from "../components/Button.jsx";
 import Post from "../components/Post.jsx";
 import "./ProfilePage.css";
 import { getUserProfile } from "../services/users.js";
 import { listPostsByUser } from "../services/forum.js";
+import {
+  getFriendshipStatus,
+  sendFriendRequest,
+  acceptFriendRequest,
+  removeFriend,
+  getFriends,
+} from "../services/friendships.js";
 
 export default function UserProfilePage() {
   const navigate = useNavigate();
@@ -14,11 +22,16 @@ export default function UserProfilePage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [postsLoading, setPostsLoading] = useState(true);
+  const [friendshipStatus, setFriendshipStatus] = useState(null);
+  const [friendshipData, setFriendshipData] = useState(null);
+  const [friendActionLoading, setFriendActionLoading] = useState(false);
+  const [friendCount, setFriendCount] = useState(0);
 
   useEffect(() => {
     if (userId) {
       loadProfile();
       loadPosts();
+      loadFriendshipStatus();
     }
   }, [userId]);
 
@@ -27,6 +40,9 @@ export default function UserProfilePage() {
       setLoading(true);
       const userProfile = await getUserProfile(userId);
       setProfile(userProfile);
+      // Load friend count
+      const friends = await getFriends(userId);
+      setFriendCount(friends.length);
     } catch (error) {
       console.error("Error loading profile:", error);
     } finally {
@@ -44,6 +60,57 @@ export default function UserProfilePage() {
     } finally {
       setPostsLoading(false);
     }
+  };
+
+  const loadFriendshipStatus = async () => {
+    try {
+      const result = await getFriendshipStatus(userId);
+      setFriendshipStatus(result.status);
+      setFriendshipData(result);
+    } catch (error) {
+      console.error("Error loading friendship status:", error);
+    }
+  };
+
+  const handleFriendAction = async () => {
+    setFriendActionLoading(true);
+    try {
+      if (friendshipStatus === null) {
+        // Send friend request
+        await sendFriendRequest(userId);
+        await loadFriendshipStatus();
+      } else if (friendshipStatus === "pending" && !friendshipData.isSender) {
+        // Accept friend request
+        await acceptFriendRequest(friendshipData.friendship.id);
+        await loadFriendshipStatus();
+      } else if (friendshipStatus === "accepted") {
+        // Unfriend
+        await removeFriend(friendshipData.friendship.id);
+        await loadFriendshipStatus();
+      } else if (friendshipStatus === "pending" && friendshipData.isSender) {
+        // Cancel friend request
+        await removeFriend(friendshipData.friendship.id);
+        await loadFriendshipStatus();
+      }
+    } catch (error) {
+      console.error("Error handling friend action:", error);
+      alert("Failed to perform action. Please try again.");
+    } finally {
+      setFriendActionLoading(false);
+    }
+  };
+
+  const getFriendButtonConfig = () => {
+    if (friendshipStatus === null) {
+      return { text: "Add Friend", icon: "person_add", variant: "primary" };
+    } else if (friendshipStatus === "pending" && !friendshipData.isSender) {
+      return { text: "Accept Request", icon: "check", variant: "primary" };
+    } else if (friendshipStatus === "pending" && friendshipData.isSender) {
+      return { text: "Request Sent", icon: "schedule", variant: "secondary" };
+    } else if (friendshipStatus === "accepted") {
+      return { text: "Friends", icon: "check_circle", variant: "secondary" };
+    }
+    return { text: "Add Friend", icon: "person_add", variant: "primary" };
   };
 
   if (loading) {
@@ -108,12 +175,18 @@ export default function UserProfilePage() {
                 <span className="profile-stat-label">Posts</span>
               </div>
               <div className="profile-stat">
-                <span className="profile-stat-number">
-                  {profile.follower_count ?? 0}
-                </span>
-                <span className="profile-stat-label">Followers</span>
+                <span className="profile-stat-number">{friendCount ?? 0}</span>
+                <span className="profile-stat-label">Friends</span>
               </div>
             </div>
+          </div>
+          <div className="profile-friend-action">
+            <Button
+              {...getFriendButtonConfig()}
+              onClick={handleFriendAction}
+              disabled={friendActionLoading}
+              iconFilled={true}
+            />
           </div>
         </div>
 

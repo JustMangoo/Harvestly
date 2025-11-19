@@ -8,6 +8,7 @@ import "./ProfilePage.css";
 import { supabase } from "../lib/supabaseClient.js";
 import { getUserProfile, updateUserProfile } from "../services/users.js";
 import { listPostsByUser } from "../services/forum.js";
+import { getFriends } from "../services/friendships.js";
 
 // Import gallery images
 import plantPot from "../assets/gallery/rectangle-136.webp";
@@ -61,8 +62,9 @@ export default function ProfilePage() {
   const [originalUsername, setOriginalUsername] = useState("");
   const [location, setLocation] = useState("");
   const [originalLocation, setOriginalLocation] = useState("");
-  const [followerCount, setFollowerCount] = useState(0);
+  const [friendCount, setFriendCount] = useState(0);
   const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
@@ -164,16 +166,16 @@ export default function ProfilePage() {
         const resolvedUsername = profile?.username?.trim() || fallbackUsername;
         const resolvedLocation = profile?.location?.trim() || "";
         const resolvedAvatar = profile?.avatar_url || null;
-        const resolvedFollowers =
-          typeof profile?.follower_count === "number"
-            ? profile.follower_count
-            : 0;
+
+        // Load friend count
+        const friends = await getFriends(user.id);
+        const resolvedFriendCount = friends.length;
 
         setUsername(resolvedUsername);
         setOriginalUsername(resolvedUsername);
         setLocation(resolvedLocation);
         setOriginalLocation(resolvedLocation);
-        setFollowerCount(resolvedFollowers);
+        setFriendCount(resolvedFriendCount);
         setProfilePicture(resolvedAvatar);
         setOriginalProfilePicture(resolvedAvatar);
       }
@@ -214,10 +216,10 @@ export default function ProfilePage() {
       const nextUsername = updatedProfile?.username?.trim() || fallbackUsername;
       const nextLocation = updatedProfile?.location?.trim() || "";
       const nextAvatar = updatedProfile?.avatar_url || null;
-      const nextFollowers =
-        typeof updatedProfile?.follower_count === "number"
-          ? updatedProfile.follower_count
-          : 0;
+
+      // Reload friend count
+      const friends = await getFriends(user.id);
+      const nextFriendCount = friends.length;
 
       // Update the original values after successful save
       setUsername(nextUsername);
@@ -226,7 +228,7 @@ export default function ProfilePage() {
       setOriginalLocation(nextLocation);
       setProfilePicture(nextAvatar);
       setOriginalProfilePicture(nextAvatar);
-      setFollowerCount(nextFollowers);
+      setFriendCount(nextFriendCount);
 
       console.log("Profile saved successfully");
     } catch (error) {
@@ -407,6 +409,9 @@ export default function ProfilePage() {
     setIsEditMode(false);
   };
 
+  const openSettingsMenu = () => setIsSettingsMenuOpen(true);
+  const handleCloseSettingsMenu = () => setIsSettingsMenuOpen(false);
+
   return (
     <div className="profile-page">
       <AppBar
@@ -429,9 +434,9 @@ export default function ProfilePage() {
           ) : (
             <Button
               variant="secondary"
-              onClick={handleEditProfile}
-              aria-label="Edit Profile"
-              icon="edit"
+              onClick={openSettingsMenu}
+              aria-label="Open Settings"
+              icon="more_vert"
             ></Button>
           )
         }
@@ -507,10 +512,8 @@ export default function ProfilePage() {
                 <span className="profile-stat-label">Posts</span>
               </div>
               <div className="profile-stat">
-                <span className="profile-stat-number">
-                  {followerCount ?? 0}
-                </span>
-                <span className="profile-stat-label">Followers</span>
+                <span className="profile-stat-number">{friendCount ?? 0}</span>
+                <span className="profile-stat-label">Friends</span>
               </div>
             </div>
           </div>
@@ -626,6 +629,50 @@ export default function ProfilePage() {
                 <button className="settings-menu-item" onClick={handleCamera}>
                   <span>Camera</span>
                   <IconElement icon="photo_camera" size={18} filled={true} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isSettingsMenuOpen && (
+        <div className="settings-overlay" onClick={handleCloseSettingsMenu}>
+          <div className="settings-menu" onClick={(e) => e.stopPropagation()}>
+            <div className="settings-header">
+              <button className="settings-dots-button">
+                <IconElement icon="more_vert" size={4} filled={true} />
+              </button>
+              <h3>Profile</h3>
+              <button
+                className="close-button"
+                onClick={handleCloseSettingsMenu}
+              >
+                <IconElement icon="close" size={24} filled={false} />
+              </button>
+            </div>
+            <div className="settings-content">
+              <div className="settings-menu-items">
+                <button
+                  className="settings-menu-item"
+                  onClick={() => {
+                    handleCloseSettingsMenu();
+                    handleEditProfile();
+                  }}
+                >
+                  <span>Edit profile</span>
+                  <IconElement icon="edit" size={18} filled={true} />
+                </button>
+                <div className="settings-divider" />
+                <button
+                  className="settings-menu-item"
+                  onClick={() => {
+                    handleCloseSettingsMenu();
+                    handleLogout();
+                  }}
+                >
+                  <span>Log out</span>
+                  <IconElement icon="logout" size={18} filled={true} />
                 </button>
               </div>
             </div>

@@ -170,6 +170,7 @@ export default function AuthPage() {
               value={credentials.email}
               onChange={handleCredentialChange}
               placeholder="example@gmail.com"
+              autoComplete="email"
               required
             />
           </label>

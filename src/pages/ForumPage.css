@@ -106,7 +106,8 @@
   background: var(--color-secondary-50);
   border-radius: calc(var(--border-radius-max) * 0.9);
   margin-bottom: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+
+  border: var(--border-width-md) solid var(--color-secondary);
 }
 
 .forum-search .icon-element {
@@ -150,6 +151,9 @@
   font-size: var(--font-size-sm);
   color: var(--color-primary);
   text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .forum-page .friends-list {
@@ -252,6 +256,7 @@
   border: none;
   border-radius: var(--border-radius-base);
   padding: var(--spacing-base);
+  border: var(--border-width-md) solid var(--color-secondary);
   text-align: left;
   cursor: pointer;
   font-weight: 600;
@@ -319,7 +324,7 @@
 
 .add-friend-modal {
   background: var(--color-light);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-base);
   padding: var(--spacing-xl);
   max-width: 400px;
   width: 100%;
@@ -354,6 +359,27 @@
 
 .modal-section {
   margin-bottom: var(--spacing-xl);
+}
+
+.search-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.search-result-item {
+  border-radius: var(--border-radius-base);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-base);
+  justify-content: space-between;
+}
+
+.search-result-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-base);
 }
 
 .modal-section-title {
@@ -418,11 +444,6 @@
   color: var(--color-primary) !important;
   border: 2px solid var(--color-primary) !important;
   cursor: default;
-}
-
-.add-friend-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .modal-divider {

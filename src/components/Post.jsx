@@ -15,6 +15,7 @@ import Button from "./Button.jsx";
  * - onComment: () => void
  * - onShare: () => void
  * - onAuthorClick: (user_id) => void
+ * - comment_count: number (optional, total comments + replies)
  */
 export default function Post({
   post,
@@ -25,6 +26,7 @@ export default function Post({
   onComment,
   onShare,
   onAuthorClick,
+  comment_count = 0,
 }) {
   if (!post) return null;
   const { id, title, body, like_count, published_at, user_id } = post;
@@ -77,7 +79,7 @@ export default function Post({
           />
           <Button
             icon="Chat_bubble"
-            text={`${like_count}`}
+            text={`${comment_count}`}
             variant="outline"
             size="sm"
             onClick={onComment}

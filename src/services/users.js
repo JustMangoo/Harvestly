@@ -1,7 +1,6 @@
 import { supabase } from "../lib/supabaseClient";
 
-const PROFILE_FIELDS =
-  "id, username, avatar_url, location, follower_count, updated_at";
+const PROFILE_FIELDS = "id, username, avatar_url, location, updated_at";
 
 export async function getUserProfile(userId) {
   if (!userId) throw new Error("getUserProfile requires a userId.");
@@ -44,4 +43,22 @@ export async function updateUsername(userId, username) {
 
 export async function updateLocation(userId, location) {
   return updateUserProfile(userId, { location });
+}
+
+/**
+ * Search profiles by username (case-insensitive, partial match)
+ */
+export async function searchProfiles(query, { limit = 20 } = {}) {
+  const q = (query || "").trim();
+  if (!q) return [];
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, username, avatar_url")
+    .ilike("username", `%${q}%`)
+    .order("username", { ascending: true })
+    .limit(limit);
+
+  if (error) throw error;
+  return data || [];
 }
