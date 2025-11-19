@@ -29,6 +29,8 @@ const PostDetailPage = () => {
   const [replyText, setReplyText] = useState("");
   const [activeCommentId, setActiveCommentId] = useState(null);
   const [replyTargetName, setReplyTargetName] = useState("");
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,6 +138,45 @@ const PostDetailPage = () => {
       );
       await likeReply(replyId);
     } catch {}
+  }
+
+  async function onSharePost() {
+    const shareUrl = window.location.href;
+    const shareData = {
+      title: post?.title || `Post by ${postDisplayName}`,
+      text: post?.body || "",
+      url: shareUrl,
+    };
+
+    // Try native share first
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        // User cancelled or share failed, show modal
+        if (err.name !== "AbortError") {
+          setShowShareModal(true);
+        }
+      }
+    } else {
+      // No native share support, show modal
+      setShowShareModal(true);
+    }
+  }
+
+  async function handleCopyLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setLinkCopied(true);
+      setTimeout(() => {
+        setLinkCopied(false);
+        setShowShareModal(false);
+      }, 1500);
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+      alert("Failed to copy link to clipboard");
+    }
   }
 
   const renderComment = (comment) => (
@@ -296,6 +337,14 @@ const PostDetailPage = () => {
               onClick={() => {}}
               iconFilled={false}
             />
+            <Button
+              icon="share"
+              text="Share"
+              variant="outline"
+              size="sm"
+              onClick={onSharePost}
+              iconFilled={false}
+            />
           </div>
         </div>
       ) : null}
@@ -352,6 +401,37 @@ const PostDetailPage = () => {
           />
         </div>
       </div>
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <div className="modal-overlay" onClick={() => setShowShareModal(false)}>
+          <div
+            className="add-friend-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="modal-title">Share Post</h2>
+
+            <div className="modal-section">
+              <Button
+                icon="link"
+                text={linkCopied ? "Link Copied!" : "Copy Link"}
+                variant="primary"
+                size="md"
+                onClick={handleCopyLink}
+                disabled={linkCopied}
+                iconFilled={false}
+              />
+            </div>
+
+            <button
+              className="modal-close"
+              onClick={() => setShowShareModal(false)}
+            >
+              <IconElement icon="close" size={24} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
